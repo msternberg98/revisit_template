@@ -1,9 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.2/src/parser/GlobalConfigSchema.json",
-  "configsList": ["tutorial"],
+  "configsList": ["tutorial", "Nutzerstudie"],
   "configs": {
     "tutorial": {
       "path": "tutorial/config.json"
+    },
+    "Nutzerstudie": {
+      "path": "Nutzerstudie/config.json"
     }
   }
 }

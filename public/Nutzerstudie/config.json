@@ -1,0 +1,149 @@
+{
+    "$schema": "https://raw.githubusercontent.com/revisit-studies/study/main/src/parser/StudyConfigSchema.json",
+    "studyMetadata": {
+        "title": "Nutzerstudie: Vergleichende Evaluation zur Visualisierung von Unsicherheitsdaten in 2D Daten",
+        "version": "pilot",
+        "authors": [
+            "The reVISit Team",
+            "Maurice Sternberg"
+        ],
+        "date": "2026-05-08",
+        "description": "Nutzerstudie",
+        "organizations": [
+            "Universität Siegen"
+        ]
+    },
+    "uiConfig": {
+        "contactEmail": "maurice.sternberg@student.uni-siegen.de",
+        "helpTextPath": "Nutzerstudie/Assets/Hilfe.md",
+        "logoPath": "revisitAssets/revisitLogoSquare.svg",
+        "withProgressBar": true,
+        "autoDownloadStudy": false,
+        "withSidebar": true
+    },
+    "components": {
+        "introduction": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Einführung.md",
+            "response": []
+        },
+        "consent": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Einwilligungserklärung.md",
+            "response": [],
+            "nextButtonText": "Ich stimme zu"
+        },
+        "first-question-set": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "q1-name",
+                    "prompt": "Wie lautet Ihr Vorname?",
+                    "required": true,
+                    "location": "aboveStimulus",
+                    "type": "shortText",
+                    "placeholder": "Bitte geben Sie ihren Namen ein"
+                },
+                {
+                    "id": "q2-age",
+                    "prompt": "Wie alt sind Sie?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "numerical",
+                    "min": 18,
+                    "max": 100,
+                    "placeholder": "Bitte geben Sie ihr Alter an"
+                },
+                {
+                    "id": "q3-color",
+                    "prompt": "Was ist Ihre Lieblingsfarbe?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "longText",
+                    "placeholder": "Was ist Ihre Lieblingsfarbe?"
+                }
+            ]
+        },
+        "Stimulus 1": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/BivariateFarbskala_VSUP.png",
+            "nextButtonLocation": "sidebar",
+            "response": [
+                {
+                    "id": "stimulus_1_radio",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                },
+                {
+                    "id": "stimulus_1_checkbox",
+                    "type": "checkbox",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 2": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/BivariateFarbskala_VSUP.png",
+            "nextButtonLocation": "sidebar",
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "second-question-set": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "q3-satisfaction",
+                    "prompt": "Rate your satisfaction with this survey from 1 (not enjoyable) to 5 (very enjoyable).",
+                    "required": true,
+                    "location": "aboveStimulus",
+                    "type": "likert",
+                    "leftLabel": "Not Enjoyable",
+                    "rightLabel": "Very Enjoyable",
+                    "numItems": 5
+                }
+            ]
+        }
+    },
+    "sequence": {
+        "order": "fixed",
+        "components": [
+            "introduction",
+            "consent",
+            {
+                "order": "random",
+                "components": [
+                    "first-question-set",
+                    "Stimulus 1",
+                    "Stimulus 2"
+                ]
+            },
+            "second-question-set"
+        ]
+    }
+}
