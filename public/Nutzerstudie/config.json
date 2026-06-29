@@ -22,22 +22,22 @@
         "withSidebar": true
     },
     "components": {
-        "introduction": {
+        "Introduction": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/Einführung.md",
             "response": []
         },
-        "consent": {
+        "Consent": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/Einwilligungserklärung.md",
             "response": [],
             "nextButtonText": "Ich stimme zu"
         },
-        "first-question-set": {
+        "Personal_Data": {
             "type": "questionnaire",
             "response": [
                 {
-                    "id": "q1-name",
+                    "id": "Name",
                     "prompt": "Wie lautet Ihr Vorname?",
                     "required": true,
                     "location": "aboveStimulus",
@@ -45,7 +45,7 @@
                     "placeholder": "Bitte geben Sie ihren Namen ein"
                 },
                 {
-                    "id": "q2-age",
+                    "id": "Age",
                     "prompt": "Wie alt sind Sie?",
                     "required": false,
                     "location": "aboveStimulus",
@@ -53,24 +53,34 @@
                     "min": 18,
                     "max": 100,
                     "placeholder": "Bitte geben Sie ihr Alter an"
-                },
-                {
-                    "id": "q3-color",
-                    "prompt": "Was ist Ihre Lieblingsfarbe?",
-                    "required": false,
-                    "location": "aboveStimulus",
-                    "type": "longText",
-                    "placeholder": "Was ist Ihre Lieblingsfarbe?"
                 }
             ]
         },
-        "Stimulus 1": {
+        "VSUP": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/1_Niederschlag_VSUP.svg",
+            "response": [],
+            "nextButtonLocation": "sidebar"
+        },
+        "ScaledGlyph": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/3_Niederschlag_ScaledGlyph.svg",
+            "response": [],
+            "nextButtonLocation": "sidebar"
+        },
+        "IsoGlyph": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/5_Niederschlag_IsoGlyph.svg",
+            "response": [],
+            "nextButtonLocation": "sidebar"
+        },
+        "Niederschlag_VSUP": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/1_Niederschlag_VSUP.svg",
             "nextButtonLocation": "sidebar",
             "response": [
                 {
-                    "id": "stimulus_1_radio",
+                    "id": "Niederschlag_VSUP_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -82,7 +92,7 @@
                     "location": "sidebar"
                 },
                 {
-                    "id": "stimulus_1_checkbox",
+                    "id": "Niederschlag_VSUP_checkbox",
                     "type": "checkbox",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -92,17 +102,26 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_VSUP_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie gut war für Sie die Unsicherheit zu erkennen?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr schlecht",
+                    "rightLabel": "Sehr gut",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 2": {
+        "Niederschlag_ScaledGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/3_Niederschlag_ScaledGlyph.svg",
             "nextButtonLocation": "sidebar",
             "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Niederschlag_ScaledGlyph_x_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -112,17 +131,25 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie gut war für Sie die Unsicherheit zu erkennen?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr schlecht",
+                    "rightLabel": "Sehr gut",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 3": {
+        "Niederschlag_IsoGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/5_Niederschlag_IsoGlyph.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Niederschlag_IsoGlyph_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -132,17 +159,25 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie gut war für Sie die Unsicherheit zu erkennen?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr schlecht",
+                    "rightLabel": "Sehr gut",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 4": {
+        "Temperatur_VSUP": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/7_Temperatur_VSUP.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Temperatur_VSUP_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -152,17 +187,25 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_VSUP_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 5": {
+        "Temperatur_ScaledGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/9_Temperatur_ScaledGlyph.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Temperatur_ScaledGlyph_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -172,17 +215,25 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 6": {
+        "Temperatur_IsoGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/11_Temperatur_IsoGlyph.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Temperatur_IsoGlyph_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -192,17 +243,25 @@
                         "3"
                     ],
                     "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ]
         },
-        "Stimulus 7": {
+        "Luftdruck_VSUP": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/13_Luftdruck_VSUP.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Luftdruck_VSUP_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -215,14 +274,13 @@
                 }
             ]
         },
-        "Stimulus 8": {
+        "Luftdruck_ScaledGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/15_Luftdruck_ScaledGlyph.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Luftdruck_ScaledGlyph_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -235,14 +293,13 @@
                 }
             ]
         },
-        "Stimulus 9": {
+        "Luftdruck_IsoGlyph": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/17_Luftdruck_IsoGlyph.svg",
             "nextButtonLocation": "sidebar",
-            "nextButtonDisableTime": 10000,
             "response": [
                 {
-                    "id": "stimulus_2",
+                    "id": "Luftdruck_IsoGlyph_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Unsicherheit?",
@@ -255,17 +312,17 @@
                 }
             ]
         },
-        "second-question-set": {
+        "Feedback": {
             "type": "questionnaire",
             "response": [
                 {
-                    "id": "q3-satisfaction",
-                    "prompt": "Rate your satisfaction with this survey from 1 (not enjoyable) to 5 (very enjoyable).",
+                    "id": "Rating",
+                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 (nicht angenehm) bis 5 (sehr angenehm).",
                     "required": true,
                     "location": "aboveStimulus",
                     "type": "likert",
-                    "leftLabel": "Not Enjoyable",
-                    "rightLabel": "Very Enjoyable",
+                    "leftLabel": "Nicht Angenehm",
+                    "rightLabel": "Sehr Angenehm",
                     "numItems": 5
                 }
             ]
@@ -274,24 +331,27 @@
     "sequence": {
         "order": "fixed",
         "components": [
-            "introduction",
-            "consent",
-            "first-question-set",
+            "Introduction",
+            "Consent",
+            "Personal_Data",
+            "VSUP",
+            "ScaledGlyph",
+            "IsoGlyph",
             {
                 "order": "random",
                 "components": [
-                    "Stimulus 1",
-                    "Stimulus 2",
-                    "Stimulus 3",
-                    "Stimulus 4",
-                    "Stimulus 5",
-                    "Stimulus 6",
-                    "Stimulus 7",
-                    "Stimulus 8",
-                    "Stimulus 9"
+                    "Niederschlag_VSUP",
+                    "Niederschlag_ScaledGlyph",
+                    "Niederschlag_IsoGlyph",
+                    "Temperatur_VSUP",
+                    "Temperatur_ScaledGlyph",
+                    "Temperatur_IsoGlyph",
+                    "Luftdruck_VSUP",
+                    "Luftdruck_ScaledGlyph",
+                    "Luftdruck_IsoGlyph"
                 ]
             },
-            "second-question-set"
+            "Feedback"
         ]
     }
 }
