@@ -66,7 +66,7 @@
         },
         "Stimulus 1": {
             "type": "image",
-            "path": "Nutzerstudie/Assets/BivariateFarbskala_VSUP.png",
+            "path": "Nutzerstudie/Assets/Plots/1_Niederschlag_VSUP.svg",
             "nextButtonLocation": "sidebar",
             "response": [
                 {
@@ -97,8 +97,149 @@
         },
         "Stimulus 2": {
             "type": "image",
-            "path": "Nutzerstudie/Assets/BivariateFarbskala_VSUP.png",
+            "path": "Nutzerstudie/Assets/Plots/3_Niederschlag_ScaledGlyph.svg",
             "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 3": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/5_Niederschlag_IsoGlyph.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 4": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/7_Temperatur_VSUP.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 5": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/9_Temperatur_ScaledGlyph.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 6": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/11_Temperatur_IsoGlyph.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 7": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/13_Luftdruck_VSUP.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 8": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/15_Luftdruck_ScaledGlyph.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
+            "response": [
+                {
+                    "id": "stimulus_2",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Unsicherheit?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3"
+                    ],
+                    "location": "sidebar"
+                }
+            ]
+        },
+        "Stimulus 9": {
+            "type": "image",
+            "path": "Nutzerstudie/Assets/Plots/17_Luftdruck_IsoGlyph.svg",
+            "nextButtonLocation": "sidebar",
+            "nextButtonDisableTime": 10000,
             "response": [
                 {
                     "id": "stimulus_2",
@@ -135,12 +276,19 @@
         "components": [
             "introduction",
             "consent",
+            "first-question-set",
             {
                 "order": "random",
                 "components": [
-                    "first-question-set",
                     "Stimulus 1",
-                    "Stimulus 2"
+                    "Stimulus 2",
+                    "Stimulus 3",
+                    "Stimulus 4",
+                    "Stimulus 5",
+                    "Stimulus 6",
+                    "Stimulus 7",
+                    "Stimulus 8",
+                    "Stimulus 9"
                 ]
             },
             "second-question-set"
