@@ -33,42 +33,52 @@
             "response": [],
             "nextButtonText": "Ich stimme zu"
         },
-        "Personal_Data": {
-            "type": "questionnaire",
-            "response": [
-                {
-                    "id": "Name",
-                    "prompt": "Wie lautet Ihr Vorname?",
-                    "required": true,
-                    "location": "aboveStimulus",
-                    "type": "shortText",
-                    "placeholder": "Bitte geben Sie ihren Namen ein"
-                },
-                {
-                    "id": "Age",
-                    "prompt": "Wie alt sind Sie?",
-                    "required": false,
-                    "location": "aboveStimulus",
-                    "type": "numerical",
-                    "min": 18,
-                    "max": 100,
-                    "placeholder": "Bitte geben Sie ihr Alter an"
-                }
-            ]
+        "VSUP_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/VSUP.md",
+            "response": []
         },
-        "VSUP": {
-            "type": "image",
-            "path": "Nutzerstudie/Assets/Plots/1_Niederschlag_VSUP.svg",
+        "VSUP_Test": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "response": [],
             "nextButtonLocation": "sidebar"
         },
-        "ScaledGlyph": {
+        "ScaledGlyph_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/ScaledGlyph.md",
+            "response": []
+        },
+        "ScaledGlyph_Test": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/3_Niederschlag_ScaledGlyph.svg",
-            "response": [],
+            "response": [
+                {
+                    "id": "ScaledGlyph_Test_Response",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Wähle A",
+                    "options": ["A", "B", "C"],
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Test_Response",
+                    "answer": "A"
+                }
+            ],
+            "provideFeedback": true,
+            "trainingAttempts": 3,
+            "allowFailedTraining": false,
             "nextButtonLocation": "sidebar"
         },
-        "IsoGlyph": {
+        "IsoGlyph_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/IsoGlyph.md",
+            "response": []
+        },
+        "IsoGlyph_Test": {
             "type": "image",
             "path": "Nutzerstudie/Assets/Plots/5_Niederschlag_IsoGlyph.svg",
             "response": [],
@@ -312,6 +322,37 @@
                 }
             ]
         },
+        "Demographic": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "Occupation",
+                    "prompt": "Welchen Beruf üben Sie aus?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "shortText",
+                    "placeholder": "Bitte geben Sie ihren Beruf an"
+                },
+                {
+                    "id": "Age",
+                    "prompt": "Wie alt sind Sie?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "numerical",
+                    "min": 18,
+                    "max": 100,
+                    "placeholder": "Bitte geben Sie ihr Alter an"
+                },
+                {
+                    "id": "Eyesight",
+                    "prompt": "Haben Sie eine Seh-/Farbschwäche?",
+                    "required": true,
+                    "location": "aboveStimulus",
+                    "type": "shortText",
+                    "placeholder": "Bitte geben Sie ihren Beruf an"
+                }
+            ]
+        },
         "Feedback": {
             "type": "questionnaire",
             "response": [
@@ -333,10 +374,12 @@
         "components": [
             "Introduction",
             "Consent",
-            "Personal_Data",
-            "VSUP",
-            "ScaledGlyph",
-            "IsoGlyph",
+            "VSUP_Description",
+            "VSUP_Test",
+            "ScaledGlyph_Description",
+            "ScaledGlyph_Test",
+            "IsoGlyph_Description",
+            "IsoGlyph_Test",
             {
                 "order": "random",
                 "components": [
@@ -351,6 +394,7 @@
                     "Luftdruck_IsoGlyph"
                 ]
             },
+            "Demographic",
             "Feedback"
         ]
     }
