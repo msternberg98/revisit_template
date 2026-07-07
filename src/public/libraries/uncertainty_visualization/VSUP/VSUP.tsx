@@ -1,32 +1,31 @@
 import { useEffect, useRef } from "react";
 import { drawVSUP } from "./drawVSUP";
 
-console.log("VSUP module loaded");
 
 export default function VSUP() {
 
-    console.log("VSUP component rendered");
+    const container = useRef <HTMLDivElement> (null);
+    const initialized = useRef(false);
 
-    const container = useRef<HTMLDivElement>(null);
+    useEffect (() => {
 
-    useEffect(() => {
-
-        console.log("useEffect");
+        if (initialized.current) return;
+        initialized.current = true;
 
         if (!container.current) return;
 
-        console.log("calling drawVSUP");
+        const load = async () => {
+            await drawVSUP(container.current!);
+        };
 
-        drawVSUP(container.current);
-
-        console.log("drawVSUP finished");
+        load ();
 
     }, []);
 
     return (
         <div
-            ref={container}
-            style={{
+            ref = {container}
+            style = {{
                 width: "100%",
                 height: "100%"
             }}

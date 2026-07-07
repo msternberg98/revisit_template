@@ -1,10 +1,11 @@
 import * as d3 from 'd3';
 import * as JSZip from "jszip";
+import { loadDataset } from "../dataLoader";
+import { presetInfo } from "../presetInfo";
 
 type VSUPPreset = 'precipitation' | 'temperature' | 'air_pressure';
 
-export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'precipitation') {
-    console.log("drawVSUP started");
+export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'precipitation') {
 
     container.innerHTML = '';
 
@@ -12,33 +13,15 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
     // DATA LOADING (REVISIT-COMPATIBEL)
     // ----------------------------
 
-    let data: any [] = [];
-
-    switch (preset) {
-        case 'precipitation':
-            // TODO: später via import oder fetch ersetzen
-            data = (window as any).precipitationData;
-            break;
-
-        case 'temperature':
-            data = (window as any).temperatureData;
-            break;
-
-        case 'air_pressure':
-            data = (window as any).airPressureData;
-            break;
-    }
-
-    if (!data || data.length === 0) {
-        console.warn ('VSUP: No data loaded for preset:', preset);
-        return;
-    }
+    const data = await loadDataset (preset);
+    const config = presetInfo [preset];
+    const valueKey = config.valueKey;
 
     // ----------------------------
     // EXTENTS (statt Observable workbook.sheet)
     // ----------------------------
 
-    const valueExtent = d3.extent (data, (d: any) => d.mean_precipitation,) as [number, number]; // später dynamisch je preset
+    const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
 
     // ----------------------------
@@ -142,12 +125,7 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
         return svg.node () as SVGSVGElement;
     }
 
-    // Temperatur
-    // const valuePlot = createRasterPlot (d => valueColorScale (d.mean_temperature));
-    // Niederschlag
-    const valuePlot = createRasterPlot ((d) => valueColorScale (d.mean_precipitation));
-    // Luftdruck
-    // const valuePlot = createRasterPlot (d => valueColorScale(d.mean_air_pressure));
+    const valuePlot = createRasterPlot (d => valueColorScale (d [valueKey]!));
 
     const valueLegend = (() => {
 
@@ -216,19 +194,16 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
                 .attr ("x", 60)
                 .attr ("y", y + 4)
                 .attr ("font-size", 11)
-                // Temperatur
                 // .text (scaleValue.toFixed (1))
-                // Niederschlag
-                .text ((scaleValue * 86400).toFixed (1))
-                // Luftdruck
-                // .text ((scaleValue / 100).toFixed (0));
+                .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`)
         }
 
         svg.append ("text")
             .attr ("x", 20)
             .attr ("y", 10)
             .attr ("font-size", 12)
-            .text ("Mittelwert");
+            //.text ("Mittelwert");
+            .text (config.valueLabel)
 
         return svg.node () as SVGSVGElement;
     })();
@@ -294,26 +269,24 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
                 //Temperatur
                 //.text(uncertaintyValue.toFixed(2))
                 //Niederschlag
-                .text ((uncertaintyValue * 86400).toFixed (2))
+                //.text ((uncertaintyValue * config.factor).toFixed (2))
                 //Luftdruck
                 //.text((uncertaintyValue / 100).toFixed(0));
+                .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`)
         }
 
         svg.append ("text")
             .attr ("x", 20)
             .attr ("y", 10)
             .attr ("font-size", 12)
-            .text ("Standardabweichung");
+            //.text ("Standardabweichung");
+            .text (config.uncertaintyLabel)
 
         return svg.node () as SVGSVGElement;
 
         })();
 
-    const vsupPlot = createRasterPlot ((d) => vsupColor (d.mean_precipitation, d.uncertainty_std));
-
-    // Temperatur / Luftdruck Varianten (optional)
-    // const vsupPlot = createRasterPlot((d) => vsupColor(d.mean_temperature, d.uncertainty_std));
-    // const vsupPlot = createRasterPlot((d) => vsupColor(d.mean_air_pressure, d.uncertainty_std));
+    const vsupPlot = createRasterPlot (d => vsupColor (d [valueKey]!, d.uncertainty_std));
 
     const vsupLegend = (() => {
 
@@ -448,14 +421,16 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
                 .attr ("y", y + 4)
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "end")
-                .text ((uncertaintyValue * 86400).toFixed(2));
+                //.text ((uncertaintyValue * config.factor).toFixed(2));
+                .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`)
         }
 
         svg.append ("text")
             .attr ("transform",`translate(${centerX - 40},${centerY - maxRadius / 2}) rotate(-90)`)
             .attr ("text-anchor", "middle")
             .attr ("font-size", 12)
-            .text ("Standardabweichung");
+            //.text ("Standardabweichung");
+            .text (config.uncertaintyLabel)
 
         // Value Scale
         const valueRadius = maxRadius + 10;
@@ -504,7 +479,8 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
                 .attr ("y", ly + 4)
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "middle")
-                .text ((value * 86400).toFixed (1));
+                //.text ((value * 86400).toFixed (1));
+                .text (`${(value * config.factor).toFixed (config.decimals)} ${config.unit}`)
         }
 
         svg.append ("text")
@@ -512,7 +488,8 @@ export function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'preci
         .attr ("y", centerY - maxRadius)
         .attr ("font-size", 12)
         .attr ("text-anchor", "middle")
-        .text ("Mittelwert");
+        //.text ("Mittelwert");
+        .text (config.valueLabel)
 
         return svg.node ();
     })();
