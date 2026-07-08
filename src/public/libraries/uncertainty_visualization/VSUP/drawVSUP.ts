@@ -1,11 +1,21 @@
 import * as d3 from 'd3';
 import * as JSZip from "jszip";
-import { loadDataset } from "../dataLoader";
+import { vsupColor } from "./vsupColor";
+import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
+import { createScales, shiftedLongitude } from "../mapUtils";
 
-type VSUPPreset = 'precipitation' | 'temperature' | 'air_pressure';
+export interface VSUPOptions {
+    preset?: DatasetPreset;
+    output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "vsupPlot" | "vsupLegend" | "Vsup" | "all";
+}
 
-export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 'precipitation') {
+export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions = {}) {
+
+    const {
+        preset = "temperature",
+        output = "vsupPlot"
+    } = options;
 
     container.innerHTML = '';
 
@@ -56,58 +66,14 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             .domain (uncertaintyExtent)
             .range ([0, uncertaintySteps - 1]);
 
-    function vsupColor (value: number, uncertainty: number): string {
-        const uncertaintyLevel = uncertaintyScale (uncertainty);
-
-        // Anzahl verfügbarer Werte
-        const availableBins = Math.max (2, valueSteps - Math.round (uncertaintyLevel));
-
-        // maximal unsicher
-        if (availableBins <= 1) {
-            return "#d9d9d9";
-        }
-
-        // Wert normalisieren
-        const normalized = (value - valueExtent[0]) / (valueExtent[1] - valueExtent[0]);
-
-        // auf reduzierte Bins quantisieren
-        const quantized = useDiscrete
-            ? Math.floor (normalized * availableBins) / (availableBins - 1)
-            : normalized;
-
-        // Basisfarbe
-        const base = d3.interpolateViridis (quantized);
-
-        // zusätzliche uncertainty suppression
-        const blend = uncertaintyLevel / (uncertaintySteps - 1);
-
-        return d3.interpolateRgb (base, "#d9d9d9")(blend * 0.7);
-    }
-
     const width = 1200;
     const cellWidth = 8;
     const height = 600;
     const cellHeight = 8;
 
-    function shiftedLongitude (lon: number): number {
-        let shifted = lon - 30;
+    const { xScale, yScale } = createScales (data, width, height);
 
-        if (shifted > 180) {
-            shifted -= 360;
-        }
-
-        return shifted;
-    }
-
-    const xScale = d3.scaleLinear ()
-        .domain (d3.extent (data, (d) => shiftedLongitude (d.longitude)) as [number, number])
-        .range ([0, width]);
-
-    const yScale = d3.scaleLinear ()
-        .domain (d3.extent (data, (d) => d.latitude) as [number, number])
-        .range ([height, 0]);
-
-    function createRasterPlot (colorFunction: (d: typeof data[number]) => string): SVGSVGElement {
+    function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
 
         const svg = d3.create ("svg")
             .attr ("width", width)
@@ -156,23 +122,6 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             .attr ("fill", d3.interpolateViridis(value));
 
             const scaleValue = valueExtent [0] + value * (valueExtent [1] - valueExtent [0]);
-
-            // Niederschlag pro Sekunde → mm/Tag
-            // const scaleValue = valueExtent [0] * 86400 + value * (valueExtent [1] * 86400 - valueExtent [0] * 86400);
-
-            // svg.append ("text")
-            //   .attr ("x", 60)
-            //   .attr ("y", topMargin + usableHeight - i * stepHeight - 8)
-            //   .attr ("font-size", 11)
-            //   .text (scaleValue.toFixed(1));
-
-            // if (i % Math.round(steps / labelSteps) === 0 || i === steps - 1) {
-            //   svg.append ("text")
-            //     .attr ("x", 60)
-            //     .attr ("y", topMargin + usableHeight - i * stepHeight - 15)
-            //     .attr ("font-size", 11)
-            //     .text(scaleValue.toFixed (1));
-            // }
         }
 
         const labelSteps = 6;
@@ -184,9 +133,6 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             const t = padding + tRaw * (1 - 2 * padding);
 
             const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
-
-            // Niederschlag pro Sekunde → mm/Tag
-            // const scaleValue = valueExtent [0] * 86400 + tRaw * (valueExtent [1] * 86400 - valueExtent [0] * 86400);
 
             const y = topMargin + usableHeight - t * usableHeight;
 
@@ -242,9 +188,6 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             .attr ("fill", d3.interpolateGreys(value));
 
             const scaleValue = uncertaintyExtent [0] + value * (uncertaintyExtent [1] - uncertaintyExtent [0]);
-
-            // Niederschlag pro Sekunde → mm/Tag
-            // const scaleValue = uncertaintyExtent[0] * 86400 + value * (uncertaintyExtent[1] * 86400 - uncertaintyExtent[0] * 86400);
         }
 
         const labelSteps = 6;
@@ -256,9 +199,6 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             const t = padding + tRaw * (1 - 2 * padding);
 
             const uncertaintyValue = uncertaintyExtent [0] + tRaw * (uncertaintyExtent[1] - uncertaintyExtent [0]);
-
-            // Niederschlag pro Sekunde → mm/Tag
-            // const uncertaintyValue = uncertaintyExtent[0] * 86400 + tRaw * (uncertaintyExtent[1] * 86400 - uncertaintyExtent[0] * 86400);
 
             const y = topMargin + usableHeight - t * usableHeight;
 
@@ -286,7 +226,17 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
 
         })();
 
-    const vsupPlot = createRasterPlot (d => vsupColor (d [valueKey]!, d.uncertainty_std));
+    const vsupPlot = createRasterPlot (d => vsupColor ({
+
+        value: d[valueKey]!,
+        uncertainty: d.uncertainty_std,
+        valueExtent,
+        uncertaintyScale,
+        valueSteps,
+        uncertaintySteps,
+        useDiscrete
+    })
+);
 
     const vsupLegend = (() => {
 
@@ -340,7 +290,7 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
                             endAngle: ((i + 1) / bins) * Math.PI * 0.5}))
                         .attr ("fill", color)
                         .attr ("stroke", "white")
-                        .attr ("stroke-width", 1);
+                        .attr ("stroke-width", 0);
                 }
             });
 
@@ -349,41 +299,42 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
             const ringCount = 40;
             const angleSteps = 1440;
 
+            const arcGenerator = d3.arc ();
+
             for (let r = 0; r < ringCount; r++) {
 
                 const innerRadius = r * (maxRadius / ringCount);
                 const outerRadius = (r + 1) * (maxRadius / ringCount);
-
-                const uncertaintyBlend = 1 - r / (ringCount - 1);
 
                 for (let a = 0; a < angleSteps; a++) {
 
                     const startAngle = (a / angleSteps) * Math.PI * 0.5;
                     const endAngle = ((a + 1) / angleSteps) * Math.PI * 0.5;
 
-                    const value = a / (angleSteps - 1);
+                    const value = valueExtent [0] + (a / (angleSteps - 1)) * (valueExtent [1] - valueExtent [0]);
+                    const uncertainty = uncertaintyExtent [1] - (r / (ringCount - 1)) * (uncertaintyExtent [1] - uncertaintyExtent [0]);
 
-                    const base = d3.interpolateViridis(value);
-                    const color = d3.interpolateRgb (base, "#d9d9d9")(uncertaintyBlend * 0.7 );
+                    const color = vsupColor ({
 
-                    const arc = d3.arc ()
-                        .innerRadius (innerRadius)
-                        .outerRadius (outerRadius)
-                        .startAngle (startAngle)
-                        .endAngle (endAngle);
-
-                    const arcGenerator = d3.arc ();
+                        value,
+                        uncertainty,
+                        valueExtent,
+                        uncertaintyScale,
+                        valueSteps,
+                        uncertaintySteps,
+                        useDiscrete
+                    });
 
                     svg.append ("path")
                         .attr ("transform", `translate(${centerX + 6},${centerY})`)
-                        .attr ("d", arcGenerator({
+                        .attr ("d", arcGenerator ({
                             innerRadius,
                             outerRadius,
-                            startAngle: (a / angleSteps) * Math.PI * 0.5,
-                            endAngle: ((a + 1) / angleSteps) * Math.PI * 0.5}))
+                            startAngle: startAngle,
+                            endAngle: endAngle}))
                         .attr ("fill", color)
                         .attr ("stroke", "white")
-                        .attr ("stroke-width", 1);
+                        .attr ("stroke-width", 0);
                 }
             }
         }
@@ -422,21 +373,22 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "end")
                 //.text ((uncertaintyValue * config.factor).toFixed(2));
-                .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`)
+                .text ((uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals))
+                //.text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`);
         }
 
         svg.append ("text")
-            .attr ("transform",`translate(${centerX - 40},${centerY - maxRadius / 2}) rotate(-90)`)
+            .attr ("transform",`translate (${centerX - 40},${centerY - maxRadius / 2}) rotate (-90)`)
             .attr ("text-anchor", "middle")
             .attr ("font-size", 12)
             //.text ("Standardabweichung");
-            .text (config.uncertaintyLabel)
+            .text (config.uncertaintyLabel);
 
         // Value Scale
         const valueRadius = maxRadius + 10;
 
         svg.append ("path")
-        .attr ("d", d3.arc()({
+        .attr ("d", d3.arc ()({
             innerRadius: valueRadius,
             outerRadius: valueRadius,
             startAngle: 0,
@@ -480,7 +432,8 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "middle")
                 //.text ((value * 86400).toFixed (1));
-                .text (`${(value * config.factor).toFixed (config.decimals)} ${config.unit}`)
+                .text ((value * config.factor).toFixed (config.decimals));
+                //.text (`${(value * config.factor).toFixed (config.decimals)} ${config.unit}`);
         }
 
         svg.append ("text")
@@ -489,9 +442,9 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
         .attr ("font-size", 12)
         .attr ("text-anchor", "middle")
         //.text ("Mittelwert");
-        .text (config.valueLabel)
+        .text (config.valueLabel);
 
-        return svg.node ();
+        return svg.node ()!;
     })();
 
     function createExportAllPlots (
@@ -552,5 +505,59 @@ export async function drawVSUP (container: HTMLDivElement, preset: VSUPPreset = 
 
         return button;
     }
-    container.appendChild(vsupPlot);
+    
+    switch (output) {
+
+        case "valuePlot":
+            container.appendChild (valuePlot);
+            break;
+
+        case "valueLegend":
+            container.appendChild (valueLegend);
+            break;
+
+        case "Value":
+            container.appendChild (valuePlot);
+            container.appendChild (valueLegend);
+            break;
+
+        case "uncertaintyPlot":
+            container.appendChild (uncertaintyPlot);
+            break;
+
+        case "uncertaintyLegend":
+            container.appendChild (uncertaintyLegend);
+            break;
+
+        case "Uncertainty":
+            container.appendChild (uncertaintyPlot);
+            container.appendChild (uncertaintyLegend);
+            break;
+
+        case "vsupPlot":
+            container.appendChild (vsupPlot);
+            break;
+
+        case "vsupLegend":
+            container.appendChild (vsupLegend);
+            break;
+        
+        case "Vsup":
+            container.appendChild (vsupPlot);
+            container.appendChild (vsupLegend);
+            break;
+
+        case "all":
+            container.appendChild (valuePlot);
+            container.appendChild (valueLegend);
+            container.appendChild (uncertaintyPlot);
+            container.appendChild (uncertaintyLegend);
+            container.appendChild (vsupPlot);
+            container.appendChild (vsupLegend);
+            break;
+
+        default:
+            container.appendChild(vsupPlot);
+            break;
+    }
 }

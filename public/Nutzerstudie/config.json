@@ -41,6 +41,10 @@
         "VSUP_Test": {
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "Vsup"
+            },
             "response": [],
             "nextButtonLocation": "sidebar"
         },
@@ -326,30 +330,31 @@
             "type": "questionnaire",
             "response": [
                 {
-                    "id": "Occupation",
-                    "prompt": "Welchen Beruf üben Sie aus?",
+                    "id": "Qualification",
+                    "prompt": "Welchen Schulabschluss haben Sie?",
                     "required": false,
                     "location": "aboveStimulus",
-                    "type": "shortText",
-                    "placeholder": "Bitte geben Sie ihren Beruf an"
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihren Beruf an",
+                    "options": ["Hauptschule", "Realschule", "Gymnasium", "Bachelor", "Master"]
                 },
                 {
                     "id": "Age",
                     "prompt": "Wie alt sind Sie?",
                     "required": false,
                     "location": "aboveStimulus",
-                    "type": "numerical",
-                    "min": 18,
-                    "max": 100,
-                    "placeholder": "Bitte geben Sie ihr Alter an"
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihr Alter an",
+                    "options": ["18-22", "23-27", "28-32", "33-37", "38-42", "43-47", "48-52", "53-57", "58-62", "63-67", "68-72", "73-77", "78-82", "83+"]
                 },
                 {
                     "id": "Eyesight",
-                    "prompt": "Haben Sie eine Seh-/Farbschwäche?",
+                    "prompt": "Haben Sie eine Farbsehschwäche?",
                     "required": true,
                     "location": "aboveStimulus",
-                    "type": "shortText",
-                    "placeholder": "Bitte geben Sie ihren Beruf an"
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihre Farbsehschwäche an",
+                    "options": ["Deuteranopie (Grünblindheit)", "Protanopie (Rotblindheit)", "Tritanopie (Blaublindheit)", "Monochromasie", "Achromatopsie"]
                 }
             ]
         },
@@ -358,12 +363,12 @@
             "response": [
                 {
                     "id": "Rating",
-                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 (nicht angenehm) bis 5 (sehr angenehm).",
+                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 (nicht zufrieden) bis 5 (sehr zufrieden).",
                     "required": true,
                     "location": "aboveStimulus",
                     "type": "likert",
-                    "leftLabel": "Nicht Angenehm",
-                    "rightLabel": "Sehr Angenehm",
+                    "leftLabel": "Nicht zufrieden",
+                    "rightLabel": "Sehr zufrieden",
                     "numItems": 5
                 }
             ]

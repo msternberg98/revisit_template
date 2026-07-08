@@ -1,11 +1,18 @@
 import { useEffect, useRef } from "react";
-import { drawVSUP } from "./drawVSUP";
+import { drawVSUP, VSUPOptions } from "./drawVSUP";
+
+interface VSUPProps {
+    parameters?: {
+        preset?: "precipitation" | "temperature" | "air_pressure";
+        output?: VSUPOptions ["output"];
+    };
+}
 
 
-export default function VSUP() {
+export default function VSUP ({ parameters }: VSUPProps) {
 
     const container = useRef <HTMLDivElement> (null);
-    const initialized = useRef(false);
+    const initialized = useRef (false);
 
     useEffect (() => {
 
@@ -15,12 +22,12 @@ export default function VSUP() {
         if (!container.current) return;
 
         const load = async () => {
-            await drawVSUP(container.current!);
+            await drawVSUP (container.current!, {preset: parameters?.preset, output: parameters?.output});
         };
 
         load ();
 
-    }, []);
+    }, [parameters]);
 
     return (
         <div

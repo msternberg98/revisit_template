@@ -1,6 +1,6 @@
 import { DatasetPreset, PresetInfo } from "./types";
 
-export const presetInfo: Record<DatasetPreset, PresetInfo> = {
+export const presetInfo: Record <DatasetPreset, PresetInfo> = {
 
     temperature: {
 
