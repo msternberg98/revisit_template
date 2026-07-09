@@ -205,7 +205,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
     const vsupPlot = createRasterPlot (d => vsupColor ({
 
-        value: d[valueKey]!,
+        value: d [valueKey]!,
         uncertainty: d.uncertainty_std,
         valueExtent,
         uncertaintyScale,

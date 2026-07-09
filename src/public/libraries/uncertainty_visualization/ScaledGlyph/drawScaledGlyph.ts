@@ -154,10 +154,9 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         return svg.node () as SVGSVGElement;
     })();
 
-    function drawScaledGlyphs (g: d3.Selection<SVGGElement, any, any, any>, uncertainty: number) {
+    function drawScaledGlyphs (g: d3.Selection <SVGGElement, any, any, any>, uncertainty: number) {
 
-        const uncertaintyFactor = (uncertainty - uncertaintyExtent [0]) / 
-            (uncertaintyExtent [1] - uncertaintyExtent [0])
+        const uncertaintyFactor = (uncertainty - uncertaintyExtent [0]) / (uncertaintyExtent [1] - uncertaintyExtent [0])
 
         const minRadius = glyphSize * 0.1
         const maxRadius = glyphSize * 0.5
@@ -183,7 +182,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .join ("g")
             .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude))},${yScale (d.latitude)})`)
             .each (function (d) {
-                const g = d3.select (this);
+                const g = d3.select (this as SVGGElement);
                 drawScaledGlyphs (g, d.uncertainty_std);
             });
 
@@ -235,7 +234,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         svg.selectAll ("rect")
             .data (data)
             .join ("rect")
-            .attr ("x", d => xScale(shiftedLongitude (d.longitude)))
+            .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
             .attr ("y", d => yScale (d.latitude) - cellHeight / 2)
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
@@ -248,7 +247,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .join ("g")
             .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude))}, ${yScale (d.latitude)})`)
             .each (function (d) {
-                const g = d3.select (this); 
+                const g = d3.select (this as SVGGElement); 
                 drawScaledGlyphs (g, d.uncertainty_std);
             });
 

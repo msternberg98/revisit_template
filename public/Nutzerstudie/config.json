@@ -43,7 +43,7 @@
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "all"
+                "output": "Vsup"
             },
             "response": [],
             "nextButtonLocation": "sidebar"
@@ -58,7 +58,7 @@
             "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "all"
+                "output": "ScaledGlyph"
             },
             "response": [],
             "nextButtonLocation": "sidebar"
@@ -69,8 +69,12 @@
             "response": []
         },
         "IsoGlyph_Test": {
-            "type": "image",
-            "path": "Nutzerstudie/Assets/Plots/5_Niederschlag_IsoGlyph.svg",
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "IsoGlyph"
+            },
             "response": [],
             "nextButtonLocation": "sidebar"
         },
