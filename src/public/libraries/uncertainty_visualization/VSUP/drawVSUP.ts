@@ -19,32 +19,24 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
     container.innerHTML = '';
 
-    // ----------------------------
     // DATA LOADING (REVISIT-COMPATIBEL)
-    // ----------------------------
 
     const data = await loadDataset (preset);
     const config = presetInfo [preset];
     const valueKey = config.valueKey;
 
-    // ----------------------------
     // EXTENTS (statt Observable workbook.sheet)
-    // ----------------------------
 
     const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
 
-    // ----------------------------
     // CONFIG
-    // ----------------------------
 
     const valueSteps = 8;
     const uncertaintySteps = 6;
     const useDiscrete = false;
 
-    // ----------------------------
     // COLOR SCALE
-    // ----------------------------
 
     const valueColorScale = useDiscrete
         ? d3.scaleQuantize <string> ()
@@ -54,9 +46,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .domain (valueExtent)
             .interpolator (d3.interpolateViridis);
 
-    // ----------------------------
     // UNCERTAINTY SCALE
-    // ----------------------------
 
     const uncertaintyScale = useDiscrete
         ? d3.scaleQuantize <number> ()
@@ -120,8 +110,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("width", 30)
             .attr ("height", stepHeight)
             .attr ("fill", d3.interpolateViridis(value));
-
-            const scaleValue = valueExtent [0] + value * (valueExtent [1] - valueExtent [0]);
         }
 
         const labelSteps = 6;
@@ -140,7 +128,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("x", 60)
                 .attr ("y", y + 4)
                 .attr ("font-size", 11)
-                // .text (scaleValue.toFixed (1))
                 .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`)
         }
 
@@ -148,7 +135,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("x", 20)
             .attr ("y", 10)
             .attr ("font-size", 12)
-            //.text ("Mittelwert");
             .text (config.valueLabel)
 
         return svg.node () as SVGSVGElement;
@@ -186,8 +172,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("width", 30)
             .attr ("height", stepHeight)
             .attr ("fill", d3.interpolateGreys(value));
-
-            const scaleValue = uncertaintyExtent [0] + value * (uncertaintyExtent [1] - uncertaintyExtent [0]);
         }
 
         const labelSteps = 6;
@@ -206,12 +190,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("x", 60)
                 .attr ("y", y + 4)
                 .attr ("font-size", 11)
-                //Temperatur
-                //.text(uncertaintyValue.toFixed(2))
-                //Niederschlag
-                //.text ((uncertaintyValue * config.factor).toFixed (2))
-                //Luftdruck
-                //.text((uncertaintyValue / 100).toFixed(0));
                 .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`)
         }
 
@@ -219,7 +197,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("x", 20)
             .attr ("y", 10)
             .attr ("font-size", 12)
-            //.text ("Standardabweichung");
             .text (config.uncertaintyLabel)
 
         return svg.node () as SVGSVGElement;
@@ -255,6 +232,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             ? [1, 2, 4, 6, 8]
             : d3.range (60);
 
+        const arcGenerator = d3.arc ();
+
         if (useDiscrete) {
 
             rings.forEach ((bins, ringIndex) => {
@@ -264,12 +243,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
                 for (let i = 0; i < bins; i++) {
 
-                    const arc = d3.arc ()
-                        .innerRadius (innerRadius)
-                        .outerRadius (outerRadius)
-                        .startAngle ((i / bins) * Math.PI * 0.5)
-                        .endAngle (((i + 1) / bins) * Math.PI * 0.5);
-
                     const value = i / Math.max (1, bins - 1);
 
                     const base = bins === 1
@@ -278,8 +251,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
                     const blend = 1 - ringIndex / (rings.length - 1);
                     const color = d3.interpolateRgb (base, "#d9d9d9")(blend * 0.7);
-
-                    const arcGenerator = d3.arc ();
 
                     svg.append ("path")
                         .attr ("transform", `translate(${centerX},${centerY})`)
@@ -298,8 +269,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
             const ringCount = 40;
             const angleSteps = 1440;
-
-            const arcGenerator = d3.arc ();
 
             for (let r = 0; r < ringCount; r++) {
 
@@ -339,9 +308,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             }
         }
 
-
-        const uncertaintyAngle = Math.PI / 2;
-
         svg.append ("line")
         .attr ("x1", centerX - 2)
         .attr ("y1", centerY)
@@ -372,16 +338,13 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("y", y + 4)
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "end")
-                //.text ((uncertaintyValue * config.factor).toFixed(2));
-                .text ((uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals))
-                //.text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`);
+                .text ((uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals));
         }
 
         svg.append ("text")
             .attr ("transform",`translate (${centerX - 40},${centerY - maxRadius / 2}) rotate (-90)`)
             .attr ("text-anchor", "middle")
             .attr ("font-size", 12)
-            //.text ("Standardabweichung");
             .text (config.uncertaintyLabel);
 
         // Value Scale
@@ -431,7 +394,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("y", ly + 4)
                 .attr ("font-size", 10)
                 .attr ("text-anchor", "middle")
-                //.text ((value * 86400).toFixed (1));
                 .text ((value * config.factor).toFixed (config.decimals));
                 //.text (`${(value * config.factor).toFixed (config.decimals)} ${config.unit}`);
         }
@@ -441,14 +403,13 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         .attr ("y", centerY - maxRadius)
         .attr ("font-size", 12)
         .attr ("text-anchor", "middle")
-        //.text ("Mittelwert");
         .text (config.valueLabel);
 
         return svg.node ()!;
     })();
 
     function createExportAllPlots (
-        plots: Array<[string, SVGElement]>,
+        plots: Array <[string, SVGElement]>,
         width: number,
         height: number
         ) {

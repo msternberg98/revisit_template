@@ -43,7 +43,7 @@
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "Vsup"
+                "output": "all"
             },
             "response": [],
             "nextButtonLocation": "sidebar"
@@ -54,27 +54,13 @@
             "response": []
         },
         "ScaledGlyph_Test": {
-            "type": "image",
-            "path": "Nutzerstudie/Assets/Plots/3_Niederschlag_ScaledGlyph.svg",
-            "response": [
-                {
-                    "id": "ScaledGlyph_Test_Response",
-                    "type": "radio",
-                    "required": true,
-                    "prompt": "Wähle A",
-                    "options": ["A", "B", "C"],
-                    "location": "sidebar"
-                }
-            ],
-            "correctAnswer": [
-                {
-                    "id": "ScaledGlyph_Test_Response",
-                    "answer": "A"
-                }
-            ],
-            "provideFeedback": true,
-            "trainingAttempts": 3,
-            "allowFailedTraining": false,
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "all"
+            },
+            "response": [],
             "nextButtonLocation": "sidebar"
         },
         "IsoGlyph_Description": {
