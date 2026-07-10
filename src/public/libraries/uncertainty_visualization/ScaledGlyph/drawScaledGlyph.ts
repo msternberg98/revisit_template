@@ -79,21 +79,28 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
     
-            const svg = d3.create ("svg")
-                .attr ("width", width)
-                .attr ("height", height);
-    
-            svg.selectAll ("rect")
-                .data (data)
-                .join ("rect")
-                .attr ("x", (d) => xScale (shiftedLongitude (d.longitude)))
-                .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
-                .attr ("width", cellWidth)
-                .attr ("height", cellHeight)
-                .attr ("fill", colorFunction);
-    
-            return svg.node () as SVGSVGElement;
-        }
+        const svg = d3.create <SVGSVGElement> ("svg")
+            .attr ("width", width)
+            .attr ("height", height);
+
+        const zoomGroup = svg.append("g");
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+            svg.call (zoom);
+
+        zoomGroup.selectAll ("rect")
+            .data (data)
+            .join ("rect")
+            .attr ("x", (d) => xScale (shiftedLongitude (d.longitude)))
+            .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
+            .attr ("width", cellWidth)
+            .attr ("height", cellHeight)
+            .attr ("fill", colorFunction);
+
+        return svg.node () as SVGSVGElement;
+    }
 
     const valuePlot = createRasterPlot (d => valueColorScale (d [valueKey]!));
 
@@ -167,7 +174,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .attr ("r", radius)
             .attr ("fill", "none")
             .attr ("stroke", "black")
-            .attr ("stroke-width", 1)
+            .attr ("stroke-width", 0.2)
     }
 
     const uncertaintyPlot = (() => {
@@ -176,7 +183,15 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .attr ("width", width)
             .attr ("height", height);
 
-        svg.append ("g")
+        const zoomGroup = svg.append("g");
+
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+            svg.call (zoom);
+
+        zoomGroup.append ("g")
             .selectAll ("g")
             .data (aggregatedData)
             .join ("g")
@@ -221,7 +236,6 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .text (config.uncertaintyLabel);
 
         return svg.node () as SVGSVGElement;
-
     })();
 
     const scaledGlyphPlot = (() => {
@@ -229,9 +243,17 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         const svg = d3.create ("svg")
             .attr ("width", width)
             .attr ("height", height);
+        
+        const zoomGroup = svg.append("g");
+
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+            svg.call (zoom);
 
         // Hintergrund = Mittelwert
-        svg.selectAll ("rect")
+        zoomGroup.selectAll ("rect")
             .data (data)
             .join ("rect")
             .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
@@ -241,7 +263,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .attr ("fill", d => valueColorScale (d [valueKey]!))
 
         // Glyphen darüber
-        svg.append ("g")
+        zoomGroup.append ("g")
             .selectAll ("g")
             .data (aggregatedData)
             .join ("g")
