@@ -7,6 +7,13 @@ import { createScales, shiftedLongitude } from "../mapUtils";
 export interface ScaledGlyphOptions {
     preset?: DatasetPreset;
     output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "scaledGlyphPlot" | "scaledGlyphLegend" | "ScaledGlyph" | "all";
+    onClickPoint?: (result: {
+
+        latitude: number;
+        longitude: number;
+        meanValue: number;
+        uncertaintyStd: number;
+    }) => void;
 }
 
 export async function drawScaledGlyph (container: HTMLDivElement, options: ScaledGlyphOptions = {}) {
@@ -25,7 +32,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
      
-    const aggregationFactor: number = 2
+    const aggregationFactor: number = 1
     const aggregatedData = (() => {
 
         if (aggregationFactor === 1) {
@@ -70,12 +77,17 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     
     const width = 1200;
     const cellWidth = 8;
+    const aggregatedCellWidth = aggregationFactor * cellWidth;
     const height = 600;
     const cellHeight = 8;
-    const glyphSize = aggregationFactor * cellWidth * 0.4375
+    const aggregatedCellHeight = aggregationFactor * cellHeight;
+
+    const glyphSize = aggregationFactor * cellWidth * 0.4374
     const glyphMaxRadius = 12
 
     const { xScale, yScale } = createScales (data, width, height);
+
+    const onClickPoint = options.onClickPoint;
     
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
     
@@ -89,6 +101,29 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
+            svg.on ("click", function (event) {
+            
+                const [x, y] = d3.pointer (event, this);
+                const transform = d3.zoomTransform (this as SVGSVGElement);
+                const originalX = transform.invertX (x);
+                const originalY = transform.invertY (y);
+                const longitude = xScale.invert (originalX);
+                const latitude = yScale.invert (originalY);
+                const nearest = data.reduce ((closest, current) => {
+            
+                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
+                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
+                    return currentDistance < closestDistance ? current : closest;
+                }, data [0]);
+            
+                onClickPoint?.({
+            
+                latitude: nearest.latitude,
+                longitude: nearest.longitude,
+                meanValue: nearest [valueKey] as number,
+                uncertaintyStd: nearest.uncertainty_std,
+                });            
+            });
 
         zoomGroup.selectAll ("rect")
             .data (data)
@@ -190,12 +225,35 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
+            svg.on ("click", function (event) {
+            
+                const [x, y] = d3.pointer (event, this);
+                const transform = d3.zoomTransform (this as SVGSVGElement);
+                const originalX = transform.invertX (x);
+                const originalY = transform.invertY (y);
+                const longitude = xScale.invert (originalX);
+                const latitude = yScale.invert (originalY);
+                const nearest = data.reduce ((closest, current) => {
+            
+                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
+                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
+                    return currentDistance < closestDistance ? current : closest;
+                }, data [0]);
+            
+                onClickPoint?.({
+            
+                latitude: nearest.latitude,
+                longitude: nearest.longitude,
+                meanValue: nearest [valueKey] as number,
+                uncertaintyStd: nearest.uncertainty_std,
+                });            
+            });
 
         zoomGroup.append ("g")
             .selectAll ("g")
             .data (aggregatedData)
             .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude))},${yScale (d.latitude)})`)
+            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + aggregatedCellWidth / 2 - 1},${yScale (d.latitude) + 1})`)
             .each (function (d) {
                 const g = d3.select (this as SVGGElement);
                 drawScaledGlyphs (g, d.uncertainty_std);
@@ -251,6 +309,29 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
+            svg.on ("click", function (event) {
+            
+                const [x, y] = d3.pointer (event, this);
+                const transform = d3.zoomTransform (this as SVGSVGElement);
+                const originalX = transform.invertX (x);
+                const originalY = transform.invertY (y);
+                const longitude = xScale.invert (originalX);
+                const latitude = yScale.invert (originalY);
+                const nearest = data.reduce ((closest, current) => {
+            
+                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
+                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
+                    return currentDistance < closestDistance ? current : closest;
+                }, data [0]);
+            
+                onClickPoint?.({
+            
+                latitude: nearest.latitude,
+                longitude: nearest.longitude,
+                meanValue: nearest [valueKey] as number,
+                uncertaintyStd: nearest.uncertainty_std,
+                });            
+            });
 
         // Hintergrund = Mittelwert
         zoomGroup.selectAll ("rect")
@@ -267,7 +348,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .selectAll ("g")
             .data (aggregatedData)
             .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude))}, ${yScale (d.latitude)})`)
+            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + aggregatedCellWidth / 2 - 1},${yScale (d.latitude) + 1})`)
             .each (function (d) {
                 const g = d3.select (this as SVGGElement); 
                 drawScaledGlyphs (g, d.uncertainty_std);

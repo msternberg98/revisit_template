@@ -8,6 +8,13 @@ import { createScales, shiftedLongitude } from "../mapUtils";
 export interface VSUPOptions {
     preset?: DatasetPreset;
     output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "vsupPlot" | "vsupLegend" | "Vsup" | "all";
+    onClickPoint?: (result: {
+
+        latitude: number;
+        longitude: number;
+        meanValue: number;
+        uncertaintyStd: number;
+    }) => void;
 }
 
 export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions = {}) {
@@ -63,6 +70,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
     const { xScale, yScale } = createScales (data, width, height);
 
+    const onClickPoint = options.onClickPoint;
+
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
 
         const svg = d3.create <SVGSVGElement> ("svg")
@@ -75,6 +84,30 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
+            svg.on("click", function (event) {
+
+                const [x, y] = d3.pointer (event, this);
+                const transform = d3.zoomTransform (this as SVGSVGElement);
+                const originalX = transform.invertX (x);
+                const originalY = transform.invertY (y);
+                const longitude = xScale.invert (originalX);
+                const latitude = yScale.invert (originalY);
+                const nearest = data.reduce ((closest, current) => {
+
+                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
+                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
+                    return currentDistance < closestDistance ? current : closest;
+                }, data [0]);
+
+                onClickPoint?.({
+
+                    latitude: nearest.latitude,
+                    longitude: nearest.longitude,
+                    meanValue: nearest [valueKey] as number,
+                    uncertaintyStd: nearest.uncertainty_std,
+                });
+
+            });
 
         zoomGroup.selectAll ("rect")
             .data (data)

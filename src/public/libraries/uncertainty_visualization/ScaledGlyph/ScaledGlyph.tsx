@@ -22,7 +22,10 @@ export default function ScaledGlyph ({ parameters }: ScaledGlyphProps) {
         if (!container.current) return;
 
         const load = async () => {
-            await drawScaledGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output});
+            await drawScaledGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
+
+                console.log ("Klick auf Punkt:", result);
+            }});
         };
 
         load ();
