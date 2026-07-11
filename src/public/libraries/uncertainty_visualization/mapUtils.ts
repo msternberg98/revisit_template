@@ -9,6 +9,18 @@ export function shiftedLongitude (lon: number): number {
     return shifted;
 }
 
+export function unshiftedLongitude (shiftedLon: number): number {
+
+    let lon = shiftedLon + 30;
+
+    if (lon < 0) lon += 360;
+
+    if (lon >= 360) lon -= 360;
+
+    return lon;
+
+}
+
 export function createScales (
     data: ClimateData [],
     width: number,

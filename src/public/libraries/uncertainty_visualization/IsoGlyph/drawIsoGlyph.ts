@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import * as JSZip from "jszip";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
-import { createScales, shiftedLongitude } from "../mapUtils";
+import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
 
 export interface IsoGlyphOptions {
     preset?: DatasetPreset;
@@ -104,7 +104,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             
@@ -269,7 +270,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             
@@ -358,7 +360,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             

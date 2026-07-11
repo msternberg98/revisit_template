@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import * as JSZip from "jszip";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
-import { createScales, shiftedLongitude } from "../mapUtils";
+import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
 
 export interface ScaledGlyphOptions {
     preset?: DatasetPreset;
@@ -107,7 +107,8 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             
@@ -231,7 +232,8 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             
@@ -315,7 +317,8 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 const transform = d3.zoomTransform (this as SVGSVGElement);
                 const originalX = transform.invertX (x);
                 const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
+                const shiftedLon = xScale.invert (originalX);
+                const longitude = unshiftedLongitude (shiftedLon);
                 const latitude = yScale.invert (originalY);
                 const nearest = data.reduce ((closest, current) => {
             
@@ -348,7 +351,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             .selectAll ("g")
             .data (aggregatedData)
             .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + aggregatedCellWidth / 2 - 1},${yScale (d.latitude) + 1})`)
+            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + aggregatedCellWidth / 2 - 1},${yScale (d.latitude)})`)
             .each (function (d) {
                 const g = d3.select (this as SVGGElement); 
                 drawScaledGlyphs (g, d.uncertainty_std);

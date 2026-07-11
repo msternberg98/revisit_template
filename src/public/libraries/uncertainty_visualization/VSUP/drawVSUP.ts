@@ -3,7 +3,7 @@ import * as JSZip from "jszip";
 import { vsupColor } from "./vsupColor";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
-import { createScales, shiftedLongitude } from "../mapUtils";
+import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
 
 export interface VSUPOptions {
     preset?: DatasetPreset;
