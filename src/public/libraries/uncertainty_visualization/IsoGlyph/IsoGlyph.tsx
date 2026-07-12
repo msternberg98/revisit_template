@@ -6,10 +6,17 @@ interface IsoGlyphProps {
         preset?: "test" | "temperature" | "precipitation" | "air_pressure";
         output?: IsoGlyphOptions ["output"];
     };
+
+    setAnswer?: (value: {
+
+        status: boolean;
+        answers: Record <string, number>;
+        provenanceGraph?: unknown;
+    }) => void;
 }
 
 
-export default function IsoGlyph ({ parameters }: IsoGlyphProps) {
+export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
 
     const container = useRef <HTMLDivElement> (null);
     const initialized = useRef (false);
@@ -23,8 +30,15 @@ export default function IsoGlyph ({ parameters }: IsoGlyphProps) {
 
         const load = async () => {
             await drawIsoGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
-
+        
                 console.log ("Klick auf Punkt:", result);
+                setAnswer?.({status: true, answers: {
+        
+                    IsoGlyph_Response_Latitude: result.latitude,
+                    IsoGlyph_Response_Longitude: result.longitude,
+                    IsoGlyph_Response_Value: result.meanValue,
+                    IsoGlyph_Response_Uncertainty: result.uncertaintyStd,
+                },});
             }});
         };
 

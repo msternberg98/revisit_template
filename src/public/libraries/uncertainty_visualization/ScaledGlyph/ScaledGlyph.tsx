@@ -6,10 +6,17 @@ interface ScaledGlyphProps {
         preset?: "test" | "temperature" | "precipitation" | "air_pressure";
         output?: ScaledGlyphOptions ["output"];
     };
+
+    setAnswer?: (value: {
+
+        status: boolean;
+        answers: Record <string, number>;
+        provenanceGraph?: unknown;
+    }) => void;
 }
 
 
-export default function ScaledGlyph ({ parameters }: ScaledGlyphProps) {
+export default function ScaledGlyph ({ parameters, setAnswer }: ScaledGlyphProps) {
 
     const container = useRef <HTMLDivElement> (null);
     const initialized = useRef (false);
@@ -25,6 +32,13 @@ export default function ScaledGlyph ({ parameters }: ScaledGlyphProps) {
             await drawScaledGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
 
                 console.log ("Klick auf Punkt:", result);
+                setAnswer?.({status: true, answers: {
+
+                    ScaledGlyph_Response_Latitude: result.latitude,
+                    ScaledGlyph_Response_Longitude: result.longitude,
+                    ScaledGlyph_Response_Value: result.meanValue,
+                    ScaledGlyph_Response_Uncertainty: result.uncertaintyStd,
+                },});
             }});
         };
 
