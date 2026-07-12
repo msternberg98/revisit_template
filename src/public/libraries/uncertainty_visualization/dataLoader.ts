@@ -2,18 +2,23 @@ import * as d3 from "d3";
 import { ClimateData } from "./types";
 
 export type DatasetPreset =
-    | "precipitation"
+    | "test"
     | "temperature"
+    | "precipitation"
     | "air_pressure";
 
 const datasetPaths: Record <DatasetPreset, string> = {
-    precipitation:
-        //"/libraries/uncertainty_visualization/Data/precipitation_min_mean_range.csv",
-        "/Nutzerstudie/Assets/Data/precipitation_min_mean_range.csv",
+    test:
+        //"/libraries/uncertainty_visualization/Data/max_std_range.csv",
+        "/Nutzerstudie/Assets/Data/test.csv",
 
     temperature:
         //"/libraries/uncertainty_visualization/Data/max_std_range.csv",
         "/Nutzerstudie/Assets/Data/temperature_max_std_range.csv",
+
+    precipitation:
+        //"/libraries/uncertainty_visualization/Data/precipitation_min_mean_range.csv",
+        "/Nutzerstudie/Assets/Data/precipitation_min_mean_range.csv",
 
     air_pressure:
         //"/libraries/uncertainty_visualization/Data/air_pressure_max_std_range.csv",
@@ -48,12 +53,16 @@ export async function loadDataset (preset: DatasetPreset): Promise<ClimateData [
 
             switch (preset) {
 
-                case "precipitation":
-                    row.mean_precipitation = +d.mean_precipitation!;
+                case "test":
+                    row.mean_temperature = +d.mean_temperature!;
                     break;
 
                 case "temperature":
                     row.mean_temperature = +d.mean_temperature!;
+                    break;
+
+                case "precipitation":
+                    row.mean_precipitation = +d.mean_precipitation!;
                     break;
 
                 case "air_pressure":

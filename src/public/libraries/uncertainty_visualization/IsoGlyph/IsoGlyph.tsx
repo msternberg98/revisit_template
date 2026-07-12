@@ -3,7 +3,7 @@ import { drawIsoGlyph, IsoGlyphOptions } from "./drawIsoGlyph";
 
 interface IsoGlyphProps {
     parameters?: {
-        preset?: "precipitation" | "temperature" | "air_pressure";
+        preset?: "test" | "temperature" | "precipitation" | "air_pressure";
         output?: IsoGlyphOptions ["output"];
     };
 }

@@ -4,6 +4,7 @@ import { vsupColor } from "./vsupColor";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
 import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
+import { ClimateData } from "../types";
 
 export interface VSUPOptions {
     preset?: DatasetPreset;
@@ -14,6 +15,7 @@ export interface VSUPOptions {
         longitude: number;
         meanValue: number;
         uncertaintyStd: number;
+        sourceValues: ClimateData [];
     }) => void;
 }
 
@@ -64,9 +66,9 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .range ([0, uncertaintySteps - 1]);
 
     const width = 1200;
-    const cellWidth = 8;
+    const cellWidth = 6.35;
     const height = 600;
-    const cellHeight = 8;
+    const cellHeight = 6.35;
 
     const { xScale, yScale } = createScales (data, width, height);
 
@@ -84,32 +86,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
-            svg.on("click", function (event) {
 
-                const [x, y] = d3.pointer (event, this);
-                const transform = d3.zoomTransform (this as SVGSVGElement);
-                const originalX = transform.invertX (x);
-                const originalY = transform.invertY (y);
-                const longitude = xScale.invert (originalX);
-                const latitude = yScale.invert (originalY);
-                const nearest = data.reduce ((closest, current) => {
-
-                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
-                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
-                    return currentDistance < closestDistance ? current : closest;
-                }, data [0]);
-
-                onClickPoint?.({
-
-                    latitude: nearest.latitude,
-                    longitude: nearest.longitude,
-                    meanValue: nearest [valueKey] as number,
-                    uncertaintyStd: nearest.uncertainty_std,
-                });
-
-            });
-
-        zoomGroup.selectAll ("rect")
+        const rects = zoomGroup.selectAll ("rect")
             .data (data)
             .join ("rect")
             .attr ("x", (d) => xScale (shiftedLongitude (d.longitude)))
@@ -117,6 +95,39 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
             .attr ("fill", colorFunction);
+
+        const selectionLayer = zoomGroup.append ("g")
+            .attr ("class", "selection-layer");
+
+        rects.on ("click", function (event, d) {
+
+                event.stopPropagation ();
+                selectionLayer.selectAll ("*").remove ();
+                selectionLayer.append ("rect")
+                    .attr ("class", "selection-marker")
+                    .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                    .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                    .attr ("width", cellWidth)
+                    .attr ("height", cellHeight)
+                    .attr ("fill", "none")
+                    .attr ("stroke", "black")
+                    .attr ("stroke-width", 0.4)
+                    .attr ("pointer-events", "none");
+
+                onClickPoint?.({
+
+                    latitude: d.latitude,
+                    longitude: d.longitude,
+                    meanValue: d [valueKey] as number,
+                    uncertaintyStd: d.uncertainty_std,
+                    sourceValues: [{
+                        latitude: d.latitude,
+                        longitude: d.longitude,
+                        mean_temperature: d.mean_temperature,
+                        uncertainty_std: d.uncertainty_std
+                    }]
+                });
+            })
 
         return svg.node () as SVGSVGElement;
     }

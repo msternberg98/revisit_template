@@ -3,6 +3,7 @@ import * as JSZip from "jszip";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
 import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
+import { ClimateData } from "../types";
 
 export interface IsoGlyphOptions {
     preset?: DatasetPreset;
@@ -13,6 +14,7 @@ export interface IsoGlyphOptions {
         longitude: number;
         meanValue: number;
         uncertaintyStd: number;
+        sourceValues: ClimateData [];
     }) => void;
 }
 
@@ -32,25 +34,44 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
     const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
      
-    const aggregationFactor: number = 2
+    const aggregationFactor: number = 1
+
+    const uniqueLongitudes = Array.from (new Set(data.map (d => d.longitude))).sort ((a, b) => a - b);
+    const uniqueLatitudes = Array.from (new Set(data.map (d => d.latitude))).sort ((a, b) => a - b);
+
+    const longitudeIndex = new Map (uniqueLongitudes.map ((lon, i) => [lon, i]));
+    const latitudeIndex = new Map (uniqueLatitudes.map ((lat, i) => [lat, i]));
+
     const aggregatedData = (() => {
 
         if (aggregationFactor === 1) {
-            return data;
+
+            return data.map (d => ({
+
+                ...d,
+                sourceValues: [d]
+            }));
         }
 
-        const groups = d3.rollups (data, values => ({...values [0],
-                [valueKey]: d3.mean (values, d => d [valueKey])!,
-                uncertainty_std: d3.mean (values, d => d.uncertainty_std)!
+        const groups = d3.rollups (data,
 
+            values => ({
+                ...values [0],
+                [valueKey]: d3.mean (values, d => d [valueKey])!,
+                uncertainty_std: d3.mean (values, d => d.uncertainty_std)!,
+                sourceValues: values
             }),
-            d => Math.floor (d.longitude / aggregationFactor),
-            d => Math.floor (d.latitude / aggregationFactor)
+
+            d => Math.floor ((longitudeIndex.get (d.longitude) ?? 0) / aggregationFactor),
+            d => Math.floor ((latitudeIndex.get (d.latitude) ?? 0) / aggregationFactor)
         );
 
-        return groups.flatMap (([xBin, rows]) => rows.map (([yBin, v]) => ({...v,
-                longitude: (xBin + 0.5) * aggregationFactor,
-                latitude: (yBin + 0.5) * aggregationFactor
+        return groups.flatMap (([xBin, rows]) =>
+
+            rows.map (([yBin, v]) => ({
+                ...v,
+                longitude: uniqueLongitudes [Math.min (xBin * aggregationFactor, uniqueLongitudes.length - 1)],
+                latitude: uniqueLatitudes [Math.min (yBin * aggregationFactor, uniqueLatitudes.length - 1)],
             }))
         );
     })();
@@ -76,10 +97,10 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .range ([0, uncertaintySteps - 1]);
     
     const width = 1200;
-    const cellWidth = 8;
+    const cellWidth = 6.35;
     const height = 600;
-    const cellHeight = 8;
-    const glyphSize = aggregationFactor * cellWidth * 0.4375
+    const cellHeight = 6.35;
+    const glyphSize = aggregationFactor * cellWidth
     const glyphMaxRadius = 12
 
     const { xScale, yScale } = createScales (data, width, height);
@@ -98,32 +119,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
-            svg.on ("click", function (event) {
-            
-                const [x, y] = d3.pointer (event, this);
-                const transform = d3.zoomTransform (this as SVGSVGElement);
-                const originalX = transform.invertX (x);
-                const originalY = transform.invertY (y);
-                const shiftedLon = xScale.invert (originalX);
-                const longitude = unshiftedLongitude (shiftedLon);
-                const latitude = yScale.invert (originalY);
-                const nearest = data.reduce ((closest, current) => {
-            
-                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
-                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
-                    return currentDistance < closestDistance ? current : closest;
-                }, data [0]);
-            
-                onClickPoint?.({
-            
-                latitude: nearest.latitude,
-                longitude: nearest.longitude,
-                meanValue: nearest [valueKey] as number,
-                uncertaintyStd: nearest.uncertainty_std,
-                });            
-            });
 
-        zoomGroup.selectAll ("rect")
+        const rects = zoomGroup.selectAll ("rect")
             .data (data)
             .join ("rect")
             .attr ("x", (d) => xScale (shiftedLongitude (d.longitude)))
@@ -131,6 +128,39 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
             .attr ("fill", colorFunction);
+
+        const selectionLayer = zoomGroup.append ("g")
+            .attr ("class", "selection-layer");
+
+        rects.on ("click", function (event, d) {
+
+                event.stopPropagation ();
+                selectionLayer.selectAll ("*").remove ();
+                selectionLayer.append ("rect")
+                    .attr ("class", "selection-marker")
+                    .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                    .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                    .attr ("width", cellWidth)
+                    .attr ("height", cellHeight)
+                    .attr ("fill", "none")
+                    .attr ("stroke", "black")
+                    .attr ("stroke-width", 0.4)
+                    .attr ("pointer-events", "none");
+
+                onClickPoint?.({
+
+                    latitude: d.latitude,
+                    longitude: d.longitude,
+                    meanValue: d [valueKey] as number,
+                    uncertaintyStd: d.uncertainty_std,
+                    sourceValues: [{
+                        latitude: d.latitude,
+                        longitude: d.longitude,
+                        mean_temperature: d.mean_temperature,
+                        uncertainty_std: d.uncertainty_std
+                    }]
+                });
+            })
 
         return svg.node () as SVGSVGElement;
     }
@@ -264,43 +294,51 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
-            svg.on ("click", function (event) {
-            
-                const [x, y] = d3.pointer (event, this);
-                const transform = d3.zoomTransform (this as SVGSVGElement);
-                const originalX = transform.invertX (x);
-                const originalY = transform.invertY (y);
-                const shiftedLon = xScale.invert (originalX);
-                const longitude = unshiftedLongitude (shiftedLon);
-                const latitude = yScale.invert (originalY);
-                const nearest = data.reduce ((closest, current) => {
-            
-                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
-                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
-                    return currentDistance < closestDistance ? current : closest;
-                }, data [0]);
-            
-                onClickPoint?.({
-            
-                latitude: nearest.latitude,
-                longitude: nearest.longitude,
-                meanValue: nearest [valueKey] as number,
-                uncertaintyStd: nearest.uncertainty_std,
-                });            
-            });
 
         const glyphs = zoomGroup.append ("g")
 
-        glyphs.selectAll ("g")
+        const glyphGroup = glyphs.selectAll ("g")
             .data (aggregatedData)
             .join ("g")
             .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth/2}, ${yScale (d.latitude)})`)
             .each (function (d) {
                 const g = d3.select (this as SVGGElement)
                 drawIsoGlyphs (g, glyphSize, d.uncertainty_std)
-                // Alternative farbcodierte Version:
                 // drawIsoGlyphsColored (g, glyphSize, d.mean_temperature, d.uncertainty_std)
             })
+
+        const glyphSelectionLayer = zoomGroup.append("g")
+            .attr ("class", "glyph-selection-layer");
+
+        glyphGroup.on ("click", function (event, d) {
+
+            event.stopPropagation ();
+            glyphSelectionLayer.selectAll ("*").remove ();
+            glyphSelectionLayer.append ("rect")
+                .attr ("class", "selection-marker")
+                .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                .attr ("width", cellWidth)
+                .attr ("height", cellHeight)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.4)
+                .attr ("pointer-events", "none");
+
+            onClickPoint?.({
+
+                latitude: d.latitude,
+                longitude: d.longitude,
+                meanValue: d [valueKey] as number,
+                uncertaintyStd: d.uncertainty_std,
+                sourceValues: d.sourceValues.map (v => ({
+                    latitude: v.latitude,
+                    longitude: v.longitude,
+                    mean_temperature: v.mean_temperature,
+                    uncertainty_std: v.uncertainty_std
+                }))
+            });
+        });
         return svg.node () as SVGSVGElement;
     })();
 
@@ -354,34 +392,10 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
             svg.call (zoom);
-            svg.on ("click", function (event) {
-            
-                const [x, y] = d3.pointer (event, this);
-                const transform = d3.zoomTransform (this as SVGSVGElement);
-                const originalX = transform.invertX (x);
-                const originalY = transform.invertY (y);
-                const shiftedLon = xScale.invert (originalX);
-                const longitude = unshiftedLongitude (shiftedLon);
-                const latitude = yScale.invert (originalY);
-                const nearest = data.reduce ((closest, current) => {
-            
-                    const currentDistance = Math.abs (current.longitude - longitude) + Math.abs (current.latitude - latitude);
-                    const closestDistance = Math.abs (closest.longitude - longitude) + Math.abs (closest.latitude - latitude);
-                    return currentDistance < closestDistance ? current : closest;
-                }, data [0]);
-            
-                onClickPoint?.({
-            
-                latitude: nearest.latitude,
-                longitude: nearest.longitude,
-                meanValue: nearest [valueKey] as number,
-                uncertaintyStd: nearest.uncertainty_std,
-                });            
-            });
 
         const glyphs = zoomGroup.append ("g")
 
-        glyphs.selectAll ("g")
+        const glyphGroup = glyphs.selectAll ("g")
             .data (aggregatedData)
             .join ("g")
             .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2}, ${yScale (d.latitude)})`)
@@ -389,7 +403,39 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 const g = d3.select (this as SVGGElement)
                 drawIsoGlyphsColored (g, glyphSize, d [valueKey]!, d.uncertainty_std)
             })
+        
+        const glyphSelectionLayer = zoomGroup.append("g")
+            .attr ("class", "glyph-selection-layer");
 
+        glyphGroup.on ("click", function (event, d) {
+
+            event.stopPropagation ();
+            glyphSelectionLayer.selectAll ("*").remove ();
+            glyphSelectionLayer.append ("rect")
+                .attr ("class", "selection-marker")
+                .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                .attr ("width", cellWidth)
+                .attr ("height", cellHeight)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.4)
+                .attr ("pointer-events", "none");
+
+            onClickPoint?.({
+
+                latitude: d.latitude,
+                longitude: d.longitude,
+                meanValue: d [valueKey] as number,
+                uncertaintyStd: d.uncertainty_std,
+                sourceValues: d.sourceValues.map (v => ({
+                    latitude: v.latitude,
+                    longitude: v.longitude,
+                    mean_temperature: v.mean_temperature,
+                    uncertainty_std: v.uncertainty_std
+                }))
+            });
+        });
         return svg.node () as SVGSVGElement
     })();
 
