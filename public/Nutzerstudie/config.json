@@ -30,7 +30,15 @@
         "Consent": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/Einwilligungserklärung.md",
-            "response": [],
+            "response": [
+                 {
+                    "id": "Einwilligungserklärung_Radio",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "",
+                    "options": ["Ja, ich will an der Umfrage teilnehmen."]
+                }
+            ],
             "nextButtonText": "Ich stimme zu"
         },
 

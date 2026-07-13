@@ -1,33 +1,10 @@
-# Consent
+# Datenschutzinformationen
+Mit der beschriebenen Erhebung und Verarbeitung der Daten (Antworten auf Aufgaben und Fragebögen, Bearbeitungszeiten, Interaktionen mit den Visualisierungen sowie grundlegende demografische Angaben (z. B. Schulabschluss, Alter, Farbsehschwäche)), bin ich einverstanden. Die Aufzeichnung und Auswertung dieser Daten erfolgt anonymisiert am Lehrstuhl für Computergraphik, unter Verwendung einer Nummer und ohne Angabe meines Namens. Damit ist es niemandem mehr möglich, die erhobenen Daten mit meinem Namen in Verbindung zu bringen. Ich bin informiert, dass ich mein Einverständnis zur Aufbewahrung bzw. Speicherung dieser Daten durch Abbrechen der Studie widerrufen kann, ohne dass mir daraus Nachteile entstehen. Ich kann jederzeit die Teilnahme der Studie abbrechen, was eine Löschung all meiner Daten zur Folge hat. Wenn allerdings die Studie vollständig durchgeführt wurde, kann mein Datensatz nicht mehr identifiziert und somit nicht mehr gelöscht werden. Meine Daten sind dann anonymisiert. 
+Ich bin einverstanden, dass meine vollständig anonymisierten Daten zu Forschungszwecken weiterverwendet werden können. Dazu werden sie mindestens 10 Jahre nach Datenauswertung, bzw. mindestens 10 Jahre nach Erscheinen einer Publikation zu dieser Studie aufbewahrt. Dazu werden sie über eine Internet-Datenbank öffentlich zugänglich gemacht.
 
-This is a consent form. Please read it carefully and click the "I agree" button to continue.
+# Einwilligungserklärung
 
----
+Ich wurde über die Umfrage und die Art der Durchführung schriftlich informiert. Ich habe die Teilnehmerinformationen und die Datenschutzinformationen gelesen und stimme denen zu. Ich hatte genug Zeit, um meine Entscheidung zu treffen. Ich stimme zu, an der oben genannten Umfrage teilzunehmen. Ich weiß, dass die Teilnahme freiwillig ist und ich jederzeit die Teilnahme ohne Begründung abbrechen kann. 
 
-## Purpose of the Study
-
-The purpose of this study is to demonstrate how to build a study using ReVISit. The study is designed to be simple and easy to build, and it is intended to be used as a starting point for building more complex studies.
-
-## Procedures
-
-You will be presented with a series of images. For each image, you will be asked to rate it on a scale from 1 to 5. You will also be asked to provide some demographic information.
-
-## Risks and Benefits
-
-There are no known risks associated with participating in this study. The benefits of participating in this study include gaining experience with ReVISit and learning how to build a study.
-
-## Confidentiality
-
-Your responses will be kept confidential. Your data will be stored securely and will only be accessible to the researchers involved in this study.
-
-## Voluntary Participation
-
-Your participation in this study is voluntary. You may choose to stop participating at any time without penalty.
-
-## Contact Information
-
-If you have any questions about this study, please contact the researchers at example@example.com
-
----
-
-By clicking the "I agree" button below, you are indicating that you have read the consent form and agree to participate in this study.
+Wenn Sie weitere Fragen haben, kontaktieren Sie bitte Marina Evers
+(Tel.:  +49 (0)271 740-3328; Email: marina.evers@uni-siegen.de).
