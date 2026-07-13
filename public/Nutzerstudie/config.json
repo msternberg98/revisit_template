@@ -44,7 +44,7 @@
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
-                "preset": "test",
+                "preset": "test1",
                 "output": "Vsup"
             },
             "response": [
@@ -80,7 +80,7 @@
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
             "parameters": {
-                "preset": "test",
+                "preset": "test2",
                 "output": "ScaledGlyph"
             },
             "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
@@ -116,7 +116,7 @@
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
             "parameters": {
-                "preset": "test",
+                "preset": "test3",
                 "output": "IsoGlyph"
             },
             "response": [
@@ -421,14 +421,21 @@
             "type": "questionnaire",
             "response": [
                 {
-                    "id": "Rating",
-                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 (nicht zufrieden) bis 5 (sehr zufrieden).",
-                    "required": true,
+                    "id": "Study_Rating",
+                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 bis 5.",
+                    "required": false,
                     "location": "aboveStimulus",
                     "type": "likert",
                     "leftLabel": "Nicht zufrieden",
                     "rightLabel": "Sehr zufrieden",
                     "numItems": 5
+                },
+                {
+                    "id": "Remarks",
+                    "prompt": "Weitere Anmerkungen",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "longText"
                 }
             ]
         }

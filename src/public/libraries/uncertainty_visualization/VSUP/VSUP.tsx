@@ -3,7 +3,7 @@ import { drawVSUP, VSUPOptions } from "./drawVSUP";
 
 interface VSUPProps {
     parameters?: {
-        preset?: "test" | "temperature" | "precipitation" | "air_pressure";
+        preset?: "test1" | "test2" | "test3" | "temperature" | "precipitation" | "air_pressure";
         output?: VSUPOptions ["output"];
     };
 

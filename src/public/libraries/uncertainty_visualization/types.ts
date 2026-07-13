@@ -11,7 +11,9 @@ export interface ClimateData {
 }
 
 export type DatasetPreset =
-    | "test"
+    | "test1"
+    | "test2"
+    | "test3"
     | "temperature"
     | "precipitation"
     | "air_pressure";

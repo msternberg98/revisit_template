@@ -3,7 +3,7 @@ import { drawScaledGlyph, ScaledGlyphOptions } from "./drawScaledGlyph";
 
 interface ScaledGlyphProps {
     parameters?: {
-        preset?: "test" | "temperature" | "precipitation" | "air_pressure";
+        preset?: "test1" | "test2" | "test3" | "temperature" | "precipitation" | "air_pressure";
         output?: ScaledGlyphOptions ["output"];
     };
 
