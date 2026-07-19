@@ -66,15 +66,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .range ([0, uncertaintySteps - 1]);
 
     const width = 1200;
+    const cellWidth = 6.5;
     const height = 600;
+    const cellHeight = cellWidth;
+    // console.log ({devicePixelRatio: window.devicePixelRatio, width, height});
 
     const { xScale, yScale } = createScales (data, width, height);
-
-    const uniqueLongitudes = Array.from (new Set (data.map (d => shiftedLongitude (d.longitude)))).sort ((a, b) => a - b);
-    const uniqueLatitudes = Array.from (new Set (data.map (d => d.latitude))).sort ((a, b) => a - b);
-
-    const cellWidth = xScale (uniqueLongitudes [1]) - xScale (uniqueLongitudes [0]) + 0.2;
-    const cellHeight = Math.abs (yScale (uniqueLatitudes [1]) - yScale (uniqueLatitudes [0])) + 0.2;
 
     const onClickPoint = options.onClickPoint;
 

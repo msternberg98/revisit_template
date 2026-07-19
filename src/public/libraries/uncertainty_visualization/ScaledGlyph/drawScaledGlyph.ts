@@ -97,18 +97,14 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 .range ([0, uncertaintySteps - 1]);
     
     const width = 1200;
+    const cellWidth = 6.35;
     const height = 600;
-
-    const { xScale, yScale } = createScales (data, width, height);
-
-    const uniqueLongitude = Array.from (new Set (data.map (d => shiftedLongitude (d.longitude)))).sort ((a, b) => a - b);
-    const uniqueLatitude = Array.from (new Set (data.map (d => d.latitude))).sort ((a, b) => a - b);
-
-    const cellWidth = xScale (uniqueLongitude [1]) - xScale (uniqueLongitude [0]) + 0.2;
-    const cellHeight = Math.abs (yScale (uniqueLatitude [1]) - yScale (uniqueLatitude [0])) + 0.2;
+    const cellHeight = 6.35;
 
     const glyphSize = aggregationFactor * cellWidth
     const glyphMaxRadius = 12
+
+    const { xScale, yScale } = createScales (data, width, height);
 
     const onClickPoint = options.onClickPoint;
     
