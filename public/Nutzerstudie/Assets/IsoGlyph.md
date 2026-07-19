@@ -1,6 +1,6 @@
 # Isometrische Glyphen
 
-Die Glyphe teilt sich hierbei in drei Bereiche: Ein Viereck, einen äußeren Kreis und einen inneren Kreis. Der äußere Kreis gibt farblich den Mittelwert an, während das darumliegened Viereck die Unsicherheit als Mittelwert + Unsicherheit (Standardabweichung) und der innere Kreis die Unsicherheit als Mittelwert - Unsicherheit (Standardabweichung) zeigen. Die Unsicherheit ist hier also über den Kontrast innerhalb einer Glyphe abzulesen, sollte keine Unsicherheit vorhanden sein, haben wir eine farblich einheitliche Fläche, während wir bei maximaler Unsicherheit einen starken Kontrast zum äußeren Ring haben und die Glyphe damit deutlich zu sehen ist.
+Bei dieser Visualisierung besteht jede Glyphe aus drei Bereichen: einem äußeren Quadrat, einem äußeren Kreis und einem inneren Kreis. Der äußere Kreis stellt den Mittelwert dar. Das Quadrat zeigt den Wert Mittelwert + Standardabweichung, während der innere Kreis den Wert Mittelwert − Standardabweichung darstellt. Die Unsicherheit lässt sich über dien Farbunterschied innerhalb einer Glyphe erkennen. Sollte keine Unsicherheit vorhanden sein, haben wir eine farblich einheitliche Fläche, während die Glyphe bei zunehmender Unsicherheit einen starken Kontrast hat und deutlich hervorsticht.
 
 <img src = "Nutzerstudie/Assets/Plots/Example_IsoGlyphLegende.svg" alt = "IsoGlyph-Legende" style = "max-width: 100%; width: 300px;"/>
 

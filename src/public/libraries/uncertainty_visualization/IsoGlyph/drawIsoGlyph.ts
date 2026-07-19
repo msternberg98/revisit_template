@@ -7,7 +7,7 @@ import { ClimateData } from "../types";
 
 export interface IsoGlyphOptions {
     preset?: DatasetPreset;
-    output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "isoGlyphPlot" | "isoGlyphLegend" | "IsoGlyph" | "IsoGlyph+" | "all";
+    output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "isoGlyphPlot" | "isoGlyphLegend" | "IsoGlyph" | "IsoGlyph+" | "IsoGlyphRegions" | "all";
     onClickPoint?: (result: {
 
         latitude: number;
@@ -97,15 +97,18 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .range ([0, uncertaintySteps - 1]);
     
     const width = 1200;
-    const cellWidth = 6.35;
     const height = 600;
-    const cellHeight = 6.35;
-    const glyphSize = aggregationFactor * cellWidth
-    const glyphMaxRadius = 12
 
     const { xScale, yScale } = createScales (data, width, height);
 
-    const onClickPoint = options.onClickPoint;
+    const uniqueLongitude = Array.from (new Set (data.map (d => shiftedLongitude (d.longitude)))).sort ((a, b) => a - b);
+    const uniqueLatitude = Array.from (new Set (data.map (d => d.latitude))).sort ((a, b) => a - b);
+
+    const cellWidth = xScale (uniqueLongitude [1]) - xScale (uniqueLongitude [0]) + 0.2;
+    const cellHeight = Math.abs (yScale (uniqueLatitude [1]) - yScale (uniqueLatitude [0])) + 0.2;
+
+    const glyphSize = aggregationFactor * cellWidth
+    const glyphMaxRadius = 12
 
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
     
@@ -118,7 +121,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            svg.call (zoom);
+        svg.call (zoom);
 
         const rects = zoomGroup.selectAll ("rect")
             .data (data)
@@ -293,7 +296,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            svg.call (zoom);
+        svg.call (zoom);
 
         const glyphs = zoomGroup.append ("g")
 
@@ -391,7 +394,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            svg.call (zoom);
+        svg.call (zoom);
 
         const glyphs = zoomGroup.append ("g")
 
@@ -525,6 +528,108 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement
     })();
 
+    const isoGlyphRegionsPlot = (() => {
+
+        const svg = d3.create ("svg")
+            .attr ("width", width)
+            .attr ("height", height)
+
+        const zoomGroup = svg.append("g");
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+        svg.call (zoom);
+
+        const glyphs = zoomGroup.append ("g")
+
+        const glyphGroup = glyphs.selectAll ("g")
+            .data (aggregatedData)
+            .join ("g")
+            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2}, ${yScale (d.latitude)})`)
+            .each (function (d) {
+                const g = d3.select (this as SVGGElement)
+                drawIsoGlyphsColored (g, glyphSize, d [valueKey]!, d.uncertainty_std)
+            })
+
+        const regionLayer = zoomGroup.append ("g")
+            .attr ("class", "region-layer");
+
+        const regions = [
+            {
+                //Region 1: mean value -13.1901; mean uncertainty 5.4356
+                latitudeMin: 77.4058880820788,
+                latitudeMax: 84.86197029204237,
+                longitudeMin: 9.375,
+                longitudeMax: 16.875
+            },
+            {
+                //Region 2: mean value -1.2391; mean uncertainty 3.1356
+                latitudeMin: 49.42915369712305,
+                latitudeMax: 56.89001260135711,
+                longitudeMin: 22.5,
+                longitudeMax: 30
+            },
+            {
+                //Region 3: mean value 0.4607; mean uncertainty 1.4989 
+                latitudeMin: 41.96822026907538,
+                latitudeMax: 49.42915369712305,
+                longitudeMin: 296.25,
+                longitudeMax: 303.75
+            },
+            {
+                //Region 4: mean value -20.0962; uncertainty 1.4297
+                latitudeMin: -84.86197029204237,
+                latitudeMax: -77.4058880820788,
+                longitudeMin: 275.625,
+                longitudeMax: 283.125
+            },
+            {
+                //Region 5: mean value 2.7040; uncertainty 0.6454
+                latitudeMin: 49.42915369712305,
+                latitudeMax: 56.89001260135711,
+                longitudeMin: 166.875,
+                longitudeMax: 174.375
+            }
+        ];
+        
+        regions.forEach ((region, index) => {
+
+            const x1 = xScale (shiftedLongitude (region.longitudeMin));
+            const x2 = xScale (shiftedLongitude (region.longitudeMax)) + cellWidth;
+
+            const y1 = yScale (region.latitudeMax) - cellHeight / 2;
+            const y2 = yScale (region.latitudeMin) + cellHeight / 2;
+
+            const x = Math.min (x1, x2);
+            const y = Math.min (y1, y2);
+            const width = Math.abs (x2 - x1);
+            const height = Math.abs (y2 - y1);
+
+            regionLayer.append ("rect")
+                .attr ("x", x)
+                .attr ("y", y)
+                .attr ("width", width)
+                .attr ("height", height)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.5)
+                .attr ("pointer-events", "none");
+
+            regionLayer.append ("text")
+                .attr ("x", x + width / 2)
+                .attr ("y", y - 5)
+                .attr ("text-anchor", "middle")
+                .attr ("dominant-baseline", "auto")
+                .attr ("font-size", 14)
+                .attr ("font-weight", "bold")
+                .attr ("fill", "black")
+                .attr ("pointer-events", "none")
+                .text (`R${index + 1}`);
+        });
+        return svg.node () as SVGSVGElement;
+    })();
+
     function createExportAllPlots (
         plots: Array <[string, SVGElement]>,
         width: number,
@@ -630,6 +735,11 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             container.appendChild (isoGlyphLegend);
             break;
 
+        case "IsoGlyphRegions":
+            container.appendChild (isoGlyphRegionsPlot);
+            container.appendChild (isoGlyphLegend);
+            break;
+
         case "all":
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
@@ -637,6 +747,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             container.appendChild (uncertaintyLegend);
             container.appendChild (isoGlyphPlot);
             container.appendChild (isoGlyphLegend);
+            container.appendChild (isoGlyphRegionsPlot);
             break;
 
         default:

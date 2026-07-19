@@ -7,7 +7,7 @@ import { ClimateData } from "../types";
 
 export interface ScaledGlyphOptions {
     preset?: DatasetPreset;
-    output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "scaledGlyphPlot" | "scaledGlyphLegend" | "ScaledGlyph" | "all";
+    output?: "valuePlot" | "valueLegend" | "Value" | "uncertaintyPlot" | "uncertaintyLegend" | "Uncertainty" | "scaledGlyphPlot" | "scaledGlyphLegend" | "ScaledGlyph" | "ScaledGlyphRegions" | "all";
     onClickPoint?: (result: {
 
         latitude: number;
@@ -97,14 +97,18 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 .range ([0, uncertaintySteps - 1]);
     
     const width = 1200;
-    const cellWidth = 6.35;
     const height = 600;
-    const cellHeight = 6.35;
+
+    const { xScale, yScale } = createScales (data, width, height);
+
+    const uniqueLongitude = Array.from (new Set (data.map (d => shiftedLongitude (d.longitude)))).sort ((a, b) => a - b);
+    const uniqueLatitude = Array.from (new Set (data.map (d => d.latitude))).sort ((a, b) => a - b);
+
+    const cellWidth = xScale (uniqueLongitude [1]) - xScale (uniqueLongitude [0]) + 0.2;
+    const cellHeight = Math.abs (yScale (uniqueLatitude [1]) - yScale (uniqueLatitude [0])) + 0.2;
 
     const glyphSize = aggregationFactor * cellWidth
     const glyphMaxRadius = 12
-
-    const { xScale, yScale } = createScales (data, width, height);
 
     const onClickPoint = options.onClickPoint;
     
@@ -502,6 +506,126 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
     })();
 
+    const scaledGlyphRegionsPlot = (() => {
+
+        const svg = d3.create ("svg")
+            .attr ("width", width)
+            .attr ("height", height);
+        
+        const zoomGroup = svg.append("g");
+
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+            svg.call (zoom);
+
+        // Hintergrund = Mittelwert
+        zoomGroup.selectAll ("rect")
+            .data (data)
+            .join ("rect")
+            .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
+            .attr ("y", d => yScale (d.latitude) - cellHeight / 2)
+            .attr ("width", cellWidth)
+            .attr ("height", cellHeight)
+            .attr ("fill", d => valueColorScale (d [valueKey]!))
+
+        // Glyphen darüber
+        const glyphGroup = zoomGroup.append ("g")
+            .selectAll ("g")
+            .data (aggregatedData)
+            .join ("g")
+            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2},${yScale (d.latitude)})`)
+            .each (function (d) {
+                const g = d3.select (this as SVGGElement); 
+                g.append ("rect")
+                    .attr ("x", -cellWidth / 2)
+                    .attr ("y", -cellHeight / 2)
+                    .attr ("width", cellWidth)
+                    .attr ("height", cellHeight)
+                    .attr ("fill", "transparent")
+                    .style ("pointer-events", "all");
+                drawScaledGlyphs (g, d.uncertainty_std);
+            });
+        
+        const regionLayer = zoomGroup.append ("g")
+            .attr ("class", "region-layer");
+
+        const regions = [
+            {
+                //Region 1: mean value -13.1901; mean uncertainty 5.4356
+                latitudeMin: 77.4058880820788,
+                latitudeMax: 84.86197029204237,
+                longitudeMin: 9.375,
+                longitudeMax: 16.875
+            },
+            {
+                //Region 2: mean value -1.2391; mean uncertainty 3.1356
+                latitudeMin: 49.42915369712305,
+                latitudeMax: 56.89001260135711,
+                longitudeMin: 22.5,
+                longitudeMax: 30
+            },
+            {
+                //Region 3: mean value 0.4607; mean uncertainty 1.4989 
+                latitudeMin: 41.96822026907538,
+                latitudeMax: 49.42915369712305,
+                longitudeMin: 296.25,
+                longitudeMax: 303.75
+            },
+            {
+                //Region 4: mean value -20.0962; uncertainty 1.4297
+                latitudeMin: -84.86197029204237,
+                latitudeMax: -77.4058880820788,
+                longitudeMin: 275.625,
+                longitudeMax: 283.125
+            },
+            {
+                //Region 5: mean value 2.7040; uncertainty 0.6454
+                latitudeMin: 49.42915369712305,
+                latitudeMax: 56.89001260135711,
+                longitudeMin: 166.875,
+                longitudeMax: 174.375
+            }
+        ];
+        
+        regions.forEach ((region, index) => {
+
+            const x1 = xScale (shiftedLongitude (region.longitudeMin));
+            const x2 = xScale (shiftedLongitude (region.longitudeMax)) + cellWidth;
+
+            const y1 = yScale (region.latitudeMax) - cellHeight / 2;
+            const y2 = yScale (region.latitudeMin) + cellHeight / 2;
+
+            const x = Math.min (x1, x2);
+            const y = Math.min (y1, y2);
+            const width = Math.abs (x2 - x1);
+            const height = Math.abs (y2 - y1);
+
+            regionLayer.append ("rect")
+                .attr ("x", x)
+                .attr ("y", y)
+                .attr ("width", width)
+                .attr ("height", height)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.5)
+                .attr ("pointer-events", "none");
+
+            regionLayer.append ("text")
+                .attr ("x", x + width / 2)
+                .attr ("y", y - 5)
+                .attr ("text-anchor", "middle")
+                .attr ("dominant-baseline", "auto")
+                .attr ("font-size", 14)
+                .attr ("font-weight", "bold")
+                .attr ("fill", "black")
+                .attr ("pointer-events", "none")
+                .text (`R${index + 1}`);
+        });
+        return svg.node () as SVGSVGElement;
+    })();
+
     function createExportAllPlots (
         plots: Array <[string, SVGElement]>,
         width: number,
@@ -602,6 +726,11 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             container.appendChild (scaledGlyphLegend);
             break;
 
+        case "ScaledGlyphRegions":
+            container.appendChild (scaledGlyphRegionsPlot);
+            container.appendChild (scaledGlyphLegend);
+            break;
+
         case "all":
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
@@ -609,6 +738,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             container.appendChild (uncertaintyLegend);
             container.appendChild (scaledGlyphPlot);
             container.appendChild (scaledGlyphLegend);
+            container.appendChild (scaledGlyphRegionsPlot)
             break;
 
         default:
