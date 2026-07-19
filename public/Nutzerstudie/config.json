@@ -55,7 +55,7 @@
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
-                "preset": "temperature",
+                "preset": "test1",
                 "output": "Vsup"
             },
             "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
