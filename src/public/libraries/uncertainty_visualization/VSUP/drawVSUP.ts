@@ -66,7 +66,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .range ([0, uncertaintySteps - 1]);
 
     const width = 1200;
-    const cellWidth = 6.5;
+    const cellWidth = 6.5;  //PC: 6.35  Laptop: ~ 6.8   Überlappung ab: 6.6
     const height = 600;
     const cellHeight = cellWidth;
     // console.log ({devicePixelRatio: window.devicePixelRatio, width, height});
