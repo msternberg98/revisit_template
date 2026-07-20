@@ -73,6 +73,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
     const { xScale, yScale } = createScales (data, width, height);
 
+    console.log (
+        xScale (shiftedLongitude (0)),
+        xScale (shiftedLongitude (1.875)),
+        xScale (shiftedLongitude (3.75))
+    );
+
     const onClickPoint = options.onClickPoint;
 
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
@@ -80,6 +86,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         const svg = d3.create <SVGSVGElement> ("svg")
             .attr ("width", width)
             .attr ("height", height);
+
+        console.log (svg.node ()?.getBoundingClientRect ());
 
         const zoomGroup = svg.append("g");
         const zoom = d3.zoom <SVGSVGElement, unknown> ()
