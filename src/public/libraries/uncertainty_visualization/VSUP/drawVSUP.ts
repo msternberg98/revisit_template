@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as JSZip from "jszip";
+import JSZip from "jszip";
 import { vsupColor } from "./vsupColor";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
@@ -28,25 +28,20 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
     container.innerHTML = '';
 
-    // DATA LOADING (REVISIT-COMPATIBEL)
-
+    // Datensatz
     const data = await loadDataset (preset);
     const config = presetInfo [preset];
     const valueKey = config.valueKey;
 
-    // EXTENTS (statt Observable workbook.sheet)
-
     const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
 
-    // CONFIG
-
+    // Diskrete Schritte
     const valueSteps = 8;
     const uncertaintySteps = 6;
     const useDiscrete = false;
 
-    // COLOR SCALE
-
+    // Farbskala
     const valueColorScale = useDiscrete
         ? d3.scaleQuantize <string> ()
             .domain (valueExtent)
@@ -55,8 +50,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .domain (valueExtent)
             .interpolator (d3.interpolateViridis);
 
-    // UNCERTAINTY SCALE
-
+    // Unsicherheitsskala
     const uncertaintyScale = useDiscrete
         ? d3.scaleQuantize <number> ()
             .domain (uncertaintyExtent)
@@ -65,36 +59,31 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .domain (uncertaintyExtent)
             .range ([0, uncertaintySteps - 1]);
 
+    // Größen
     const width = 1200;
-    const cellWidth = 6.5;  //PC: 6.35  Laptop: ~ 6.8   Überlappung ab: 6.6
+    const cellWidth = 6.35;
     const height = 600;
     const cellHeight = cellWidth;
-    // console.log ({devicePixelRatio: window.devicePixelRatio, width, height});
 
+    // Longitude Shift
     const { xScale, yScale } = createScales (data, width, height);
-
-    console.log (
-        xScale (shiftedLongitude (0)),
-        xScale (shiftedLongitude (1.875)),
-        xScale (shiftedLongitude (3.75))
-    );
 
     const onClickPoint = options.onClickPoint;
 
+    // Raster Plot
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
 
         const svg = d3.create <SVGSVGElement> ("svg")
             .attr ("width", width)
             .attr ("height", height);
 
-        console.log (svg.node ()?.getBoundingClientRect ());
-
-        const zoomGroup = svg.append("g");
+        const zoomGroup = svg.append ("g");
         const zoom = d3.zoom <SVGSVGElement, unknown> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            svg.call (zoom);
+        
+        svg.call (zoom);
 
         const rects = zoomGroup.selectAll ("rect")
             .data (data)
@@ -103,46 +92,49 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
-            .attr ("fill", colorFunction);
+            .attr ("fill", colorFunction)
+            .attr ("shape-rendering", "crispEdges");
 
         const selectionLayer = zoomGroup.append ("g")
             .attr ("class", "selection-layer");
 
         rects.on ("click", function (event, d) {
 
-                event.stopPropagation ();
-                selectionLayer.selectAll ("*").remove ();
-                selectionLayer.append ("rect")
-                    .attr ("class", "selection-marker")
-                    .attr ("x", xScale (shiftedLongitude (d.longitude)))
-                    .attr ("y", yScale (d.latitude) - cellHeight / 2)
-                    .attr ("width", cellWidth)
-                    .attr ("height", cellHeight)
-                    .attr ("fill", "none")
-                    .attr ("stroke", "black")
-                    .attr ("stroke-width", 0.4)
-                    .attr ("pointer-events", "none");
+            event.stopPropagation ();
+            selectionLayer.selectAll ("*").remove ();
+            selectionLayer.append ("rect")
+                .attr ("class", "selection-marker")
+                .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                .attr ("width", cellWidth)
+                .attr ("height", cellHeight)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.4)
+                .attr ("pointer-events", "none");
 
-                onClickPoint?.({
+            onClickPoint?.({
 
+                latitude: d.latitude,
+                longitude: d.longitude,
+                meanValue: d [valueKey] as number,
+                uncertaintyStd: d.uncertainty_std,
+                sourceValues: [{
                     latitude: d.latitude,
                     longitude: d.longitude,
-                    meanValue: d [valueKey] as number,
-                    uncertaintyStd: d.uncertainty_std,
-                    sourceValues: [{
-                        latitude: d.latitude,
-                        longitude: d.longitude,
-                        mean_temperature: d.mean_temperature,
-                        uncertainty_std: d.uncertainty_std
-                    }]
-                });
-            })
+                    mean_temperature: d.mean_temperature,
+                    uncertainty_std: d.uncertainty_std
+                }]
+            });
+        })
 
         return svg.node () as SVGSVGElement;
     }
 
+    // Datensatz Werte Plot
     const valuePlot = createRasterPlot (d => valueColorScale (d [valueKey]!));
 
+    // Datensatz Werte Legende
     const valueLegend = (() => {
 
         const legendWidth = 130;
@@ -165,11 +157,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             const value = i / (steps - 1);
 
             svg.append ("rect")
-            .attr ("x", 20)
-            .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
-            .attr ("width", 30)
-            .attr ("height", stepHeight)
-            .attr ("fill", d3.interpolateViridis(value));
+                .attr ("x", 20)
+                .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
+                .attr ("width", 30)
+                .attr ("height", stepHeight)
+                .attr ("fill", d3.interpolateViridis (value))
+                .attr ("shape-rendering", "crispEdges");
         }
 
         const labelSteps = 6;
@@ -179,10 +172,9 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             const tRaw = j / (labelSteps - 1);
             const padding = 0.02;
             const t = padding + tRaw * (1 - 2 * padding);
+            const y = topMargin + usableHeight - t * usableHeight;
 
             const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
-
-            const y = topMargin + usableHeight - t * usableHeight;
 
             svg.append ("text")
                 .attr ("x", 60)
@@ -200,11 +192,13 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         return svg.node () as SVGSVGElement;
     })();
 
+    // Datensatz Unsicherheit Plot
     const uncertaintyPlot = createRasterPlot ((d) => {
         const level = uncertaintyScale (d.uncertainty_std);
         return d3.interpolateGreys (level / (uncertaintySteps - 1));
     });
 
+    // Datensatz Unsicherheit Legende
     const uncertaintyLegend = (() => {
 
         const legendWidth = 150;
@@ -214,13 +208,13 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         const steps = useDiscrete
             ? uncertaintySteps
             : 100;
+        const usableHeight = legendHeight - topMargin;
+        const stepHeight = usableHeight / steps;
 
         const svg = d3.create ("svg")
             .attr ("width", legendWidth)
             .attr ("height", legendHeight);
 
-        const usableHeight = legendHeight - topMargin;
-        const stepHeight = usableHeight / steps;
 
         for (let i = 0; i < steps; i++) {
 
@@ -231,7 +225,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
             .attr ("width", 30)
             .attr ("height", stepHeight)
-            .attr ("fill", d3.interpolateGreys(value));
+            .attr ("fill", d3.interpolateGreys (value))
+            .attr ("shape-rendering", "crispEdges");
         }
 
         const labelSteps = 6;
@@ -241,10 +236,9 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             const tRaw = j / (labelSteps - 1);
             const padding = 0.02;
             const t = padding + tRaw * (1 - 2 * padding);
-
-            const uncertaintyValue = uncertaintyExtent [0] + tRaw * (uncertaintyExtent[1] - uncertaintyExtent [0]);
-
             const y = topMargin + usableHeight - t * usableHeight;
+
+            const uncertaintyValue = uncertaintyExtent [0] + tRaw * (uncertaintyExtent [1] - uncertaintyExtent [0]);
 
             svg.append ("text")
                 .attr ("x", 60)
@@ -260,9 +254,9 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .text (config.uncertaintyLabel)
 
         return svg.node () as SVGSVGElement;
+    })();
 
-        })();
-
+    // VSUP Plot
     const vsupPlot = createRasterPlot (d => vsupColor ({
 
         value: d [valueKey]!,
@@ -272,9 +266,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         valueSteps,
         uncertaintySteps,
         useDiscrete
-    })
+        })
     );
 
+    // VSUP Legende
     const vsupLegend = (() => {
 
         const size = 280;
@@ -324,7 +319,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                         .attr ("stroke-width", 0);
                 }
             });
-
         } else {
 
             const ringCount = 40;
@@ -369,20 +363,20 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         }
 
         svg.append ("line")
-        .attr ("x1", centerX - 2)
-        .attr ("y1", centerY)
-        .attr ("x2", centerX - 2)
-        .attr ("y2", centerY - maxRadius)
-        .attr ("stroke", "black")
-        .attr ("stroke-width", 1.5);
+            .attr ("x1", centerX - 2)
+            .attr ("y1", centerY)
+            .attr ("x2", centerX - 2)
+            .attr ("y2", centerY - maxRadius)
+            .attr ("stroke", "black")
+            .attr ("stroke-width", 1.5);
 
         const uncertaintyTicks = 5;
 
         for (let i = 0; i < uncertaintyTicks; i++) {
 
             const t = i / (uncertaintyTicks - 1);
-
             const y = centerY - t * maxRadius;
+            const uncertaintyValue = uncertaintyExtent [1] - t * (uncertaintyExtent [1] - uncertaintyExtent [0]);
 
             svg.append ("line")
                 .attr ("x1", centerX - 2)
@@ -391,7 +385,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("y2", y)
                 .attr ("stroke", "black");
 
-            const uncertaintyValue = uncertaintyExtent [1] - t * (uncertaintyExtent [1] - uncertaintyExtent [0]);
 
             svg.append ("text")
                 .attr ("x", centerX - 14)
@@ -407,19 +400,19 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("font-size", 12)
             .text (config.uncertaintyLabel);
 
-        // Value Scale
+        // Werte Label
         const valueRadius = maxRadius + 10;
 
         svg.append ("path")
-        .attr ("d", d3.arc ()({
-            innerRadius: valueRadius,
-            outerRadius: valueRadius,
-            startAngle: 0,
-            endAngle: Math.PI / 2}))
-        .attr ("transform", `translate(${centerX + 6},${centerY})`)
-        .attr ("fill", "none")
-        .attr ("stroke", "black")
-        .attr ("stroke-width", 1.5);
+            .attr ("d", d3.arc ()({
+                innerRadius: valueRadius,
+                outerRadius: valueRadius,
+                startAngle: 0,
+                endAngle: Math.PI / 2}))
+            .attr ("transform", `translate(${centerX + 6},${centerY})`)
+            .attr ("fill", "none")
+            .attr ("stroke", "black")
+            .attr ("stroke-width", 1.5);
 
         const valueTicks = 5;
 
@@ -430,11 +423,17 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
             const tickInner = valueRadius;
             const tickOuter = valueRadius + 8;
+            const labelRadius = valueRadius + 22;
 
             const x1 = centerX + 6 + Math.cos (angle) * tickInner;
             const y1 = centerY - Math.sin (angle) * tickInner;
             const x2 = centerX + 6 + Math.cos (angle) * tickOuter;
             const y2 = centerY - Math.sin (angle) * tickOuter;
+
+            const lx = centerX + 6 + Math.cos (angle) * labelRadius;
+            const ly = centerY - Math.sin (angle) * labelRadius;
+
+            const value = valueExtent [0] + t * (valueExtent [1] - valueExtent [0]);
 
             svg.append ("line")
                 .attr ("x1", x1)
@@ -442,12 +441,6 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                 .attr ("x2", x2)
                 .attr ("y2", y2)
                 .attr ("stroke", "black");
-
-            const value = valueExtent [0] + t * (valueExtent [1] - valueExtent [0]);
-            const labelRadius = valueRadius + 22;
-
-            const lx = centerX + 6 + Math.cos (angle) * labelRadius;
-            const ly = centerY - Math.sin (angle) * labelRadius;
 
             svg.append("text")
                 .attr ("x", lx)
@@ -459,15 +452,16 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         }
 
         svg.append ("text")
-        .attr ("x", centerX + 85 + maxRadius * 0.55)
-        .attr ("y", centerY - maxRadius)
-        .attr ("font-size", 12)
-        .attr ("text-anchor", "middle")
-        .text (config.valueLabel);
+            .attr ("x", centerX + 85 + maxRadius * 0.55)
+            .attr ("y", centerY - maxRadius)
+            .attr ("font-size", 12)
+            .attr ("text-anchor", "middle")
+            .text (config.valueLabel);
 
         return svg.node ()!;
     })();
 
+    // Raster Plot mit Regionen
     function createRasterPlotRegions (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
 
         const svg = d3.create <SVGSVGElement> ("svg")
@@ -488,7 +482,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
-            .attr ("fill", colorFunction);
+            .attr ("fill", colorFunction)
+            .attr ("shape-rendering", "crispEdges");
 
         const regionLayer = zoomGroup.append ("g")
             .attr ("class", "region-layer");
@@ -568,6 +563,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         return svg.node () as SVGSVGElement;
     }
 
+    // VSUP Plot mit Regionen
     const vsupPlotRegions = createRasterPlotRegions (d => vsupColor ({
 
         value: d [valueKey]!,
@@ -580,11 +576,59 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     })
     );
 
-    function createExportAllPlots (
-        plots: Array <[string, SVGElement]>,
+    async function renderSvgToCanvas (
+        svg: SVGElement,
         width: number,
-        height: number
-        ) {
+        height: number,
+        scale = 7
+        ): Promise <HTMLCanvasElement> {
+
+        const serializer = new XMLSerializer ();
+        const svgSource = serializer.serializeToString (svg);
+
+        const canvas = document.createElement ("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+
+        const ctx = canvas.getContext ("2d");
+
+        if (!ctx) {throw new Error ("Canvas Context konnte nicht erzeugt werden.");}
+
+        ctx.scale (scale, scale);
+
+        const img = new Image ();
+
+        const blob = new Blob (
+            [svgSource],
+            { type: "image/svg+xml;charset=utf-8" }
+        );
+
+        const url = URL.createObjectURL (blob);
+
+        await new Promise <void> ((resolve) => {
+
+            img.onload = () => {
+
+                ctx.drawImage (img, 0, 0);
+                URL.revokeObjectURL (url);
+                resolve ();
+            };
+            img.src = url;
+        });
+        return canvas;
+    }
+
+    // Datei Namen für Export
+    const datasetName = valueKey === "mean_temperature"
+        ? "Temperature"
+        : valueKey === "mean_precipitation"
+        ? "Precipitation"
+        : valueKey === "mean_air_pressure"
+        ? "Air_Pressure"
+        : valueKey;
+
+    // Export Button
+    function createExportAllPlots (plots: Array <[string, SVGElement, number, number]>) {
         const button = document.createElement ("button");
         button.innerText = "Download All Plots";
 
@@ -592,35 +636,27 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             const zip = new JSZip ();
             const serializer = new XMLSerializer ();
 
-            for (const [name, plot] of plots) {
+            for (const [name, plot, width, height] of plots) {
                 // SVG export
                 const svgSource = serializer.serializeToString (plot);
                 zip.file (`${name}.svg`, svgSource);
 
-                // PNG export via canvas
-                const canvas = document.createElement ("canvas");
-                canvas.width = width;
-                canvas.height = height;
+                // PNG export
+                const canvas = await renderSvgToCanvas (plot, width, height);
 
-                const ctx = canvas.getContext ("2d");
-                if (!ctx) continue;
+                await new Promise <void> ((resolve) => {
 
-                const img = new Image ();
-                const svgBlob = new Blob ([svgSource], {type: "image/svg+xml;charset=utf-8",});
-
-                const url = URL.createObjectURL (svgBlob);
-
-                await new Promise<void> ((resolve) => {
-                    img.onload = () => {
-                    ctx.drawImage (img, 0, 0);
                     canvas.toBlob ((blob) => {
-                        if (blob) zip.file (`${name}.png`, blob);
-                        URL.revokeObjectURL (url);
-                        resolve ();
-                    });
-                    };
 
-                    img.src = url;
+                        if (blob) {
+                            zip.file (`${name}.png`, blob);
+                        }
+
+                        resolve ();
+                    },
+                    "image/png",
+                    1.0
+                    );
                 });
             }
 
@@ -630,15 +666,15 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
             const a = document.createElement ("a");
             a.href = url;
-            a.download = "VSUP_Plots.zip";
+            a.download = `${datasetName}_VSUP_Plots.zip`;
             a.click ();
 
             URL.revokeObjectURL (url);
         };
-
         return button;
     }
     
+    // Container Switch
     switch (output) {
 
         case "valuePlot":
@@ -686,13 +722,27 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             break;
 
         case "all":
-            container.appendChild (valuePlot);
-            container.appendChild (valueLegend);
-            container.appendChild (uncertaintyPlot);
-            container.appendChild (uncertaintyLegend);
-            container.appendChild (vsupPlot);
-            container.appendChild (vsupLegend);
-            container.appendChild (vsupPlotRegions);
+            // container.appendChild (valuePlot);
+            // container.appendChild (valueLegend);
+            // container.appendChild (uncertaintyPlot);
+            // container.appendChild (uncertaintyLegend);
+            // container.appendChild (vsupPlot);
+            // container.appendChild (vsupLegend);
+            // container.appendChild (vsupPlotRegions);
+            
+            container.appendChild (createExportAllPlots (
+                    [
+                        [`${datasetName}_Value_Plot`, valuePlot, 1200, 600],
+                        [`${datasetName}_Value_Legende`, valueLegend, 130, 180],
+                        [`${datasetName}_Uncertainty_Plot`, uncertaintyPlot, 1200, 600],
+                        [`${datasetName}_Uncertainty_Legende`, uncertaintyLegend, 150, 380],
+                        [`${datasetName}_VSUP_Plot`, vsupPlot, 1200, 600],
+                        [`${datasetName}_VSUP_Legende`, vsupLegend, 280, 280],
+                        [`${datasetName}_VSUP_Regions`, vsupPlotRegions, 1200, 600]
+                    ],
+                )
+            );
+
             break;
 
         default:

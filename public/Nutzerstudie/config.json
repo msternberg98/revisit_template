@@ -545,7 +545,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -559,7 +559,7 @@
                 {
                     "id": "Temperatur_VSUP_LongText_Response",
                     "type": "longText",
-                    "required": false,
+                    "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
@@ -585,7 +585,7 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -600,7 +600,7 @@
                 {
                     "id": "Temperatur_ScaledGlyph_LongText_Response",
                     "type": "longText",
-                    "required": false,
+                    "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
@@ -626,7 +626,7 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -641,7 +641,7 @@
                 {
                     "id": "Temperatur_IsoGlyph_LongText_Response",
                     "type": "longText",
-                    "required": false,
+                    "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
@@ -729,10 +729,13 @@
         "components": [
             "Introduction",
             "Consent",
+
             "VSUP_Description",
             "VSUP_Test",
+
             "ScaledGlyph_Description",
             "ScaledGlyph_Test",
+            
             "IsoGlyph_Description",
             "IsoGlyph_Test",
             {

@@ -29,9 +29,9 @@ export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
         if (!container.current) return;
 
         const load = async () => {
+
             await drawIsoGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
         
-                console.log ("Klick auf Punkt:", result);
                 setAnswer?.({status: true, answers: {
         
                     IsoGlyph_Response_Latitude: result.latitude,

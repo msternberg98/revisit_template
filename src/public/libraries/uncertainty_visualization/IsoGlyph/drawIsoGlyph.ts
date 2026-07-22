@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as JSZip from "jszip";
+import JSZip from "jszip";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
 import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
@@ -27,13 +27,15 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
     
     container.innerHTML = '';
 
+    // Datensatz
     const data = await loadDataset (preset);
     const config = presetInfo [preset];
     const valueKey = config.valueKey;
 
     const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
-     
+    
+    // Aggregation
     const aggregationFactor: number = 1
 
     const uniqueLongitudes = Array.from (new Set(data.map (d => d.longitude))).sort ((a, b) => a - b);
@@ -47,7 +49,6 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         if (aggregationFactor === 1) {
 
             return data.map (d => ({
-
                 ...d,
                 sourceValues: [d]
             }));
@@ -76,10 +77,12 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         );
     })();
 
+    // Diskrete Schritte
     const valueSteps = 8;
     const uncertaintySteps = 6;
     const useDiscrete = false;
 
+    // Farbskala
     const valueColorScale = useDiscrete
         ? d3.scaleQuantize <string> ()
             .domain (valueExtent)
@@ -87,26 +90,20 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         : d3.scaleSequential <string> ()
             .domain (valueExtent)
             .interpolator (d3.interpolateViridis);
-
-    const uncertaintyScale = useDiscrete
-            ? d3.scaleQuantize <number> ()
-                .domain (uncertaintyExtent)
-                .range (d3.range(uncertaintySteps))
-            : d3.scaleLinear ()
-                .domain (uncertaintyExtent)
-                .range ([0, uncertaintySteps - 1]);
     
+    // Plot Größen
     const width = 1200;
     const cellWidth = 6.35;
     const height = 600;
     const cellHeight = cellWidth;
     const glyphSize = aggregationFactor * cellWidth
-    const glyphMaxRadius = 12
 
+    // Longitude Shift
     const { xScale, yScale } = createScales (data, width, height);
 
     const onClickPoint = options.onClickPoint;
 
+    // Raster Plot
     function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
     
         const svg = d3.create <SVGSVGElement> ("svg")
@@ -118,6 +115,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+        
         svg.call (zoom);
 
         const rects = zoomGroup.selectAll ("rect")
@@ -127,46 +125,48 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
-            .attr ("fill", colorFunction);
+            .attr ("fill", colorFunction)
+            .attr ("shape-rendering", "crispEdges");
 
         const selectionLayer = zoomGroup.append ("g")
             .attr ("class", "selection-layer");
 
         rects.on ("click", function (event, d) {
 
-                event.stopPropagation ();
-                selectionLayer.selectAll ("*").remove ();
-                selectionLayer.append ("rect")
-                    .attr ("class", "selection-marker")
-                    .attr ("x", xScale (shiftedLongitude (d.longitude)))
-                    .attr ("y", yScale (d.latitude) - cellHeight / 2)
-                    .attr ("width", cellWidth)
-                    .attr ("height", cellHeight)
-                    .attr ("fill", "none")
-                    .attr ("stroke", "black")
-                    .attr ("stroke-width", 0.4)
-                    .attr ("pointer-events", "none");
+            event.stopPropagation ();
+            selectionLayer.selectAll ("*").remove ();
+            selectionLayer.append ("rect")
+                .attr ("class", "selection-marker")
+                .attr ("x", xScale (shiftedLongitude (d.longitude)))
+                .attr ("y", yScale (d.latitude) - cellHeight / 2)
+                .attr ("width", cellWidth)
+                .attr ("height", cellHeight)
+                .attr ("fill", "none")
+                .attr ("stroke", "black")
+                .attr ("stroke-width", 0.4)
+                .attr ("pointer-events", "none");
 
-                onClickPoint?.({
+            onClickPoint?.({
 
+                latitude: d.latitude,
+                longitude: d.longitude,
+                meanValue: d [valueKey] as number,
+                uncertaintyStd: d.uncertainty_std,
+                sourceValues: [{
                     latitude: d.latitude,
                     longitude: d.longitude,
-                    meanValue: d [valueKey] as number,
-                    uncertaintyStd: d.uncertainty_std,
-                    sourceValues: [{
-                        latitude: d.latitude,
-                        longitude: d.longitude,
-                        mean_temperature: d.mean_temperature,
-                        uncertainty_std: d.uncertainty_std
-                    }]
-                });
-            })
-
+                    mean_temperature: d.mean_temperature,
+                    uncertainty_std: d.uncertainty_std
+                }]
+            });
+        })
         return svg.node () as SVGSVGElement;
     }
 
+    // Datensatz Werte Plot
     const valuePlot = createRasterPlot (d => valueColorScale (d [valueKey]!));
 
+    // Datensatz Werte Legende
     const valueLegend = (() => {
 
         const legendWidth = 130;
@@ -189,11 +189,12 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             const value = i / (steps - 1);
 
             svg.append ("rect")
-            .attr ("x", 20)
-            .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
-            .attr ("width", 30)
-            .attr ("height", stepHeight)
-            .attr ("fill", d3.interpolateViridis(value));
+                .attr ("x", 20)
+                .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
+                .attr ("width", 30)
+                .attr ("height", stepHeight)
+                .attr ("fill", d3.interpolateViridis (value))
+                .attr ("shape-rendering", "crispEdges");
         }
 
         const labelSteps = 6;
@@ -203,10 +204,9 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             const tRaw = j / (labelSteps - 1);
             const padding = 0.02;
             const t = padding + tRaw * (1 - 2 * padding);
+            const y = topMargin + usableHeight - t * usableHeight;
 
             const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
-
-            const y = topMargin + usableHeight - t * usableHeight;
 
             svg.append ("text")
                 .attr ("x", 60)
@@ -224,6 +224,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement;
     })();
 
+    // Iso Glyphen Grau
     function drawIsoGlyphs (g: d3.Selection <SVGGElement, any, any, any>, size: number, uncertainty: number) {
 
         const uncertaintyFactor = (uncertainty - uncertaintyExtent [0]) / (uncertaintyExtent [1] - uncertaintyExtent [0])
@@ -234,25 +235,27 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         const outerRingColor = d3.interpolateGreys (baseGray)
         const innerRingColor = d3.interpolateGreys (Math.max (0, baseGray - clampedFactor * 0.45))
 
-        // Quadrat (+ uncertainty)
+        // Quadrat (+ Unsicherheit)
         g.append ("rect")
             .attr ("x", -size / 2)
             .attr ("y", -size / 2)
             .attr ("width", size)
             .attr ("height", size)
             .attr ("fill", squareColor)
+            .attr ("shape-rendering", "crispEdges");
 
-        // Außenkreis (mean)
+        // Außenkreis
         g.append ("circle")
             .attr ("r", size * 0.4)
-            .attr ("fill", outerRingColor)
+            .attr ("fill", outerRingColor);
 
-        // Innenkreis (- uncertainty)
+        // Innenkreis (- Unsicherheit)
         g.append ("circle")
             .attr ("r", size * 0.2)
-            .attr ("fill", innerRingColor)
+            .attr ("fill", innerRingColor);
     }
 
+    // Iso Glyphen Farbe
     function drawIsoGlyphsColored (g: d3.Selection <SVGGElement, any, any, any>, size: number, value: number, uncertainty: number) {
 
         const upperValue = Math.min (valueExtent [1], value + uncertainty)
@@ -262,37 +265,40 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         const squareColor = valueColorScale (upperValue)
         const innerRingColor = valueColorScale (lowerValue)
 
-        // Quadrat (mean + uncertainty)
+        // Quadrat (Wer + Unsicherehit)
         g.append ("rect")
             .attr ("x", -size / 2)
             .attr ("y", -size / 2)
             .attr ("width", size)
             .attr ("height", size)
             .attr ("fill", squareColor)
+            .attr ("shape-rendering", "crispEdges");
 
-        // Außenkreis (mean)
+        // Außenkreis (Wert)
         g.append ("circle")
             .attr ("r", size * 0.4)
             .attr ("fill", outerRingColor)
 
-        // Innenkreis (mean - uncertainty)
+        // Innenkreis (Wert - Unsicherheit)
         g.append ("circle")
             .attr ("r", size * 0.2)
             .attr ("fill", innerRingColor)
     }
 
+    // Datensatz Unsicherheit Plot
     const uncertaintyPlot = (() => {
 
         const svg = d3.create ("svg")
             .attr ("width", width)
             .attr ("height", height)
 
-        const zoomGroup = svg.append("g");
+        const zoomGroup = svg.append ("g");
 
         const zoom = d3.zoom <SVGSVGElement, unknown> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+        
         svg.call (zoom);
 
         const glyphs = zoomGroup.append ("g")
@@ -342,6 +348,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement;
     })();
 
+    // Datensatz Unsicherheit Legende
     const uncertaintyLegend = (() => {
 
         const width = 220
@@ -351,11 +358,9 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("width", width)
             .attr ("height", height)
 
-
         for (let level = uncertaintySteps - 1; level >= 0; level--) {
 
             const y = 50 + (uncertaintySteps - 1 - level) * 60
-
             const g = svg.append ("g")
                 .attr ("transform", `translate(50,${y})`)
 
@@ -379,18 +384,19 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node() as SVGSVGElement
     })();
 
+    // Iso Glyph Plot
     const isoGlyphPlot = (() => {
 
         const svg = d3.create ("svg")
             .attr ("width", width)
             .attr ("height", height)
 
-        const zoomGroup = svg.append("g");
-
+        const zoomGroup = svg.append ("g");
         const zoom = d3.zoom <SVGSVGElement, unknown> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
+
         svg.call (zoom);
 
         const glyphs = zoomGroup.append ("g")
@@ -439,6 +445,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement
     })();
 
+    // Iso Glyph Legende
     const isoGlyphLegend = (() => {
 
         const legendWidth = 240
@@ -451,12 +458,12 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const usableHeight = legendHeight - topMargin
 
-        // VALUE LEGEND
+        // Wert Legende
         const steps = useDiscrete
             ? valueSteps
             : 100
-
         const stepHeight = usableHeight / steps
+        const labelSteps = 6
 
 
         for (let i = 0; i < steps; i++) {
@@ -469,10 +476,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .attr ("width", 25)
                 .attr ("height", stepHeight)
                 .attr ("fill", d3.interpolateViridis (value))
+                .attr ("shape-rendering", "crispEdges");
         }
-
-        const labelSteps = 6
-
 
         for (let j = 0; j < labelSteps; j++) {
 
@@ -490,14 +495,14 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`);
         }
 
-        // VALUE LABEL
+        // Werte Label
         svg.append ("text")
             .attr ("x", 20)
             .attr ("y", 10)
             .attr ("font-size", 12)
             .text (config.valueLabel)
 
-        // UNCERTAINTY GLYPH LEGEND
+        // Iso Glyphen
         for (let level = uncertaintySteps - 1; level >= 0; level--) {
 
             const y = 55 + (uncertaintySteps - 1 - level) * 60
@@ -525,7 +530,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement
     })();
 
-    const isoGlyphRegionsPlot = (() => {
+    // Iso Glyph Plot mit Regionen
+    const isoGlyphPlotRegions = (() => {
 
         const svg = d3.create ("svg")
             .attr ("width", width)
@@ -627,11 +633,62 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return svg.node () as SVGSVGElement;
     })();
 
-    function createExportAllPlots (
-        plots: Array <[string, SVGElement]>,
+    async function renderSvgToCanvas (
+        svg: SVGElement,
         width: number,
-        height: number
-        ) {
+        height: number,
+        scale = 7
+        ): Promise <HTMLCanvasElement> {
+
+        const serializer = new XMLSerializer ();
+        const svgSource = serializer.serializeToString (svg);
+
+        const canvas = document.createElement ("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+
+        const ctx = canvas.getContext ("2d");
+
+        if (!ctx) {throw new Error ("Canvas Context konnte nicht erzeugt werden.");}
+
+        ctx.imageSmoothingEnabled = false;
+        ctx.scale (scale, scale);
+
+        const img = new Image ();
+
+        const blob = new Blob (
+            [svgSource],
+            { type: "image/svg+xml;charset=utf-8" }
+        );
+
+        const url = URL.createObjectURL (blob);
+
+        await new Promise <void> ((resolve) => {
+
+            img.onload = () => {
+
+                ctx.drawImage (img, 0, 0);
+                URL.revokeObjectURL (url);
+                resolve ();
+            };
+            img.src = url;
+        });
+        return canvas;
+    }
+
+    // Datei Namen für Export
+    const datasetName = valueKey === "mean_temperature"
+        ? "Temperature"
+        : valueKey === "mean_precipitation"
+        ? "Precipitation"
+        : valueKey === "mean_air_pressure"
+        ? "Air_Pressure"
+        : valueKey;
+
+    // Export Button
+    function createExportAllPlots (plots: Array <[string, SVGElement, number, number]>) {
         const button = document.createElement ("button");
         button.innerText = "Download All Plots";
 
@@ -639,35 +696,27 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             const zip = new JSZip ();
             const serializer = new XMLSerializer ();
 
-            for (const [name, plot] of plots) {
+            for (const [name, plot, width, height] of plots) {
                 // SVG export
                 const svgSource = serializer.serializeToString (plot);
                 zip.file (`${name}.svg`, svgSource);
 
-                // PNG export via canvas
-                const canvas = document.createElement ("canvas");
-                canvas.width = width;
-                canvas.height = height;
+                // PNG export
+                const canvas = await renderSvgToCanvas (plot, width, height);
 
-                const ctx = canvas.getContext ("2d");
-                if (!ctx) continue;
+                await new Promise <void> ((resolve) => {
 
-                const img = new Image ();
-                const svgBlob = new Blob ([svgSource], {type: "image/svg+xml;charset=utf-8",});
-
-                const url = URL.createObjectURL (svgBlob);
-
-                await new Promise<void> ((resolve) => {
-                    img.onload = () => {
-                    ctx.drawImage (img, 0, 0);
                     canvas.toBlob ((blob) => {
-                        if (blob) zip.file (`${name}.png`, blob);
-                        URL.revokeObjectURL (url);
-                        resolve ();
-                    });
-                    };
 
-                    img.src = url;
+                        if (blob) {
+                            zip.file (`${name}.png`, blob);
+                        }
+
+                        resolve ();
+                    },
+                    "image/png",
+                    1.0
+                    );
                 });
             }
 
@@ -677,78 +726,105 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
             const a = document.createElement ("a");
             a.href = url;
-            a.download = "IsoGlyph_Plots.zip";
+            a.download = `${datasetName}_IsoGlyph_Plots.zip`;
             a.click ();
 
             URL.revokeObjectURL (url);
         };
-
         return button;
     }
-    
+
+    // Container Switch
     switch (output) {
 
-        case "valuePlot":
+        case "valuePlot": {
             container.appendChild (valuePlot);
             break;
+        }
 
-        case "valueLegend":
+        case "valueLegend": {
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "Value":
+        case "Value": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "uncertaintyPlot":
+        case "uncertaintyPlot": {
             container.appendChild (uncertaintyPlot);
             break;
+        }
 
-        case "uncertaintyLegend":
+        case "uncertaintyLegend": {
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "Uncertainty":
+        case "Uncertainty": {
             container.appendChild (uncertaintyPlot);
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "isoGlyphPlot":
+        case "isoGlyphPlot": {
             container.appendChild (isoGlyphPlot);
             break;
+        }
 
-        case "isoGlyphLegend":
+        case "isoGlyphLegend": {
             container.appendChild (isoGlyphLegend);
             break;
+        }
 
-        case "IsoGlyph":
+        case "IsoGlyph": {
             container.appendChild (isoGlyphPlot);
             container.appendChild (valueLegend);
             break;
+        }
         
-        case "IsoGlyph+":
+        case "IsoGlyph+": {
             container.appendChild (isoGlyphPlot);
             container.appendChild (isoGlyphLegend);
             break;
+        }
 
-        case "IsoGlyphRegions":
-            container.appendChild (isoGlyphRegionsPlot);
-            container.appendChild (isoGlyphLegend);
+        case "IsoGlyphRegions": {
+            container.appendChild (isoGlyphPlotRegions);
+            container.appendChild (valueLegend);
             break;
+        }
 
-        case "all":
+        case "all": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             container.appendChild (uncertaintyPlot);
             container.appendChild (uncertaintyLegend);
             container.appendChild (isoGlyphPlot);
             container.appendChild (isoGlyphLegend);
-            container.appendChild (isoGlyphRegionsPlot);
-            break;
+            container.appendChild (isoGlyphPlotRegions);
 
-        default:
+            container.appendChild (createExportAllPlots (
+                    [
+                        [`${datasetName}_Value_Plot`, valuePlot, 1200, 600],
+                        [`${datasetName}_Value_Legende`, valueLegend, 130, 180],
+                        [`${datasetName}_Uncertainty_Plot`, uncertaintyPlot, 1200, 600],
+                        [`${datasetName}_Uncertainty_Legende`, uncertaintyLegend, 220, 380],
+                        [`${datasetName}_IsoGlyph_Plot`, isoGlyphPlot, 1200, 600],
+                        [`${datasetName}_IsoGlyph_Legende`, isoGlyphLegend, 240, 380],
+                        [`${datasetName}_IsoGlyph_Regions`, isoGlyphPlotRegions, 1200, 600]
+                    ],
+                )
+            );
+
+            break;
+        }
+
+        default: {
             container.appendChild(isoGlyphPlot);
             break;
+        }
     }
 }

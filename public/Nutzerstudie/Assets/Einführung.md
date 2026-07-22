@@ -12,5 +12,6 @@ Hinweise zur Teilnahme:
 Bitte führen Sie die Studie an einem PC oder Laptop mit Maus durch.
 Falls Sie eine Sehhilfe benötigen, setzen Sie diese bitte während der gesamten Studie auf.
 Die Teilnahme ist ausschließlich Personen ab 18 Jahren gestattet.
+Die Studie dauert in etwa X Minuten, bitte nehmen Sie sich entsprechend Zeit und bearbeiten Sie alle Fragen hintereinander, da die Zeit pro Aufgabe gemessen wird.
 
 Vielen Dank für Ihre Teilnahme.
