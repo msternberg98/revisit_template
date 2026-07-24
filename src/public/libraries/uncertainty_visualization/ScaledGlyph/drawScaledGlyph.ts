@@ -189,7 +189,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             contentGroup.node ()!.appendChild (interactionLayer);
     
             // Zoom
-            const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            const zoom = d3.zoom <SVGSVGElement, undefined> ()
                 .scaleExtent ([1, 20])
                 .translateExtent ([[-20, -20], [width + 20, height + 20]])
                 .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -260,7 +260,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             contentGroup.node ()!.appendChild (interactionLayer);
     
             // Zoom
-            const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            const zoom = d3.zoom <SVGSVGElement, undefined> ()
                 .scaleExtent ([1, 20])
                 .translateExtent ([[-20, -20], [width + 20, height + 20]])
                 .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -331,7 +331,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         contentGroup.node ()!.appendChild (interactionLayer);
     
         // Zoom
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -402,7 +402,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         contentGroup.node ()!.appendChild (interactionLayer);
 
         // Zoom
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});

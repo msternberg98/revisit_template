@@ -78,7 +78,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("height", height);
 
         const zoomGroup = svg.append ("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
@@ -469,7 +469,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             .attr ("height", height);
 
         const zoomGroup = svg.append("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});

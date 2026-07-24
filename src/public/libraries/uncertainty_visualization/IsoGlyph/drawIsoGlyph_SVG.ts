@@ -111,7 +111,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("height", height);
 
         const zoomGroup = svg.append("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
@@ -294,7 +294,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const zoomGroup = svg.append ("g");
 
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
@@ -392,7 +392,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("height", height)
 
         const zoomGroup = svg.append ("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
@@ -538,7 +538,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("height", height)
 
         const zoomGroup = svg.append("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+        const zoom = d3.zoom <SVGSVGElement, undefined> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
