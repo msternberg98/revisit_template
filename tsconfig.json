@@ -17,6 +17,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src", "src/public/libraries/uncertainty_visualization"],
-  "exclude": ["src/public/example-brush-interactions"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
