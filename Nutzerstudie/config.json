@@ -1,0 +1,769 @@
+{
+    "$schema": "https://raw.githubusercontent.com/revisit-studies/study/main/src/parser/StudyConfigSchema.json",
+    "studyMetadata": {
+        "title": "Nutzerstudie: Vergleichende Evaluation zur Visualisierung von Unsicherheitsdaten in 2D Daten",
+        "version": "pilot_test",
+        "authors": [
+            "The reVISit Team",
+            "Maurice Sternberg"
+        ],
+        "date": "2026-07-13",
+        "description": "Nutzerstudie",
+        "organizations": [
+            "Universität Siegen"
+        ]
+    },
+    "uiConfig": {
+        "contactEmail": "maurice.sternberg@student.uni-siegen.de",
+        "helpTextPath": "Nutzerstudie/Assets/Hilfe.md",
+        "logoPath": "revisitAssets/revisitLogoSquare.svg",
+        "withProgressBar": true,
+        "autoDownloadStudy": false,
+        "withSidebar": true
+    },
+    "components": {
+        "Introduction": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Einführung.md",
+            "response": []
+        },
+        "Consent": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Einwilligungserklärung.md",
+            "response": [
+                 {
+                    "id": "Einwilligungserklärung_Radio",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "",
+                    "options": ["Ja, ich stimme zu."]
+                }
+            ],
+            "nextButtonText": "Ich stimme zu"
+        },
+
+
+
+
+
+        "VSUP_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/VSUP.md",
+            "response": []
+        },
+        "VSUP_Test": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "test1",
+                "output": "Vsup"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "acceptableHigh": 4,
+                    "acceptableLow": 4,
+                    "answer": 4
+                }
+            ],
+            "provideFeedback": true,
+            "trainingAttempts": 3,
+            "allowFailedTraining": false,
+            "nextButtonLocation": "sidebar"
+        },
+
+        "ScaledGlyph_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/ScaledGlyph.md",
+            "response": []
+        },
+        "ScaledGlyph_Test": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "test2",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "answer": "4"
+                }
+            ],
+            "provideFeedback": true,
+            "trainingAttempts": 3,
+            "allowFailedTraining": false,
+            "nextButtonLocation": "sidebar"
+        },
+
+        "IsoGlyph_Description": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/IsoGlyph.md",
+            "response": []
+        },
+        "IsoGlyph_Test": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "test3",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "answer": "4"
+                }
+            ],
+            "provideFeedback": true,
+            "trainingAttempts": 3,
+            "allowFailedTraining": false,
+            "nextButtonLocation": "belowStimulus"
+        },
+
+
+
+
+
+        "Niederschlag_Uncertainty_Maxima_VSUP": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "Vsup"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "answer": 7.260401e-05,
+                    "acceptableLow": 7.0425933e-05
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Niederschlag_Uncertainty_Maxima_ScaledGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "answer": 7.260401e-05,
+                    "acceptableLow": 7.0425933e-05
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Niederschlag_Uncertainty_Maxima_IsoGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "answer": 7.260401e-05,
+                    "acceptableLow": 7.0425933e-05
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+
+
+
+
+        "Niederschlag_Uncertainty_Minima_VSUP": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "Vsup"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "VSUP_Response_Uncertainty",
+                    "answer": 1.4379904e-09,
+                    "acceptableHigh": 2.1795152e-06
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Niederschlag_Uncertainty_Minima_ScaledGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Response_Uncertainty",
+                    "answer": 1.4379904e-09,
+                    "acceptableHigh": 2.1795152e-06
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Niederschlag_Uncertainty_Minima_IsoGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "precipitation",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "IsoGlyph_Response_Uncertainty",
+                    "answer": 1.4379904e-09,
+                    "acceptableHigh": 2.1795152e-06
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+
+
+
+
+        "Luftdruck_Value_Maxima_VSUP": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "Vsup"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "VSUP_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "VSUP_Response_Value",
+                    "answer": 103119.4,
+                    "acceptableLow": 102966.08
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Luftdruck_Value_Maxima_ScaledGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "ScaledGlyph_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Response_Value",
+                    "answer": 103119.4,
+                    "acceptableLow": 102966.08
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Luftdruck_Value_Maxima_IsoGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "IsoGlyph_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "IsoGlyph_Response_Value",
+                    "answer": 103119.4,
+                    "acceptableLow": 102966.08
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+
+
+
+        "Luftdruck_Value_Minima_VSUP": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "Vsup"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "VSUP_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "VSUP_Response_Value",
+                    "answer": 98008.52,
+                    "acceptableHigh": 98161.85
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Luftdruck_Value_Minima_ScaledGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "ScaledGlyph_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "ScaledGlyph_Response_Value",
+                    "answer": 98008.52,
+                    "acceptableHigh": 98161.85
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Luftdruck_Value_Minima_IsoGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "air_pressure",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "IsoGlyph_Response_Value",
+                    "type": "numerical",
+                    "default": 0,
+                    "hidden": true,
+                    "required": true,
+                    "prompt": "",
+                    "location": "sidebar"
+                }
+            ],
+            "correctAnswer": [
+                {
+                    "id": "IsoGlyph_Response_Value",
+                    "answer": 98008.52,
+                    "acceptableHigh": 98161.85
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+
+
+
+
+        "Temperatur_Regions_VSUP": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "Vsup"
+            },
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "Temperatur_VSUP_Checkbox_Response",
+                    "type": "radio",
+                    "required": true,
+                    "prompt": "Welche Region würden Sie wählen?",
+                    "options": ["R1", "R2", "R3", "R4", "R5"],
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_VSUP_LongText_Response",
+                    "type": "longText",
+                    "required": true,
+                    "prompt": "Wieso haben Sie sich für diese Region entschieden?",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "above",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Temperatur_Regions_ScaledGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "ScaledGlyph"
+            },
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "Temperatur_ScaledGlyph_Checkbox_Response",
+                    "type": "checkbox",
+                    "required": true,
+                    "prompt": "Welche Region würden Sie wählen?",
+                    "options": ["R1", "R2", "R3", "R4", "R5"],
+                    "maxSelections": 1,
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_ScaledGlyph_LongText_Response",
+                    "type": "longText",
+                    "required": true,
+                    "prompt": "Wieso haben Sie sich für diese Region entschieden?",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "above",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+        "Temperatur_Regions_IsoGlyph": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "parameters": {
+                "preset": "temperature",
+                "output": "IsoGlyph"
+            },
+            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instructionLocation": "sidebar",
+            "response": [
+                {
+                    "id": "Temperatur_IsoGlyph_Checkbox_Response",
+                    "type": "checkbox",
+                    "required": true,
+                    "prompt": "Welche Region würden Sie wählen?",
+                    "options": ["R1", "R2", "R3", "R4", "R5"],
+                    "maxSelections": 1,
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_IsoGlyph_LongText_Response",
+                    "type": "longText",
+                    "required": true,
+                    "prompt": "Wieso haben Sie sich für diese Region entschieden?",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Temperatur_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "above",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
+                }
+            ],
+            "nextButtonLocation": "sidebar"
+        },
+
+
+
+
+
+        "Demographic": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "Qualification",
+                    "prompt": "Welchen Bildungsabschluss haben Sie?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihren Beruf an",
+                    "options": ["Hauptschule", "Realschule", "Gymnasium", "Bachelor", "Master"]
+                },
+                {
+                    "id": "Age",
+                    "prompt": "Wie alt sind Sie?",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihr Alter an",
+                    "options": ["18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+"]
+                },
+                {
+                    "id": "Eyesight",
+                    "prompt": "Haben Sie eine Farbsehschwäche?",
+                    "required": true,
+                    "location": "aboveStimulus",
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihre Farbsehschwäche an",
+                    "options": ["Keine", "Deuteranopie (Grünblindheit)", "Protanopie (Rotblindheit)", "Tritanopie (Blaublindheit)", "Monochromasie", "Achromatopsie"]
+                }
+            ]
+        },
+        "Feedback": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "Study_Rating",
+                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 bis 5.",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "likert",
+                    "leftLabel": "Nicht zufrieden",
+                    "rightLabel": "Sehr zufrieden",
+                    "numItems": 5
+                },
+                {
+                    "id": "Remarks",
+                    "prompt": "Weitere Anmerkungen",
+                    "required": false,
+                    "location": "aboveStimulus",
+                    "type": "longText"
+                }
+            ]
+        }
+    },
+
+
+
+
+
+    "sequence": {
+        "order": "fixed",
+        "components": [
+            "Introduction",
+            "Consent",
+
+            "VSUP_Description",
+            "VSUP_Test",
+
+            "ScaledGlyph_Description",
+            "ScaledGlyph_Test",
+            
+            "IsoGlyph_Description",
+            "IsoGlyph_Test",
+            {
+                "order": "random",
+                "components": [
+                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+
+                    "Niederschlag_Uncertainty_Minima_VSUP",
+                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+
+                    "Luftdruck_Value_Maxima_VSUP",
+                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                    "Luftdruck_Value_Maxima_IsoGlyph",
+
+                    "Luftdruck_Value_Minima_VSUP",
+                    "Luftdruck_Value_Minima_ScaledGlyph",
+                    "Luftdruck_Value_Minima_IsoGlyph",
+
+                    "Temperatur_Regions_VSUP",
+                    "Temperatur_Regions_ScaledGlyph",
+                    "Temperatur_Regions_IsoGlyph"
+                ]
+            },
+            "Demographic",
+            "Feedback"
+        ]
+    }
+}

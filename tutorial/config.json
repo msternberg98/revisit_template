@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json",
+  "studyMetadata": {
+    "title": "Nutzerstudie: Vergleichende Evaluation zur Visualisierung von Unsicherheitsdaten in 2D Daten ",
+    "version": "development",
+    "authors": [
+      "The reVISit Team",
+      "The reVISit Community",
+      "Maurice Sternberg"
+    ],
+    "date": "2026-05-06",
+    "description": "Nutzerstudie",
+    "organizations": [
+      "University of Utah",
+      "WPI",
+      "You :)"
+    ]
+  },
+  "uiConfig": {
+    "contactEmail": "contact@revisit.dev",
+    "helpTextPath": "tutorial/assets/help.md",
+    "logoPath": "revisitAssets/revisitLogoSquare.svg",
+    "withProgressBar": true,
+    "autoDownloadStudy": false,
+    "withSidebar": true
+  },
+  "components": {},
+  "sequence": {
+    "order": "fixed",
+    "components": []
+  }
+}

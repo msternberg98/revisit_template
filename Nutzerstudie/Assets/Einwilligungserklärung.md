@@ -1,0 +1,10 @@
+# Datenschutzinformationen
+Mit der beschriebenen Erhebung und Verarbeitung der Daten (Antworten auf Aufgaben und Fragebögen, Bearbeitungszeiten, Interaktionen mit den Visualisierungen sowie grundlegende demografische Angaben (z. B. Schulabschluss, Alter, Farbsehschwäche)), bin ich einverstanden. Die Aufzeichnung und Auswertung dieser Daten erfolgt anonymisiert am Lehrstuhl für Computergraphik, unter Verwendung einer Nummer und ohne Angabe meines Namens. Damit ist es niemandem mehr möglich, die erhobenen Daten mit meinem Namen in Verbindung zu bringen. Ich bin informiert, dass ich mein Einverständnis zur Aufbewahrung bzw. Speicherung dieser Daten durch Abbrechen der Studie widerrufen kann, ohne dass mir daraus Nachteile entstehen. Ich kann jederzeit die Teilnahme der Studie abbrechen, was eine Löschung all meiner Daten zur Folge hat. Wenn allerdings die Studie vollständig durchgeführt wurde, kann mein Datensatz nicht mehr identifiziert und somit nicht mehr gelöscht werden. Meine Daten sind dann anonymisiert. 
+Ich bin einverstanden, dass meine vollständig anonymisierten Daten zu Forschungszwecken weiterverwendet werden können. Dazu werden sie mindestens 10 Jahre nach Datenauswertung, bzw. mindestens 10 Jahre nach Erscheinen einer Publikation zu dieser Studie aufbewahrt. Dazu werden sie über eine Internet-Datenbank öffentlich zugänglich gemacht.
+
+# Einwilligungserklärung
+
+Ich wurde über die Umfrage und die Art der Durchführung schriftlich informiert. Ich habe die Teilnehmerinformationen und die Datenschutzinformationen gelesen und stimme denen zu. Ich hatte genug Zeit, um meine Entscheidung zu treffen. Ich stimme zu, an der oben genannten Umfrage teilzunehmen. Ich weiß, dass die Teilnahme freiwillig ist und ich jederzeit die Teilnahme ohne Begründung abbrechen kann. 
+
+Wenn Sie weitere Fragen haben, kontaktieren Sie bitte Marina Evers
+(Tel.:  +49 (0)271 740-3328; Email: marina.evers@uni-siegen.de).
