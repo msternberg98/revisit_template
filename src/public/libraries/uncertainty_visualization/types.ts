@@ -36,4 +36,6 @@ export interface PresetInfo {
     uncertaintyLabel: string;
 
     unit: string;
+
+    datasetName: string;
 }

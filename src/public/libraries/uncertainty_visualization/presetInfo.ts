@@ -10,7 +10,8 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 2,
         valueLabel: "Temperatur",
         uncertaintyLabel: "Standardabweichung",
-        unit: "°C"
+        unit: "°C",
+        datasetName: "Test"
     },
 
     test2: {
@@ -21,7 +22,8 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 2,
         valueLabel: "Temperatur",
         uncertaintyLabel: "Standardabweichung",
-        unit: "°C"
+        unit: "°C",
+        datasetName: "Test"
     },
 
     test3: {
@@ -32,7 +34,8 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 2,
         valueLabel: "Temperatur",
         uncertaintyLabel: "Standardabweichung",
-        unit: "°C"
+        unit: "°C",
+        datasetName: "Test"
     },
 
     temperature: {
@@ -43,7 +46,8 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 2,
         valueLabel: "Temperatur",
         uncertaintyLabel: "Standardabweichung",
-        unit: "°C"
+        unit: "°C",
+        datasetName: "Temperature"
     },
 
     precipitation: {
@@ -54,7 +58,8 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 2,
         valueLabel: "Niederschlag",
         uncertaintyLabel: "Standardabweichung",
-        unit: "mm/Tag"
+        unit: "mm/Tag",
+        datasetName: "Precipitation"
     },
 
     air_pressure: {
@@ -65,6 +70,7 @@ export const presetInfo: Record <DatasetPreset, PresetInfo> = {
         uncertainty_decimals: 0,
         valueLabel: "Luftdruck",
         uncertaintyLabel: "Standardabweichung",
-        unit: "hPa"
+        unit: "hPa",
+        datasetName: "Air_Pressure"
     }
 };

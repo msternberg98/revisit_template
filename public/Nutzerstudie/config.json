@@ -543,7 +543,7 @@
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "VsupRegions"
+                "output": "Vsup"
             },
             "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",
@@ -583,7 +583,7 @@
             "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "ScaledGlyphRegions"
+                "output": "ScaledGlyph"
             },
             "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",
@@ -624,7 +624,7 @@
             "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "IsoGlyphRegions"
+                "output": "IsoGlyph"
             },
             "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
             "instructionLocation": "sidebar",

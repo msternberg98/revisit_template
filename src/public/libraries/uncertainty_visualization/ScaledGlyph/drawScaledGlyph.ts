@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import JSZip from "jszip";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
 import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
@@ -32,9 +31,8 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     const config = presetInfo [preset];
     const valueKey = config.valueKey;
 
-    const valueExtent = d3.extent (data, d => d [valueKey]) as [number, number];
-    const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
-     
+    const datasetName = config.datasetName;    
+
     // Aggregation
     const aggregationFactor: number = 1
 
@@ -76,27 +74,12 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 }))
             );
         })();
-
-    // Diskrete Schritte
-    const valueSteps = 8;
-    const uncertaintySteps = 6;
-    const useDiscrete = false;
-
-    // Farbskala
-    const valueColorScale = useDiscrete
-        ? d3.scaleQuantize <string> ()
-            .domain (valueExtent)
-            .range (d3.range (valueSteps).map ((i) => d3.interpolateViridis (i / (valueSteps - 1)),),)
-        : d3.scaleSequential <string> ()
-            .domain (valueExtent)
-            .interpolator (d3.interpolateViridis);
     
     // Plot Größen
     const width = 1200;
     const cellWidth = 6.35;
     const height = 600;
     const cellHeight = cellWidth;
-    const glyphSize = aggregationFactor * cellWidth
 
     // Longitude Shift
     const { xScale, yScale } = createScales (data, width, height);
@@ -104,294 +87,34 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     const onClickPoint = options.onClickPoint;
     
     // Raster Plot
-    function createRasterPlot (colorFunction: (d: typeof data [number]) => string): SVGSVGElement {
-        
-            const svg = d3.create <SVGSVGElement> ("svg")
-                .attr ("width", width)
-                .attr ("height", height);
+    function createInteractionLayer (): SVGSVGElement {
     
-            const zoomGroup = svg.append("g");
-            const zoom = d3.zoom <SVGSVGElement, unknown> ()
-                .scaleExtent ([1, 20])
-                .translateExtent ([[-20, -20], [width + 20, height + 20]])
-                .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-                
-            svg.call (zoom);
-    
-            const rects = zoomGroup.selectAll ("rect")
-                .data (data)
-                .join ("rect")
-                .attr ("x", (d) => xScale (shiftedLongitude (d.longitude)))
-                .attr ("y", (d) => yScale (d.latitude) - cellHeight / 2)
-                .attr ("width", cellWidth)
-                .attr ("height", cellHeight)
-                .attr ("fill", colorFunction)
-                .attr ("shape-rendering", "crispEdges");
-
-        const selectionLayer = zoomGroup.append ("g")
-            .attr ("class", "selection-layer");
-
-        rects.on ("click", function (event, d) {
-
-                event.stopPropagation ();
-                selectionLayer.selectAll ("*").remove ();
-                selectionLayer.append ("rect")
-                    .attr ("class", "selection-marker")
-                    .attr ("x", xScale (shiftedLongitude (d.longitude)))
-                    .attr ("y", yScale (d.latitude) - cellHeight / 2)
-                    .attr ("width", cellWidth)
-                    .attr ("height", cellHeight)
-                    .attr ("fill", "none")
-                    .attr ("stroke", "black")
-                    .attr ("stroke-width", 0.4)
-                    .attr ("pointer-events", "none");
-
-                onClickPoint?.({
-
-                    latitude: d.latitude,
-                    longitude: d.longitude,
-                    meanValue: d [valueKey] as number,
-                    uncertaintyStd: d.uncertainty_std,
-                    sourceValues: [{
-                        latitude: d.latitude,
-                        longitude: d.longitude,
-                        mean_temperature: d.mean_temperature,
-                        uncertainty_std: d.uncertainty_std
-                    }]
-                });
-            })    
-            return svg.node () as SVGSVGElement;
-        }
-
-    // Datensatz Werte Plot
-    const valuePlot = createRasterPlot (d => valueColorScale (d [valueKey]!));
-
-    // Datensatz Werte Legende
-    const valueLegend = (() => {
-
-        const legendWidth = 130;
-        const legendHeight = 380;
-        const topMargin = 15;
-
-        const steps = useDiscrete
-            ? valueSteps
-            : 100;
-
-        const svg = d3.create ("svg")
-            .attr ("width", legendWidth)
-            .attr ("height", legendHeight);
-
-        const usableHeight = legendHeight - topMargin;
-        const stepHeight = usableHeight / steps;
-
-        for (let i = 0; i < steps; i++) {
-
-            const value = i / (steps - 1);
-
-            svg.append ("rect")
-                .attr ("x", 20)
-                .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
-                .attr ("width", 30)
-                .attr ("height", stepHeight)
-                .attr ("fill", d3.interpolateViridis (value))
-                .attr ("shape-rendering", "crispEdges");
-        }
-
-        const labelSteps = 6;
-
-        for (let j = 0; j < labelSteps; j++) {
-
-            const tRaw = j / (labelSteps - 1);
-            const padding = 0.02;
-            const t = padding + tRaw * (1 - 2 * padding);
-            const y = topMargin + usableHeight - t * usableHeight;
-
-            const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
-
-            svg.append ("text")
-                .attr ("x", 60)
-                .attr ("y", y + 4)
-                .attr ("font-size", 11)
-                .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`)
-        }
-
-        svg.append ("text")
-            .attr ("x", 20)
-            .attr ("y", 10)
-            .attr ("font-size", 12)
-            .text (config.valueLabel)
-
-        return svg.node () as SVGSVGElement;
-    })();
-
-    // Skalierte Glyphen
-    function drawScaledGlyphs (g: d3.Selection <SVGGElement, any, any, any>, uncertainty: number) {
-
-        const uncertaintyFactor = (uncertainty - uncertaintyExtent [0]) / (uncertaintyExtent [1] - uncertaintyExtent [0])
-
-        const minRadius = glyphSize * 0.1
-        const maxRadius = glyphSize * 0.5
-        const radius = minRadius + uncertaintyFactor * (maxRadius - minRadius)
-
-        g.append ("circle")
-            .attr ("r", radius)
-            .attr ("fill", "none")
-            .attr ("stroke", "black")
-            .attr ("stroke-width", 0.2)
-    }
-
-    // Datensatz Unsicherheit Plot
-    const uncertaintyPlot = (() => {
-
-        const svg = d3.create ("svg")
+        const svg = d3.create <SVGSVGElement> ("svg")
             .attr ("width", width)
-            .attr ("height", height);
+            .attr ("height", height)
+            .style ("position", "absolute")
+            .style ("left", "0")
+            .style ("top", "0");
 
-        const zoomGroup = svg.append("g");
-
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
-            .scaleExtent ([1, 20])
-            .translateExtent ([[-20, -20], [width + 20, height + 20]])
-            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            
-        svg.call (zoom);
-
-        const glyphGroup = zoomGroup.append ("g")
-            .selectAll ("g")
-            .data (aggregatedData)
-            .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2},${yScale (d.latitude) + 1})`)
-            .each (function (d) {
-                const g = d3.select (this as SVGGElement);
-                g.append ("circle")
-                    .attr ("r", cellWidth * 0.5)
-                    .attr ("fill", "transparent")
-                    .style ("pointer-events", "all");
-                drawScaledGlyphs (g, d.uncertainty_std);
-            });
-
-        const glyphSelectionLayer = zoomGroup.append("g")
-            .attr ("class", "glyph-selection-layer");
-        
-        glyphGroup.on ("click", function (event, d) {
-
-            event.stopPropagation ();
-            glyphSelectionLayer.selectAll ("*").remove ();
-            glyphSelectionLayer.append ("rect")
-                .attr ("class", "selection-marker")
-                .attr ("x", xScale (shiftedLongitude (d.longitude)))
-                .attr ("y", yScale (d.latitude) - cellHeight / 2)
-                .attr ("width", cellWidth)
-                .attr ("height", cellHeight)
-                .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
-                .attr ("pointer-events", "none");
-
-            onClickPoint?.({
-
-                latitude: d.latitude,
-                longitude: d.longitude,
-                meanValue: d [valueKey] as number,
-                uncertaintyStd: d.uncertainty_std,
-                sourceValues: d.sourceValues.map (v => ({
-                    latitude: v.latitude,
-                    longitude: v.longitude,
-                    mean_temperature: v.mean_temperature,
-                    uncertainty_std: v.uncertainty_std
-                }))
-            });
-        });
-        return svg.node () as SVGSVGElement;
-    })();
-
-    // Datensatz Unsicherheit Legende
-    const uncertaintyLegend = (() => {
-
-        const width = 220;
-        const height = 380;
-
-        const svg = d3.create ("svg")
-            .attr ("width", width)
-            .attr ("height", height);
-
-        for (let level = uncertaintySteps - 1; level >= 0; level--) {
-
-            const y = 50 + (uncertaintySteps - 1 - level) * 60;
-            const g = svg.append ("g").attr( "transform", `translate(50,${y})`);
-
-            const uncertaintyValue = uncertaintyExtent [0] + (level / (uncertaintySteps - 1)) * (uncertaintyExtent [1] - uncertaintyExtent [0]);
-
-            drawScaledGlyphs (g, uncertaintyValue);
-
-            svg.append ("text")
-                .attr ("x", 80)
-                .attr ("y", y + 4)
-                .attr ("font-size", 11)
-                .text ((uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals));
-        }
-
-        svg.append ("text")
-            .attr ("x", 20)
-            .attr ("y", 10)
-            .attr ("font-size", 12)
-            .text (config.uncertaintyLabel);
-
-        return svg.node () as SVGSVGElement;
-    })();
-
-    // Scaled Glyph Plot
-    const scaledGlyphPlot = (() => {
-
-        const svg = d3.create ("svg")
-            .attr ("width", width)
-            .attr ("height", height);
-        
-        const zoomGroup = svg.append ("g");
-        const zoom = d3.zoom <SVGSVGElement, unknown> ()
-            .scaleExtent ([1, 20])
-            .translateExtent ([[-20, -20], [width + 20, height + 20]])
-            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-
-        svg.call (zoom);
-
-        // Hintergrund = Mittelwert
-        zoomGroup.selectAll ("rect")
+        // Alle transparenten Klickfelder
+        const rects = svg.selectAll <SVGRectElement, typeof data [number]> ("rect")
             .data (data)
             .join ("rect")
             .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
             .attr ("y", d => yScale (d.latitude) - cellHeight / 2)
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
-            .attr ("fill", d => valueColorScale (d [valueKey]!))
-            .attr ("shape-rendering", "crispEdges");
+            .attr ("fill", "transparent")
+            .style ("pointer-events", "all");
 
-        // Glyphen darüber
-        const glyphGroup = zoomGroup.append ("g")
-            .selectAll ("g")
-            .data (aggregatedData)
-            .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2},${yScale (d.latitude)})`)
-            .each (function (d) {
-                const g = d3.select (this as SVGGElement); 
-                g.append ("rect")
-                    .attr ("x", -cellWidth / 2)
-                    .attr ("y", -cellHeight / 2)
-                    .attr ("width", cellWidth)
-                    .attr ("height", cellHeight)
-                    .attr ("fill", "transparent")
-                    .style ("pointer-events", "all");
-                drawScaledGlyphs (g, d.uncertainty_std);
-            });
-        
-        const glyphSelectionLayer = zoomGroup.append("g")
-            .attr ("class", "glyph-selection-layer");
-        
-        glyphGroup.on ("click", function (event, d) {
+        const selectionLayer = svg.append ("g")
+            .attr ("class", "selection-layer");
+
+        rects.on ("click", function (event, d) {
 
             event.stopPropagation ();
-            glyphSelectionLayer.selectAll ("*").remove ();
-            glyphSelectionLayer.append ("rect")
+            selectionLayer.selectAll ("*").remove ();
+            selectionLayer.append ("rect")
                 .attr ("class", "selection-marker")
                 .attr ("x", xScale (shiftedLongitude (d.longitude)))
                 .attr ("y", yScale (d.latitude) - cellHeight / 2)
@@ -408,321 +131,288 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 longitude: d.longitude,
                 meanValue: d [valueKey] as number,
                 uncertaintyStd: d.uncertainty_std,
-                sourceValues: d.sourceValues.map (v => ({
-                    latitude: v.latitude,
-                    longitude: v.longitude,
-                    mean_temperature: v.mean_temperature,
-                    uncertainty_std: v.uncertainty_std
-                }))
+                sourceValues: [{
+                    latitude: d.latitude,
+                    longitude: d.longitude,
+                    mean_temperature: d.mean_temperature,
+                    uncertainty_std: d.uncertainty_std
+                }]
             });
-        });
+        })
         return svg.node () as SVGSVGElement;
+    }
+
+    // Datensatz Werte Plot
+    const valuePlot = (() => {
+    
+            // äußerer Wrapper
+            const wrapper = document.createElement ("div");
+            wrapper.style.position = "relative";
+            wrapper.style.width = `${width}px`;
+            wrapper.style.height = `${height}px`;
+            wrapper.style.overflow = "hidden";
+    
+            // PNG
+            const image = document.createElement ("img");
+            image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Plot.png`;
+    
+            image.style.position = "absolute";
+            image.style.left = "0";
+            image.style.top = "0";
+            image.style.width = `${width}px`;
+            image.style.height = `${height}px`;
+            image.style.userSelect = "none";
+            image.draggable = false;
+            image.style.pointerEvents = "none";
+    
+            // SVG für Zoom
+            const svg = d3.create <SVGSVGElement> ("svg")
+                .attr ("width", width)
+                .attr ("height", height)
+                .style ("position", "absolute")
+                .style ("left", "0")
+                .style ("top", "0");
+    
+            const contentGroup = svg.append ("g");
+    
+            // PNG
+            const foreignObject = contentGroup.append ("foreignObject")
+                .attr ("x", 0)
+                .attr ("y", 0)
+                .attr ("width", width)
+                .attr ("height", height);
+    
+            foreignObject.node ()!.appendChild (image);
+    
+            // Interaktionslayer
+            const interactionLayer = createInteractionLayer ();
+            contentGroup.node ()!.appendChild (interactionLayer);
+    
+            // Zoom
+            const zoom = d3.zoom <SVGSVGElement, unknown> ()
+                .scaleExtent ([1, 20])
+                .translateExtent ([[-20, -20], [width + 20, height + 20]])
+                .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
+    
+            svg.call (zoom);
+    
+            wrapper.appendChild (svg.node ()!);
+    
+            return wrapper;
+        })();
+
+    // Datensatz Werte Legende
+    const valueLegend = (() => {
+
+        const img = document.createElement ("img");
+
+        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Legende.png`;
+        img.width = 130;
+        img.height = 380;
+
+        return img;
+    })();
+
+    // Datensatz Unsicherheit Plot
+    const uncertaintyPlot = (() => {
+    
+            // äußerer Wrapper
+            const wrapper = document.createElement ("div");
+            wrapper.style.position = "relative";
+            wrapper.style.width = `${width}px`;
+            wrapper.style.height = `${height}px`;
+            wrapper.style.overflow = "hidden";
+    
+            // PNG
+            const image = document.createElement ("img");
+            image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Plot.png`;
+    
+            image.style.position = "absolute";
+            image.style.left = "0";
+            image.style.top = "0";
+            image.style.width = `${width}px`;
+            image.style.height = `${height}px`;
+            image.style.userSelect = "none";
+            image.draggable = false;
+            image.style.pointerEvents = "none";
+    
+            // SVG für Zoom
+            const svg = d3.create <SVGSVGElement> ("svg")
+                .attr ("width", width)
+                .attr ("height", height)
+                .style ("position", "absolute")
+                .style ("left", "0")
+                .style ("top", "0");
+    
+            const contentGroup = svg.append ("g");
+    
+            // PNG
+            const foreignObject = contentGroup.append ("foreignObject")
+                .attr ("x", 0)
+                .attr ("y", 0)
+                .attr ("width", width)
+                .attr ("height", height);
+    
+            foreignObject.node ()!.appendChild (image);
+    
+            // Interaktionslayer
+            const interactionLayer = createInteractionLayer ();
+            contentGroup.node ()!.appendChild (interactionLayer);
+    
+            // Zoom
+            const zoom = d3.zoom <SVGSVGElement, unknown> ()
+                .scaleExtent ([1, 20])
+                .translateExtent ([[-20, -20], [width + 20, height + 20]])
+                .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
+    
+            svg.call (zoom);
+    
+            wrapper.appendChild (svg.node ()!);
+    
+            return wrapper;
+        })();
+
+    // Datensatz Unsicherheit Legende
+    const uncertaintyLegend = (() => {
+
+        const img = document.createElement ("img");
+
+        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Legende.png`;
+        img.width = 220;
+        img.height = 380;
+
+        return img;
+    })();
+
+    // Scaled Glyph Plot
+    const scaledGlyphPlot = (() => {
+    
+        // äußerer Wrapper
+        const wrapper = document.createElement ("div");
+        wrapper.style.position = "relative";
+        wrapper.style.width = `${width}px`;
+        wrapper.style.height = `${height}px`;
+        wrapper.style.overflow = "hidden";
+    
+        // PNG
+        const image = document.createElement ("img");
+        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Plot.png`;
+    
+        image.style.position = "absolute";
+        image.style.left = "0";
+        image.style.top = "0";
+        image.style.width = `${width}px`;
+        image.style.height = `${height}px`;
+        image.style.userSelect = "none";
+        image.draggable = false;
+        image.style.pointerEvents = "none";
+    
+        // SVG für Zoom
+        const svg = d3.create <SVGSVGElement> ("svg")
+            .attr ("width", width)
+            .attr ("height", height)
+            .style ("position", "absolute")
+            .style ("left", "0")
+            .style ("top", "0");
+    
+        const contentGroup = svg.append ("g");
+    
+        // PNG
+        const foreignObject = contentGroup.append ("foreignObject")
+            .attr ("x", 0)
+            .attr ("y", 0)
+            .attr ("width", width)
+            .attr ("height", height);
+    
+        foreignObject.node ()!.appendChild (image);
+    
+        // Interaktionslayer
+        const interactionLayer = createInteractionLayer ();
+        contentGroup.node ()!.appendChild (interactionLayer);
+    
+        // Zoom
+        const zoom = d3.zoom <SVGSVGElement, unknown> ()
+            .scaleExtent ([1, 20])
+            .translateExtent ([[-20, -20], [width + 20, height + 20]])
+            .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
+    
+        svg.call (zoom);
+    
+        wrapper.appendChild (svg.node ()!);
+    
+        return wrapper;
     })();
 
     // Scaled Glyph Legende
     const scaledGlyphLegend = (() => {
 
-        const legendWidth = 240;
-        const legendHeight = 380;
-        const topMargin = 15;
+        const img = document.createElement ("img");
 
-        const svg = d3.create ("svg")
-            .attr ("width", legendWidth)
-            .attr ("height", legendHeight);
+        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Legende.png`;
+        img.width = 240;
+        img.height = 380;
 
-        const usableHeight = legendHeight - topMargin;
-
-        // Wert Legende
-        const steps = useDiscrete
-            ? valueSteps
-            : 100;
-        const stepHeight = usableHeight / steps;
-        const labelSteps = 6;
-
-        for (let i = 0; i < steps; i++) {
-
-            const value = i / (steps - 1);
-
-            svg.append ("rect")
-                .attr ("x", 20)
-                .attr ("y", topMargin + usableHeight - (i + 1) * stepHeight)
-                .attr ("width", 25)
-                .attr ("height", stepHeight)
-                .attr ("fill", d3.interpolateViridis (value))
-                .attr ("shape-rendering", "crispEdges");
-        }
-
-        for (let j = 0; j < labelSteps; j++) {
-
-            const tRaw = j / (labelSteps - 1);
-            const padding = 0.02;
-            const t = padding + tRaw * (1 - 2 * padding);
-            const y = topMargin + usableHeight - t * usableHeight;
-
-            const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
-
-            svg.append ("text")
-                .attr ("x", 55)
-                .attr ("y", y + 4)
-                .attr ("font-size", 11)
-                .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`);
-        }
-
-        // Werte Label
-        svg.append ("text")
-            .attr ("x", 20)
-            .attr ("y", 10)
-            .attr ("font-size", 12)
-            .text (config.valueLabel);
-
-        // Skalierte Glyphen
-        for (let level = uncertaintySteps - 1; level >= 0; level--) {
-
-            const y = 55 + (uncertaintySteps - 1 - level) * 60;
-            const g = svg.append ("g").attr ("transform", `translate(130,${y})`);
-
-            const uncertaintyValue = uncertaintyExtent [0] + (level / (uncertaintySteps - 1)) * (uncertaintyExtent [1] - uncertaintyExtent [0]);
-
-            drawScaledGlyphs (g, uncertaintyValue);
-
-            svg.append ("text")
-                .attr ("x", 155)
-                .attr ("y", y + 4)
-                .attr ("font-size", 11)
-                .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`);
-        }
-
-        svg.append ("text")
-            .attr ("x", 145)
-            .attr ("y", 10)
-            .attr ("text-anchor", "middle")
-            .attr ("font-size", 12)
-            .text (config.uncertaintyLabel);
-
-        return svg.node () as SVGSVGElement
+        return img;
     })();
 
     // Scaled Glyph Plot mit Regionen
     const scaledGlyphPlotRegions = (() => {
 
-        const svg = d3.create ("svg")
+        // äußerer Wrapper
+        const wrapper = document.createElement ("div");
+        wrapper.style.position = "relative";
+        wrapper.style.width = `${width}px`;
+        wrapper.style.height = `${height}px`;
+        wrapper.style.overflow = "hidden";
+
+        // PNG
+        const image = document.createElement ("img");
+        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Regions.png`;
+
+        image.style.position = "absolute";
+        image.style.left = "0";
+        image.style.top = "0";
+        image.style.width = `${width}px`;
+        image.style.height = `${height}px`;
+        image.style.userSelect = "none";
+        image.draggable = false;
+        image.style.pointerEvents = "none";
+
+        // SVG für Zoom
+        const svg = d3.create <SVGSVGElement> ("svg")
+            .attr ("width", width)
+            .attr ("height", height)
+            .style ("position", "absolute")
+            .style ("left", "0")
+            .style ("top", "0");
+
+        const contentGroup = svg.append ("g");
+
+        // PNG
+        const foreignObject = contentGroup.append ("foreignObject")
+            .attr ("x", 0)
+            .attr ("y", 0)
             .attr ("width", width)
             .attr ("height", height);
-        
-        const zoomGroup = svg.append("g");
 
+        foreignObject.node ()!.appendChild (image);
+
+        // Interaktionslayer
+        const interactionLayer = createInteractionLayer ();
+        contentGroup.node ()!.appendChild (interactionLayer);
+
+        // Zoom
         const zoom = d3.zoom <SVGSVGElement, unknown> ()
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
-            .on ("zoom", (event) => {zoomGroup.attr ("transform", event.transform);});
-            
+            .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
+
         svg.call (zoom);
 
-        // Hintergrund = Mittelwert
-        zoomGroup.selectAll ("rect")
-            .data (data)
-            .join ("rect")
-            .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
-            .attr ("y", d => yScale (d.latitude) - cellHeight / 2)
-            .attr ("width", cellWidth)
-            .attr ("height", cellHeight)
-            .attr ("fill", d => valueColorScale (d [valueKey]!))
-            .attr ("shape-rendering", "crispEdges");
+        wrapper.appendChild (svg.node()!);
 
-        // Glyphen darüber
-        const glyphGroup = zoomGroup.append ("g")
-            .selectAll ("g")
-            .data (aggregatedData)
-            .join ("g")
-            .attr ("transform", d => `translate (${xScale (shiftedLongitude (d.longitude)) + cellWidth / 2},${yScale (d.latitude)})`)
-            .each (function (d) {
-                const g = d3.select (this as SVGGElement); 
-                g.append ("rect")
-                    .attr ("x", -cellWidth / 2)
-                    .attr ("y", -cellHeight / 2)
-                    .attr ("width", cellWidth)
-                    .attr ("height", cellHeight)
-                    .attr ("fill", "transparent")
-                    .style ("pointer-events", "all");
-                drawScaledGlyphs (g, d.uncertainty_std);
-            });
-        
-        const regionLayer = zoomGroup.append ("g")
-            .attr ("class", "region-layer");
-
-        const regions = [
-            {
-                //Region 1: mean value -13.1901; mean uncertainty 5.4356
-                latitudeMin: 77.4058880820788,
-                latitudeMax: 84.86197029204237,
-                longitudeMin: 9.375,
-                longitudeMax: 16.875
-            },
-            {
-                //Region 2: mean value -1.2391; mean uncertainty 3.1356
-                latitudeMin: 49.42915369712305,
-                latitudeMax: 56.89001260135711,
-                longitudeMin: 22.5,
-                longitudeMax: 30
-            },
-            {
-                //Region 3: mean value 0.4607; mean uncertainty 1.4989 
-                latitudeMin: 41.96822026907538,
-                latitudeMax: 49.42915369712305,
-                longitudeMin: 296.25,
-                longitudeMax: 303.75
-            },
-            {
-                //Region 4: mean value -20.0962; uncertainty 1.4297
-                latitudeMin: -84.86197029204237,
-                latitudeMax: -77.4058880820788,
-                longitudeMin: 275.625,
-                longitudeMax: 283.125
-            },
-            {
-                //Region 5: mean value 2.7040; uncertainty 0.6454
-                latitudeMin: 49.42915369712305,
-                latitudeMax: 56.89001260135711,
-                longitudeMin: 166.875,
-                longitudeMax: 174.375
-            }
-        ];
-        
-        regions.forEach ((region, index) => {
-
-            const x1 = xScale (shiftedLongitude (region.longitudeMin));
-            const x2 = xScale (shiftedLongitude (region.longitudeMax)) + cellWidth;
-
-            const y1 = yScale (region.latitudeMax) - cellHeight / 2;
-            const y2 = yScale (region.latitudeMin) + cellHeight / 2;
-
-            const x = Math.min (x1, x2);
-            const y = Math.min (y1, y2);
-            const width = Math.abs (x2 - x1);
-            const height = Math.abs (y2 - y1);
-
-            regionLayer.append ("rect")
-                .attr ("x", x)
-                .attr ("y", y)
-                .attr ("width", width)
-                .attr ("height", height)
-                .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.5)
-                .attr ("pointer-events", "none");
-
-            regionLayer.append ("text")
-                .attr ("x", x + width / 2)
-                .attr ("y", y - 5)
-                .attr ("text-anchor", "middle")
-                .attr ("dominant-baseline", "auto")
-                .attr ("font-size", 14)
-                .attr ("font-weight", "bold")
-                .attr ("fill", "black")
-                .attr ("pointer-events", "none")
-                .text (`R${index + 1}`);
-        });
-        return svg.node () as SVGSVGElement;
+        return wrapper;
     })();
-
-    async function renderSvgToCanvas (
-        svg: SVGElement,
-        width: number,
-        height: number,
-        scale = 7
-        ): Promise <HTMLCanvasElement> {
-
-        const serializer = new XMLSerializer ();
-        const svgSource = serializer.serializeToString (svg);
-
-        const canvas = document.createElement ("canvas");
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-
-        const ctx = canvas.getContext ("2d");
-
-        if (!ctx) {throw new Error ("Canvas Context konnte nicht erzeugt werden.");}
-
-        ctx.scale (scale, scale);
-
-        const img = new Image ();
-
-        const blob = new Blob (
-            [svgSource],
-            { type: "image/svg+xml;charset=utf-8" }
-        );
-
-        const url = URL.createObjectURL (blob);
-
-        await new Promise <void> ((resolve) => {
-
-            img.onload = () => {
-
-                ctx.drawImage (img, 0, 0);
-                URL.revokeObjectURL (url);
-                resolve ();
-            };
-            img.src = url;
-        });
-        return canvas;
-    }
-
-    // Datei Namen für Export
-    const datasetName = valueKey === "mean_temperature"
-        ? "Temperature"
-        : valueKey === "mean_precipitation"
-        ? "Precipitation"
-        : valueKey === "mean_air_pressure"
-        ? "Air_Pressure"
-        : valueKey;
-
-    // Export Button
-    function createExportAllPlots (plots: Array <[string, SVGElement, number, number]>) {
-        const button = document.createElement ("button");
-        button.innerText = "Download All Plots";
-
-        button.onclick = async () => {
-            const zip = new JSZip ();
-            const serializer = new XMLSerializer ();
-
-            for (const [name, plot, width, height] of plots) {
-                // SVG export
-                const svgSource = serializer.serializeToString (plot);
-                zip.file (`${name}.svg`, svgSource);
-
-                // PNG export
-                const canvas = await renderSvgToCanvas (plot, width, height);
-
-                await new Promise <void> ((resolve) => {
-
-                    canvas.toBlob ((blob) => {
-
-                        if (blob) {
-                            zip.file (`${name}.png`, blob);
-                        }
-
-                        resolve ();
-                    },
-                    "image/png",
-                    1.0
-                    );
-                });
-            }
-
-            const blob = await zip.generateAsync ({ type: "blob" });
-
-            const url = URL.createObjectURL (blob);
-
-            const a = document.createElement ("a");
-            a.href = url;
-            a.download = `${datasetName}_ScaledGlyph_Plots.zip`;
-            a.click ();
-
-            URL.revokeObjectURL (url);
-        };
-
-        return button;
-    }
     
     // Container Switch
     switch (output) {
@@ -772,27 +462,13 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             break;
 
         case "all":
-            // container.appendChild (valuePlot);
-            // container.appendChild (valueLegend);
-            // container.appendChild (uncertaintyPlot);
-            // container.appendChild (uncertaintyLegend);
-            // container.appendChild (scaledGlyphPlot);
-            // container.appendChild (scaledGlyphLegend);
-            // container.appendChild (scaledGlyphPlotRegions)
-            
-            container.appendChild (createExportAllPlots (
-                    [
-                        [`${datasetName}_Value_Plot`, valuePlot, 1200, 600],
-                        [`${datasetName}_Value_Legende`, valueLegend, 130, 180],
-                        [`${datasetName}_Uncertainty_Plot`, uncertaintyPlot, 1200, 600],
-                        [`${datasetName}_Uncertainty_Legende`, uncertaintyLegend, 220, 380],
-                        [`${datasetName}_ScaledGlyph_Plot`, scaledGlyphPlot, 1200, 600],
-                        [`${datasetName}_ScaledGlyph_Legende`, scaledGlyphLegend, 240, 380],
-                        [`${datasetName}_ScaledGlyph_Regions`, scaledGlyphPlotRegions, 1200, 600]
-                    ],
-                )
-            );
-
+            container.appendChild (valuePlot);
+            container.appendChild (valueLegend);
+            container.appendChild (uncertaintyPlot);
+            container.appendChild (uncertaintyLegend);
+            container.appendChild (scaledGlyphPlot);
+            container.appendChild (scaledGlyphLegend);
+            container.appendChild (scaledGlyphPlotRegions)
             break;
 
         default:
