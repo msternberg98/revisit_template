@@ -25,7 +25,8 @@
         "Introduction": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/Einführung.md",
-            "response": []
+            "response": [],
+            "nextButtonText": "Weiter"
         },
         "Consent": {
             "type": "markdown",
@@ -41,6 +42,12 @@
             ],
             "nextButtonText": "Ich stimme zu"
         },
+        "Explanation": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Explanation.md",
+            "response": [],
+            "nextButtonText": "Weiter"
+        },
 
 
 
@@ -49,7 +56,8 @@
         "VSUP_Description": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/VSUP.md",
-            "response": []
+            "response": [],
+            "nextButtonText": "Weiter"
         },
         "VSUP_Test": {
             "type": "react-component",
@@ -58,7 +66,7 @@
                 "preset": "test1",
                 "output": "Vsup"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -82,13 +90,15 @@
             "provideFeedback": true,
             "trainingAttempts": 3,
             "allowFailedTraining": false,
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "ScaledGlyph_Description": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/ScaledGlyph.md",
-            "response": []
+            "response": [],
+            "nextButtonText": "Weiter"
         },
         "ScaledGlyph_Test": {
             "type": "react-component",
@@ -97,7 +107,7 @@
                 "preset": "test2",
                 "output": "ScaledGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -119,13 +129,15 @@
             "provideFeedback": true,
             "trainingAttempts": 3,
             "allowFailedTraining": false,
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "IsoGlyph_Description": {
             "type": "markdown",
             "path": "Nutzerstudie/Assets/IsoGlyph.md",
-            "response": []
+            "response": [],
+            "nextButtonText": "Weiter"
         },
         "IsoGlyph_Test": {
             "type": "react-component",
@@ -134,7 +146,7 @@
                 "preset": "test3",
                 "output": "IsoGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -156,7 +168,8 @@
             "provideFeedback": true,
             "trainingAttempts": 3,
             "allowFailedTraining": false,
-            "nextButtonLocation": "belowStimulus"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -170,7 +183,7 @@
                 "preset": "precipitation",
                 "output": "Vsup"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -190,7 +203,8 @@
                     "acceptableLow": 7.0425933e-05
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Niederschlag_Uncertainty_Maxima_ScaledGlyph": {
@@ -200,7 +214,7 @@
                 "preset": "precipitation",
                 "output": "ScaledGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -220,7 +234,8 @@
                     "acceptableLow": 7.0425933e-05
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Niederschlag_Uncertainty_Maxima_IsoGlyph": {
@@ -230,7 +245,7 @@
                 "preset": "precipitation",
                 "output": "IsoGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der höchsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -250,7 +265,8 @@
                     "acceptableLow": 7.0425933e-05
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -264,7 +280,7 @@
                 "preset": "precipitation",
                 "output": "Vsup"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -284,7 +300,8 @@
                     "acceptableHigh": 2.1795152e-06
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Niederschlag_Uncertainty_Minima_ScaledGlyph": {
@@ -294,7 +311,7 @@
                 "preset": "precipitation",
                 "output": "ScaledGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -314,7 +331,8 @@
                     "acceptableHigh": 2.1795152e-06
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Niederschlag_Uncertainty_Minima_IsoGlyph": {
@@ -324,7 +342,7 @@
                 "preset": "precipitation",
                 "output": "IsoGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit:",
+            "instruction": "Klicken Sie auf die Stelle mit der geringsten Unsicherheit.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -344,7 +362,8 @@
                     "acceptableHigh": 2.1795152e-06
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -358,7 +377,7 @@
                 "preset": "air_pressure",
                 "output": "Vsup"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -378,7 +397,8 @@
                     "acceptableLow": 102966.08
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Luftdruck_Value_Maxima_ScaledGlyph": {
@@ -388,7 +408,7 @@
                 "preset": "air_pressure",
                 "output": "ScaledGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -408,7 +428,8 @@
                     "acceptableLow": 102966.08
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Luftdruck_Value_Maxima_IsoGlyph": {
@@ -418,7 +439,7 @@
                 "preset": "air_pressure",
                 "output": "IsoGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem höchsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -438,7 +459,8 @@
                     "acceptableLow": 102966.08
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -451,7 +473,7 @@
                 "preset": "air_pressure",
                 "output": "Vsup"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -471,7 +493,8 @@
                     "acceptableHigh": 98161.85
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Luftdruck_Value_Minima_ScaledGlyph": {
@@ -481,7 +504,7 @@
                 "preset": "air_pressure",
                 "output": "ScaledGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -501,7 +524,8 @@
                     "acceptableHigh": 98161.85
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Luftdruck_Value_Minima_IsoGlyph": {
@@ -511,7 +535,7 @@
                 "preset": "air_pressure",
                 "output": "IsoGlyph"
             },
-            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert:",
+            "instruction": "Klicken Sie auf die Stelle mit dem geringsten Mittelwert.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -531,7 +555,8 @@
                     "acceptableHigh": 98161.85
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -543,9 +568,9 @@
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "Vsup"
+                "output": "VsupRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -575,7 +600,8 @@
                     "location": "sidebar"
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Temperatur_Regions_ScaledGlyph": {
@@ -583,9 +609,9 @@
             "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "ScaledGlyph"
+                "output": "ScaledGlyphRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -616,7 +642,8 @@
                     "location": "sidebar"
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
         "Temperatur_Regions_IsoGlyph": {
@@ -624,9 +651,9 @@
             "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "IsoGlyph"
+                "output": "IsoGlyphRegions"
             },
-            "instruction": "Für den Bau eines Teleskops werden möglichst konstante Umgebungstemperaturen von ca. -12 Grad benötigt. Die fünf markierten Standorte besitzen vergleichbare Umgebungsbedingungen, unterscheiden sich jedoch in der Verlässlichkeit der dargestellten Werte. Welchen Standort würden Sie auswählen? Wählen sie eine Option und Begründen Sie Ihre Antwort.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -657,7 +684,8 @@
                     "location": "sidebar"
                 }
             ],
-            "nextButtonLocation": "sidebar"
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
 
 
@@ -694,7 +722,9 @@
                     "placeholder": "Bitte geben Sie ihre Farbsehschwäche an",
                     "options": ["Keine", "Deuteranopie (Grünblindheit)", "Protanopie (Rotblindheit)", "Tritanopie (Blaublindheit)", "Monochromasie", "Achromatopsie"]
                 }
-            ]
+            ],
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Weiter"
         },
         "Feedback": {
             "type": "questionnaire",
@@ -716,7 +746,9 @@
                     "location": "aboveStimulus",
                     "type": "longText"
                 }
-            ]
+            ],
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Ende"
         }
     },
 
@@ -729,6 +761,7 @@
         "components": [
             "Introduction",
             "Consent",
+            "Explanation",
 
             "VSUP_Description",
             "VSUP_Test",

@@ -35,7 +35,7 @@ export function AppNavBar({ width, top, sidebarOpen }: { width: number, top: num
           p="md"
         >
           <Text span c="orange.8" fw={700} inherit>
-            Task:
+            Aufgabe:
           </Text>
           <ReactMarkdownWrapper text={instruction} />
         </Box>
