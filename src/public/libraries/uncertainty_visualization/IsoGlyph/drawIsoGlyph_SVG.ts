@@ -265,7 +265,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         const squareColor = valueColorScale (upperValue)
         const innerRingColor = valueColorScale (lowerValue)
 
-        // Quadrat (Wer + Unsicherehit)
+        // Quadrat (Wert + Unsicherehit)
         g.append ("rect")
             .attr ("x", -size / 2)
             .attr ("y", -size / 2)

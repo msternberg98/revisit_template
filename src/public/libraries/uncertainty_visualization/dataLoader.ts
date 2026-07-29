@@ -12,25 +12,25 @@ export type DatasetPreset =
 
 const datasetPaths: Record <DatasetPreset, string> = {
     empty:
-        "/Nutzerstudie/Assets/Data/empty.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/empty.csv`,
 
     test1:
-        "/Nutzerstudie/Assets/Data/test1.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/test1.csv`,
 
     test2:
-        "/Nutzerstudie/Assets/Data/test2.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/test2.csv`,
 
     test3:
-        "/Nutzerstudie/Assets/Data/test3.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/test3.csv`,
 
     temperature:
-        "/Nutzerstudie/Assets/Data/temperature_max_std_range.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/temperature_max_std_range.csv`,
 
     precipitation:
-        "/Nutzerstudie/Assets/Data/precipitation_min_mean_range.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/precipitation_min_mean_range.csv`,
 
     air_pressure:
-        "/Nutzerstudie/Assets/Data/air_pressure_max_std_range.csv",
+        `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Data/air_pressure_max_std_range.csv`,
 };
 
 export async function loadDataset (preset: DatasetPreset): Promise<ClimateData []> {
