@@ -118,7 +118,7 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Plot.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";
@@ -170,7 +170,7 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Legende.png`;
         img.width = 240;
         img.height = 380;
 

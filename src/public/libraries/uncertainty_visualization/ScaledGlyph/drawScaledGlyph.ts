@@ -154,7 +154,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     
             // PNG
             const image = document.createElement ("img");
-            image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Plot.png`;
+            image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Plot.png`;
     
             image.style.position = "absolute";
             image.style.left = "0";
@@ -206,7 +206,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Value_Legende.png`;
         img.width = 130;
         img.height = 380;
 
@@ -225,7 +225,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     
             // PNG
             const image = document.createElement ("img");
-            image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Plot.png`;
+            image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Plot.png`;
     
             image.style.position = "absolute";
             image.style.left = "0";
@@ -277,7 +277,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_Uncertainty_Legende.png`;
         img.width = 220;
         img.height = 380;
 
@@ -296,7 +296,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
     
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Plot.png`;
     
         image.style.position = "absolute";
         image.style.left = "0";
@@ -348,7 +348,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Legende.png`;
         img.width = 240;
         img.height = 380;
 
@@ -367,7 +367,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Regions.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/ScaledGlyph/${datasetName}_ScaledGlyph_Regions.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";

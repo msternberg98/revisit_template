@@ -171,7 +171,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Value_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Value_Plot.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";
@@ -223,7 +223,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Value_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Value_Legende.png`;
         img.width = 130;
         img.height = 380;
 
@@ -242,7 +242,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Uncertainty_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Uncertainty_Plot.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";
@@ -294,7 +294,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Uncertainty_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_Uncertainty_Legende.png`;
         img.width = 220;
         img.height = 380;
 
@@ -313,7 +313,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Plot.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";
@@ -365,7 +365,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Legende.png`;
         img.width = 240;
         img.height = 380;
 
@@ -384,7 +384,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Regions.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/IsoGlyph/${datasetName}_IsoGlyph_Regions.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";

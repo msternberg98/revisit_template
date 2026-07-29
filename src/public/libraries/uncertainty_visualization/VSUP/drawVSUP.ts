@@ -112,7 +112,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Value_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Value_Plot.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";
@@ -164,7 +164,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Value_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Value_Legende.png`;
         img.width = 130;
         img.height = 380;
 
@@ -183,7 +183,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Uncertainty_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Uncertainty_Plot.png`;
     
         image.style.position = "absolute";
         image.style.left = "0";
@@ -235,7 +235,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Uncertainty_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Uncertainty_Legende.png`;
         img.width = 150;
         img.height = 380;
 
@@ -254,7 +254,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Plot.png`;
     
         image.style.position = "absolute";
         image.style.left = "0";
@@ -306,7 +306,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
         img.width = 280;
         img.height = 280;
 
@@ -325,7 +325,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Regions.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Regions.png`;
 
         image.style.position = "absolute";
         image.style.left = "0";

@@ -118,7 +118,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     
         // PNG
         const image = document.createElement ("img");
-        image.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Plot.png`;
+        image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Plot.png`;
     
         image.style.position = "absolute";
         image.style.left = "0";
@@ -170,7 +170,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
 
         const img = document.createElement ("img");
 
-        img.src = `/Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
+        img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
         img.width = 280;
         img.height = 280;
 
