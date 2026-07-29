@@ -5,7 +5,4 @@ Wenn Sie aufgefordert werden, auf eine bestimmte Stelle im Bild zu klicken, wäh
 Weitere Fragen oder Eingaben erscheinen unterhalb der jeweiligen Aufgabenstellung auf der linken Seite. 
 Bitte bearbeiten Sie alle Aufgaben vollständig. Nehmen Sie sich für jede Aufgabe ausreichend Zeit und beantworten Sie diese nach bestem Wissen.
 
-Sobald Sie eine Aufgabe bearbeitet haben, klicken Sie auf **Weiter**, um zur nächsten Aufgabe zu gelangen.
-Bei weiteren Fragen wenden Sie sich an den Studienleiter.
-
 Diese Erklärung kann während der Studie jederzeit über **Help** erneut aufgerufen werden.

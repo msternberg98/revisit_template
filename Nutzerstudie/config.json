@@ -42,26 +42,50 @@
             ],
             "nextButtonText": "Ich stimme zu"
         },
-        "Explanation": {
-            "type": "markdown",
-            "path": "Nutzerstudie/Assets/Explanation.md",
-            "response": [],
-            "nextButtonText": "Weiter"
-        },
-
-
-
-
-
-        "VSUP_Description": {
-            "type": "markdown",
-            "path": "Nutzerstudie/Assets/VSUP.md",
-            "response": [],
-            "nextButtonText": "Weiter"
-        },
-        "VSUP_Test": {
+        "Task_Explanation": {
             "type": "react-component",
-            "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUPTest.tsx",
+            "parameters": {
+                "preset": "empty",
+                "output": "vsupPlot"
+            },
+            "instruction": "Beispiel",
+            "response": [
+                {
+                    "id": "Beispiel_Checkbox_Response",
+                    "type": "checkbox",
+                    "required": false,
+                    "prompt": "Hier wählen Sie eine der Optionen aus:",
+                    "options": ["Option 1", "Option 2", "Option 3"],
+                    "maxSelections": 1,
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Beispiel_LongText_Response",
+                    "type": "longText",
+                    "required": false,
+                    "prompt": "Hier können Sie eine Begründung schreiben:",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Beispiel_Likert_Response",
+                    "type": "likert",
+                    "required": false,
+                    "prompt": "Hier bewerten Sie:",
+                    "numItems": 7,
+                    "location": "sidebar"
+                }
+            ],
+            "nextButtonText": "Weiter"
+        },
+
+
+
+
+
+        "VSUP_Explanation": {
+            "type": "react-component",
+            "path": "libraries/uncertainty_visualization/VSUP/VSUPTest.tsx",
             "parameters": {
                 "preset": "test1",
                 "output": "Vsup"
@@ -82,9 +106,9 @@
             "correctAnswer": [
                 {
                     "id": "VSUP_Response_Uncertainty",
-                    "acceptableHigh": 4,
-                    "acceptableLow": 4,
-                    "answer": 4
+                    "acceptableHigh": 10,
+                    "acceptableLow": 10,
+                    "answer": 10
                 }
             ],
             "provideFeedback": true,
@@ -94,15 +118,9 @@
             "nextButtonText": "Weiter"
         },
 
-        "ScaledGlyph_Description": {
-            "type": "markdown",
-            "path": "Nutzerstudie/Assets/ScaledGlyph.md",
-            "response": [],
-            "nextButtonText": "Weiter"
-        },
-        "ScaledGlyph_Test": {
+        "ScaledGlyph_Explanation": {
             "type": "react-component",
-            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
+            "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyphTest.tsx",
             "parameters": {
                 "preset": "test2",
                 "output": "ScaledGlyph"
@@ -123,7 +141,7 @@
             "correctAnswer": [
                 {
                     "id": "ScaledGlyph_Response_Uncertainty",
-                    "answer": "4"
+                    "answer": 10
                 }
             ],
             "provideFeedback": true,
@@ -133,15 +151,9 @@
             "nextButtonText": "Weiter"
         },
 
-        "IsoGlyph_Description": {
-            "type": "markdown",
-            "path": "Nutzerstudie/Assets/IsoGlyph.md",
-            "response": [],
-            "nextButtonText": "Weiter"
-        },
-        "IsoGlyph_Test": {
+        "IsoGlyph_Explanation": {
             "type": "react-component",
-            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyph.tsx",
+            "path": "libraries/uncertainty_visualization/IsoGlyph/IsoGlyphTest.tsx",
             "parameters": {
                 "preset": "test3",
                 "output": "IsoGlyph"
@@ -162,7 +174,7 @@
             "correctAnswer": [
                 {
                     "id": "IsoGlyph_Response_Uncertainty",
-                    "answer": "4"
+                    "answer": 10
                 }
             ],
             "provideFeedback": true,
@@ -570,7 +582,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -594,7 +606,7 @@
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
                     "numItems": 7,
-                    "labelLocation": "above",
+                    "labelLocation": "below",
                     "leftLabel": "Sehr unsicher",
                     "rightLabel": "Sehr sicher",
                     "location": "sidebar"
@@ -611,7 +623,7 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -636,7 +648,7 @@
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
                     "numItems": 7,
-                    "labelLocation": "above",
+                    "labelLocation": "below",
                     "leftLabel": "Sehr unsicher",
                     "rightLabel": "Sehr sicher",
                     "location": "sidebar"
@@ -653,7 +665,7 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage. Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -678,7 +690,7 @@
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
                     "numItems": 7,
-                    "labelLocation": "above",
+                    "labelLocation": "below",
                     "leftLabel": "Sehr unsicher",
                     "rightLabel": "Sehr sicher",
                     "location": "sidebar"
@@ -761,16 +773,11 @@
         "components": [
             "Introduction",
             "Consent",
-            "Explanation",
+            "Task_Explanation",
 
-            "VSUP_Description",
-            "VSUP_Test",
-
-            "ScaledGlyph_Description",
-            "ScaledGlyph_Test",
-            
-            "IsoGlyph_Description",
-            "IsoGlyph_Test",
+            "VSUP_Explanation",
+            "ScaledGlyph_Explanation",            
+            "IsoGlyph_Explanation",
             {
                 "order": "random",
                 "components": [
