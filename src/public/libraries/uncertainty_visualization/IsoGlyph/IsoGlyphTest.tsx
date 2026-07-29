@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { drawIsoGlyph, IsoGlyphOptions } from "./drawIsoGlyph";
+import { drawIsoGlyphTest, IsoGlyphOptions } from "./drawIsoGlyphTest";
 
 interface IsoGlyphProps {
     parameters?: {
@@ -16,7 +16,7 @@ interface IsoGlyphProps {
 }
 
 
-export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
+export default function IsoGlyphTest ({ parameters, setAnswer }: IsoGlyphProps) {
 
     const container = useRef <HTMLDivElement> (null);
     const initialized = useRef (false);
@@ -30,7 +30,7 @@ export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
 
         const load = async () => {
 
-            await drawIsoGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
+            await drawIsoGlyphTest (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
         
                 // console.log ("Klick auf Punkt:", result);
                 setAnswer?.({status: true, answers: {

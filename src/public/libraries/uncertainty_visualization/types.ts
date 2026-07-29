@@ -11,6 +11,7 @@ export interface ClimateData {
 }
 
 export type DatasetPreset =
+    | "empty"
     | "test1"
     | "test2"
     | "test3"

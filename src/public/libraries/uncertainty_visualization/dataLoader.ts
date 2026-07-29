@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { ClimateData } from "./types";
 
 export type DatasetPreset =
+    | "empty"
     | "test1"
     | "test2"
     | "test3"
@@ -10,6 +11,9 @@ export type DatasetPreset =
     | "air_pressure";
 
 const datasetPaths: Record <DatasetPreset, string> = {
+    empty:
+        "/Nutzerstudie/Assets/Data/empty.csv",
+
     test1:
         "/Nutzerstudie/Assets/Data/test1.csv",
 
@@ -40,6 +44,11 @@ export async function loadDataset (preset: DatasetPreset): Promise<ClimateData [
             };
 
             switch (preset) {
+
+                case "empty":
+                    row.mean_temperature = +d.mean_temperature!;
+                    break;
+
 
                 case "test1":
                     row.mean_temperature = +d.mean_temperature!;

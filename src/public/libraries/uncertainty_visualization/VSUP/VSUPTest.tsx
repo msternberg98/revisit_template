@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { drawIsoGlyph, IsoGlyphOptions } from "./drawIsoGlyph";
+import { drawVSUPTest, VSUPOptions } from "./drawVSUPTest";
 
-interface IsoGlyphProps {
+interface VSUPProps {
     parameters?: {
-        preset?: "test1" | "test2" | "test3" | "temperature" | "precipitation" | "air_pressure";
-        output?: IsoGlyphOptions ["output"];
+        preset?: "empty" | "test1" | "test2" | "test3" | "temperature" | "precipitation" | "air_pressure";
+        output?: VSUPOptions ["output"];
     };
 
     setAnswer?: (value: {
@@ -16,7 +16,7 @@ interface IsoGlyphProps {
 }
 
 
-export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
+export default function VSUPTest ({ parameters, setAnswer }: VSUPProps) {
 
     const container = useRef <HTMLDivElement> (null);
     const initialized = useRef (false);
@@ -29,16 +29,15 @@ export default function IsoGlyph ({ parameters, setAnswer }: IsoGlyphProps) {
         if (!container.current) return;
 
         const load = async () => {
+            await drawVSUPTest (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
 
-            await drawIsoGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
-        
                 // console.log ("Klick auf Punkt:", result);
                 setAnswer?.({status: true, answers: {
-        
-                    IsoGlyph_Response_Latitude: result.latitude,
-                    IsoGlyph_Response_Longitude: result.longitude,
-                    IsoGlyph_Response_Value: result.meanValue,
-                    IsoGlyph_Response_Uncertainty: result.uncertaintyStd,
+
+                    VSUP_Response_Latitude: result.latitude,
+                    VSUP_Response_Longitude: result.longitude,
+                    VSUP_Response_Value: result.meanValue,
+                    VSUP_Response_Uncertainty: result.uncertaintyStd,
                 },});
             }});
         };

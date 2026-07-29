@@ -31,7 +31,7 @@ export default function ScaledGlyph ({ parameters, setAnswer }: ScaledGlyphProps
         const load = async () => {
             await drawScaledGlyph (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
 
-                console.log ("Klick auf Punkt:", result);
+                // console.log ("Klick auf Punkt:", result);
                 setAnswer?.({status: true, answers: {
 
                     ScaledGlyph_Response_Latitude: result.latitude,

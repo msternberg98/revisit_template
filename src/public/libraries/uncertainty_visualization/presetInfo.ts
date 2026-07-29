@@ -2,6 +2,18 @@ import { DatasetPreset, PresetInfo } from "./types";
 
 export const presetInfo: Record <DatasetPreset, PresetInfo> = {
 
+    empty: {
+
+        valueKey: "mean_temperature",
+        factor: 1,
+        decimals: 1,
+        uncertainty_decimals: 2,
+        valueLabel: "Temperatur",
+        uncertaintyLabel: "Standardabweichung",
+        unit: "°C",
+        datasetName: "Example"
+    },
+
     test1: {
 
         valueKey: "mean_temperature",

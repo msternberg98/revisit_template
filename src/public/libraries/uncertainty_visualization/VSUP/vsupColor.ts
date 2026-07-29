@@ -28,9 +28,7 @@ export function vsupColor ({
 
     const availableBins = Math.max (2, valueSteps - Math.round (uncertaintyLevel));
 
-    const normalized =
-        (value - valueExtent[0]) /
-        (valueExtent[1] - valueExtent[0]);
+    const normalized = (value - valueExtent [0]) / (valueExtent [1] - valueExtent [0]);
 
     const quantized = useDiscrete
         ? Math.floor (normalized * availableBins) / (availableBins - 1)

@@ -31,7 +31,7 @@ export default function VSUP ({ parameters, setAnswer }: VSUPProps) {
         const load = async () => {
             await drawVSUP (container.current!, {preset: parameters?.preset, output: parameters?.output, onClickPoint: (result) => {
 
-                console.log ("Klick auf Punkt:", result);
+                // console.log ("Klick auf Punkt:", result);
                 setAnswer?.({status: true, answers: {
 
                     VSUP_Response_Latitude: result.latitude,

@@ -431,6 +431,15 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         return wrapper;
     })();
 
+    // Region Aufgabenstellung
+    const regionTask = document.createElement ("div");
+
+    regionTask.innerHTML = `
+    <p style="margin-top:0; margin-bottom:0px;">
+        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
+    </p>
+    `;
+
     // Container Switch
     switch (output) {
 
@@ -489,6 +498,7 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         }
 
         case "IsoGlyphRegions": {
+            container.appendChild (regionTask);
             container.appendChild (isoGlyphPlotRegions);
             container.appendChild (valueLegend);
             break;

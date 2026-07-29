@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { vsupColor } from "./vsupColor";
 import { loadDataset, DatasetPreset } from "../dataLoader";
 import { presetInfo } from "../presetInfo";
 import { createScales, shiftedLongitude, unshiftedLongitude } from "../mapUtils";
@@ -372,6 +371,15 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         return wrapper;
     })();
+
+    // Region Aufgabenstellung
+    const regionTask = document.createElement ("div");
+
+    regionTask.innerHTML = `
+    <p style="margin-top:0; margin-bottom:0px;">
+        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
+    </p>
+    `;
     
     // Container Switch
     switch (output) {
@@ -416,6 +424,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             break;
 
         case "VsupRegions":
+            container.appendChild (regionTask);
             container.appendChild (vsupPlotRegions);
             container.appendChild (vsupLegend);
             break;
