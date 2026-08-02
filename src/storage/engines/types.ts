@@ -61,7 +61,7 @@ export interface StageInfo {
   color: string;
 }
 
-interface StageData {
+export interface StageData {
   currentStage: StageInfo;
   allStages: StageInfo[];
 }
@@ -133,7 +133,7 @@ function cloneParticipantDataSnapshot(participantData: ParticipantData) {
 }
 
 export abstract class StorageEngine {
-  protected engine: 'localStorage' | 'supabase' | 'firebase';
+  protected engine: 'localStorage' | 'supabase' | 'firebase' | 'server';
 
   protected testing: boolean;
 

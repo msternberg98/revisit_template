@@ -1,6 +1,7 @@
 import { LocalStorageEngine } from './engines/LocalStorageEngine';
 import { FirebaseStorageEngine } from './engines/FirebaseStorageEngine';
 import { SupabaseStorageEngine } from './engines/SupabaseStorageEngine';
+// import { UniServerStorageEngine } from './engines/UniServerStorageEngine';
 import { StorageEngine } from './engines/types';
 
 export async function initializeStorageEngine() {
@@ -37,6 +38,18 @@ export async function initializeStorageEngine() {
 
     storageEngine = localStorageEngine;
   }
+
+  // if (storageEngineName === 'server') {
+  //   const universityStorageEngine = new UniServerStorageEngine();
+
+  //   await universityStorageEngine.connect();
+
+  //   if (universityStorageEngine.isConnected()) {
+  //       storageEngine = universityStorageEngine;
+  //   } else {
+  //       fallback = true;
+  //   }
+  // }
 
   return storageEngine!;
 }
