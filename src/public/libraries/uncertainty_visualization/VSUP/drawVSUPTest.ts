@@ -85,8 +85,8 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
                 .attr ("width", cellWidth)
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
+                .attr ("stroke", "#FF00FF")
+                .attr ("stroke-width", 0.8)
                 .attr ("pointer-events", "none");
     
             onClickPoint?.({
@@ -187,9 +187,10 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
 
     <p>
         In dieser Studie wird Ihnen die jeweilige Aufgabenstellung immer auf der linken Seite angezeigt.
-        Wenn Sie aufgefordert werden, auf eine bestimmte Stelle im Bild zu klicken, wählen Sie diese einfach mit der linken Maustaste aus. Die von Ihnen ausgewählte Stelle wird anschließend mit einem schwarzen Quadrat markiert. Sie können Ihre Auswahl jederzeit ändern, indem Sie auf eine andere Stelle im Bild klicken. Innerhalb eines Bildes können Sie mit dem Mausrad zoomen und das Bild mithilfe der linken Maustaste verschieben.
-        Weitere Fragen oder Eingaben erscheinen unterhalb der jeweiligen Aufgabenstellung auf der linken Seite. 
-        Bitte bearbeiten Sie alle Aufgaben vollständig. Nehmen Sie sich für jede Aufgabe ausreichend Zeit und beantworten Sie diese nach bestem Wissen.
+        Wenn Sie aufgefordert werden, auf eine bestimmte Stelle im Bild zu klicken, wählen Sie diese einfach mit der linken Maustaste aus. Die von Ihnen ausgewählte Stelle wird anschließend mit einem rosa Quadrat markiert. Sie können Ihre Auswahl jederzeit ändern, indem Sie auf eine andere Stelle im Bild klicken. Innerhalb eines Bildes können Sie mit dem Mausrad zoomen und das Bild mithilfe der linken Maustaste verschieben.
+        Weitere Fragen oder Eingaben erscheinen unterhalb der jeweiligen Aufgabenstellung auf der linken Seite. <br>
+        Auf dieser Seite sehen Sie Beispiele für die Aufgabentypen. Sollte bei einem Mausklick auf das Bild unten kein Viereck angezeigt werden, dann unterstützt Ihr Browser diese Interaktion nicht und ich bitte Sie zu einem anderen zu wechseln. <br>
+        Bitte bearbeiten Sie alle Aufgaben vollständig. Die Korrektheit der Fragen hat Priorität, aber die Antwortzeit ist eine wichtige sekundäre Messgröße.
     </p>
 
     <p>

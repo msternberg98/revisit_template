@@ -85,8 +85,8 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
                 .attr ("width", cellWidth)
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
+                .attr ("stroke", "#FF00FF")
+                .attr ("stroke-width", 0.8)
                 .attr ("pointer-events", "none");
 
             onClickPoint?.({

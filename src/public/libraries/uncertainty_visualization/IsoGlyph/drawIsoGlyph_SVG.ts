@@ -142,8 +142,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .attr ("width", cellWidth)
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
+                .attr ("stroke", "#FF00FF")
+                .attr ("stroke-width", 0.8)
                 .attr ("pointer-events", "none");
 
             onClickPoint?.({
@@ -327,8 +327,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .attr ("width", cellWidth)
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
+                .attr ("stroke", "#FF00FF")
+                .attr ("stroke-width", 0.8)
                 .attr ("pointer-events", "none");
 
             onClickPoint?.({
@@ -424,8 +424,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .attr ("width", cellWidth)
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
-                .attr ("stroke", "black")
-                .attr ("stroke-width", 0.4)
+                .attr ("stroke", "#FF00FF")
+                .attr ("stroke-width", 0.8)
                 .attr ("pointer-events", "none");
 
             onClickPoint?.({
