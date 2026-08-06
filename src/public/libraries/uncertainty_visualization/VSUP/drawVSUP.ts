@@ -371,65 +371,93 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         return wrapper;
     })();
-
-    // Region Aufgabenstellung
-    const regionTask = document.createElement ("div");
-
-    regionTask.innerHTML = `
-    <p style="margin-top:0; margin-bottom:0px;">
-        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
-    </p>
-    `;
     
     // Container Switch
     switch (output) {
 
-        case "valuePlot":
+        case "valuePlot": {
             container.appendChild (valuePlot);
             break;
+        }
 
-        case "valueLegend":
+        case "valueLegend": {
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "Value":
+        case "Value": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "uncertaintyPlot":
+        case "uncertaintyPlot": {
             container.appendChild (uncertaintyPlot);
             break;
+        }
 
-        case "uncertaintyLegend":
+        case "uncertaintyLegend": {
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "Uncertainty":
+        case "Uncertainty": {
             container.appendChild (uncertaintyPlot);
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "vsupPlot":
+        case "vsupPlot": {
             container.appendChild (vsupPlot);
             break;
+        }
 
-        case "vsupLegend":
+        case "vsupLegend": {
             container.appendChild (vsupLegend);
             break;
+        }
         
-        case "Vsup":
-            container.appendChild (vsupPlot);
-            container.appendChild (vsupLegend);
-            break;
+        case "Vsup": {
+            // container.appendChild (vsupPlot);
+            // container.appendChild (vsupLegend);
 
-        case "VsupRegions":
-            container.appendChild (regionTask);
-            container.appendChild (vsupPlotRegions);
-            container.appendChild (vsupLegend);
-            break;
+            const layout = document.createElement ("div");
 
-        case "all":
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (vsupPlotRegions);
+            layout.appendChild (vsupLegend);
+
+            container.appendChild (layout);
+            break;
+        }
+
+        case "VsupRegions": {
+            // container.appendChild (vsupPlotRegions);
+            // container.appendChild (vsupLegend);
+
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (vsupPlotRegions);
+            layout.appendChild (vsupLegend);
+
+            container.appendChild (layout);
+            break;
+        }
+
+        case "all": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             container.appendChild (uncertaintyPlot);
@@ -438,9 +466,11 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             container.appendChild (vsupLegend);
             container.appendChild (vsupPlotRegions);
             break;
+        }
 
-        default:
+        default: {
             container.appendChild(vsupPlot);
             break;
+        }
     }
 }

@@ -432,13 +432,13 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
     })();
 
     // Region Aufgabenstellung
-    const regionTask = document.createElement ("div");
+    // const regionTask = document.createElement ("div");
 
-    regionTask.innerHTML = `
-    <p style="margin-top:0; margin-bottom:0px;">
-        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
-    </p>
-    `;
+    // regionTask.innerHTML = `
+    // <p style="margin-top:0; margin-bottom:0px;">
+    //     Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
+    // </p>
+    // `;
 
     // Container Switch
     switch (output) {
@@ -486,8 +486,22 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         }
 
         case "IsoGlyph": {
-            container.appendChild (isoGlyphPlot);
-            container.appendChild (valueLegend);
+            // container.appendChild (isoGlyphPlot);
+            // container.appendChild (valueLegend);
+
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (isoGlyphPlot);
+            layout.appendChild (valueLegend);
+
+            container.appendChild (layout);
             break;
         }
         
@@ -498,9 +512,22 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
         }
 
         case "IsoGlyphRegions": {
-            container.appendChild (regionTask);
-            container.appendChild (isoGlyphPlotRegions);
-            container.appendChild (valueLegend);
+            // container.appendChild (isoGlyphPlotRegions);
+            // container.appendChild (valueLegend);
+
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (isoGlyphPlotRegions);
+            layout.appendChild (valueLegend);
+
+            container.appendChild (layout);
             break;
         }
 

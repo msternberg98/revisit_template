@@ -206,9 +206,38 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
             break;
         
         case "ScaledGlyph":
-            container.appendChild (scaledGlyphExplanation);
-            container.appendChild (scaledGlyphPlot);
-            container.appendChild (scaledGlyphLegend);
+            // container.appendChild (scaledGlyphExplanation);
+            // container.appendChild (scaledGlyphPlot);
+            // container.appendChild (scaledGlyphLegend);
+
+            // Erklärung oben
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "column";
+            layout.style.alignItems = "center";
+            layout.style.gap = "10px";
+            layout.style.width = "100%";
+
+            layout.appendChild (scaledGlyphExplanation);
+
+            // Plots unter den Text setzen
+            const plotLayout = document.createElement ("div");
+
+            plotLayout.style.display = "flex";
+            plotLayout.style.flexDirection = "row";
+            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.justifyContent = "center";
+            plotLayout.style.gap = "0px";
+            plotLayout.style.width = "100%";
+
+            plotLayout.appendChild (scaledGlyphPlot);
+            plotLayout.appendChild (scaledGlyphLegend);
+
+            layout.appendChild (plotLayout);
+
+            // Alles in den Container
+            container.appendChild (layout);
             break;
 
         default:

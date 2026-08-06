@@ -413,65 +413,93 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         return wrapper;
     })();
-
-    // Region Aufgabenstellung
-    const regionTask = document.createElement ("div");
-
-    regionTask.innerHTML = `
-    <p style="margin-top:0; margin-bottom:0px;">
-        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
-    </p>
-    `;
     
     // Container Switch
     switch (output) {
 
-        case "valuePlot":
+        case "valuePlot": {
             container.appendChild (valuePlot);
             break;
+        }
 
-        case "valueLegend":
+        case "valueLegend": {
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "Value":
+        case "Value": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             break;
+        }
 
-        case "uncertaintyPlot":
+        case "uncertaintyPlot": {
             container.appendChild (uncertaintyPlot);
             break;
+        }
 
-        case "uncertaintyLegend":
+        case "uncertaintyLegend": {
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "Uncertainty":
+        case "Uncertainty": {
             container.appendChild (uncertaintyPlot);
             container.appendChild (uncertaintyLegend);
             break;
+        }
 
-        case "scaledGlyphPlot":
+        case "scaledGlyphPlot": {
             container.appendChild (scaledGlyphPlot);
-            break;
+            break
+        }
 
-        case "scaledGlyphLegend":
+        case "scaledGlyphLegend": {
             container.appendChild (scaledGlyphLegend);
             break;
+        }
         
-        case "ScaledGlyph":
-            container.appendChild (scaledGlyphPlot);
-            container.appendChild (scaledGlyphLegend);
-            break;
+        case "ScaledGlyph": {
+            // container.appendChild (scaledGlyphPlot);
+            // container.appendChild (scaledGlyphLegend);
 
-        case "ScaledGlyphRegions":
-            container.appendChild (regionTask);
-            container.appendChild (scaledGlyphPlotRegions);
-            container.appendChild (scaledGlyphLegend);
-            break;
+            const layout = document.createElement ("div");
 
-        case "all":
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (scaledGlyphPlot);
+            layout.appendChild (scaledGlyphLegend);
+
+            container.appendChild (layout);
+            break;
+        }
+
+        case "ScaledGlyphRegions": {
+            // container.appendChild (scaledGlyphPlotRegions);
+            // container.appendChild (scaledGlyphLegend);
+
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            layout.style.alignItems = "flex-start";
+            layout.style.justifyContent = "center";
+            layout.style.gap = "0px";
+            layout.style.width = "100%";
+
+            layout.appendChild (scaledGlyphPlot);
+            layout.appendChild (scaledGlyphLegend);
+
+            container.appendChild (layout);
+            break;
+        }
+
+        case "all": {
             container.appendChild (valuePlot);
             container.appendChild (valueLegend);
             container.appendChild (uncertaintyPlot);
@@ -480,9 +508,11 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             container.appendChild (scaledGlyphLegend);
             container.appendChild (scaledGlyphPlotRegions)
             break;
+        }
 
-        default:
+        default: {
             container.appendChild(scaledGlyphPlot);
             break;
+        }
     }
 }

@@ -208,9 +208,38 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
         }
 
         case "IsoGlyph": {
-            container.appendChild (isoGlyphExplanation);
-            container.appendChild (isoGlyphPlot);
-            container.appendChild (isoGlyphLegend);
+            // container.appendChild (isoGlyphExplanation);
+            // container.appendChild (isoGlyphPlot);
+            // container.appendChild (isoGlyphLegend);
+
+            // Erklärung oben
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "column";
+            layout.style.alignItems = "center";
+            layout.style.gap = "10px";
+            layout.style.width = "100%";
+
+            layout.appendChild (isoGlyphExplanation);
+
+            // Plots unter den Text setzen
+            const plotLayout = document.createElement ("div");
+
+            plotLayout.style.display = "flex";
+            plotLayout.style.flexDirection = "row";
+            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.justifyContent = "center";
+            plotLayout.style.gap = "0px";
+            plotLayout.style.width = "100%";
+
+            plotLayout.appendChild (isoGlyphPlot);
+            plotLayout.appendChild (isoGlyphLegend);
+
+            layout.appendChild (plotLayout);
+
+            // Alles in den Container
+            container.appendChild (layout);
             break;
         }
 

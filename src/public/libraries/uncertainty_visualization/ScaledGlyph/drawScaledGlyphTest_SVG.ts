@@ -33,7 +33,7 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
 
     let valueExtent = d3.extent(data, d => d[valueKey]) as [number, number];
     if (valueExtent [0] === valueExtent [1]) {
-        valueExtent = [valueExtent [0] - 10, valueExtent [1] + 10];
+        valueExtent = [valueExtent [0] - 17, valueExtent [1] + 3];
     }
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
      

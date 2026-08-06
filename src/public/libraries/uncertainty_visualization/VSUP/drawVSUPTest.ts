@@ -234,9 +234,38 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             break;
         
         case "Vsup":
-            container.appendChild (vsupExplanation);
-            container.appendChild (vsupPlot);
-            container.appendChild (vsupLegend);
+            // container.appendChild (vsupExplanation);
+            // container.appendChild (vsupPlot);
+            // container.appendChild (vsupLegend);
+
+            // Erklärung oben
+            const layout = document.createElement ("div");
+
+            layout.style.display = "flex";
+            layout.style.flexDirection = "column";
+            layout.style.alignItems = "center";
+            layout.style.gap = "10px";
+            layout.style.width = "100%";
+
+            layout.appendChild (vsupExplanation);
+
+            // Plots unter den Text setzen
+            const plotLayout = document.createElement ("div");
+
+            plotLayout.style.display = "flex";
+            plotLayout.style.flexDirection = "row";
+            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.justifyContent = "center";
+            plotLayout.style.gap = "0px";
+            plotLayout.style.width = "100%";
+
+            plotLayout.appendChild (vsupPlot);
+            plotLayout.appendChild (vsupLegend);
+
+            layout.appendChild (plotLayout);
+
+            // Alles in den Container
+            container.appendChild (layout);
             break;
 
         default:
