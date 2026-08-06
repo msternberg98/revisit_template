@@ -582,7 +582,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -713,7 +713,7 @@
                     "required": false,
                     "location": "aboveStimulus",
                     "type": "dropdown",
-                    "placeholder": "Bitte geben Sie ihren Beruf an",
+                    "placeholder": "Bitte geben Sie ihren Bildungsabschluss an",
                     "options": ["Hauptschule", "Realschule", "Gymnasium", "Bachelor", "Master"]
                 },
                 {

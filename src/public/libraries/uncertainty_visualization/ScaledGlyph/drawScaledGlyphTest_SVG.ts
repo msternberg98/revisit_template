@@ -79,7 +79,7 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
             .attr ("r", radius)
             .attr ("fill", "none")
             .attr ("stroke", "black")
-            .attr ("stroke-width", 0.2)
+            .attr ("stroke-width", 1)
     }
 
     // Scaled Glyph Plot
