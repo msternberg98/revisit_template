@@ -236,7 +236,7 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
         g.append ("circle")
             .attr ("r", radius)
             .attr ("fill", "none")
-            .attr ("stroke", "black")
+            .attr ("stroke", "#FF00FF")
             .attr ("stroke-width", 0.2)
     }
 
