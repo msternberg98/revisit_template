@@ -206,6 +206,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Maxima_VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -237,6 +248,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Maxima_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -267,6 +289,17 @@
                     "hidden": true,
                     "required": true,
                     "prompt": "",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Maxima_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
                     "location": "sidebar"
                 }
             ],
@@ -303,6 +336,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Minima_VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -334,6 +378,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Minima_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -364,6 +419,17 @@
                     "hidden": true,
                     "required": true,
                     "prompt": "",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Niederschlag_Uncertainty_Minima_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
                     "location": "sidebar"
                 }
             ],
@@ -400,6 +466,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Maxima_VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -431,6 +508,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Maxima_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -461,6 +549,17 @@
                     "hidden": true,
                     "required": true,
                     "prompt": "",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Maxima_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
                     "location": "sidebar"
                 }
             ],
@@ -496,6 +595,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Minima_VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -526,6 +636,17 @@
                     "hidden": true,
                     "required": true,
                     "prompt": "",
+                    "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Minima_ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
                     "location": "sidebar"
                 }
             ],
@@ -558,6 +679,17 @@
                     "required": true,
                     "prompt": "",
                     "location": "sidebar"
+                },
+                {
+                    "id": "Luftdruck_Value_Minima_IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr unsicher",
+                    "rightLabel": "Sehr sicher",
+                    "location": "sidebar"
                 }
             ],
             "correctAnswer": [
@@ -586,7 +718,7 @@
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_VSUP_Checkbox_Response",
+                    "id": "Temperatur_Regions_VSUP_Checkbox_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
@@ -594,14 +726,14 @@
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_VSUP_LongText_Response",
+                    "id": "Temperatur_Regions_VSUP_LongText_Response",
                     "type": "longText",
                     "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_VSUP_Likert_Response",
+                    "id": "Temperatur_Regions_VSUP_Likert_Response",
                     "type": "likert",
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
@@ -623,11 +755,11 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_ScaledGlyph_Checkbox_Response",
+                    "id": "Temperatur_Regions_ScaledGlyph_Checkbox_Response",
                     "type": "checkbox",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
@@ -636,14 +768,14 @@
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_ScaledGlyph_LongText_Response",
+                    "id": "Temperatur_Regions_ScaledGlyph_LongText_Response",
                     "type": "longText",
                     "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_ScaledGlyph_Likert_Response",
+                    "id": "Temperatur_Regions_ScaledGlyph_Likert_Response",
                     "type": "likert",
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
@@ -665,11 +797,11 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Welchen Standort würden Sie auswählen? Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_IsoGlyph_Checkbox_Response",
+                    "id": "Temperatur_Regions_IsoGlyph_Checkbox_Response",
                     "type": "checkbox",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
@@ -678,14 +810,14 @@
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_IsoGlyph_LongText_Response",
+                    "id": "Temperatur_Regions_IsoGlyph_LongText_Response",
                     "type": "longText",
                     "required": true,
                     "prompt": "Wieso haben Sie sich für diese Region entschieden?",
                     "location": "sidebar"
                 },
                 {
-                    "id": "Temperatur_IsoGlyph_Likert_Response",
+                    "id": "Temperatur_Regions_IsoGlyph_Likert_Response",
                     "type": "likert",
                     "required": true,
                     "prompt": "Wie sicher sind Sie sich mit Ihrer Antwort?",
@@ -704,6 +836,26 @@
 
 
 
+        "Feedback": {
+            "type": "questionnaire",
+            "response": [
+                {
+                    "id": "Method_Rating",
+                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?/Wie gut hat Ihnen diese Methode gefallen?",
+                    "type": "checkbox",
+                    "options": ["VSUP", "Skalierte Glyphen", "Isometrische Glyphen"],
+                    "maxSelections": 1
+                },
+                {
+                    "id": "Remarks",
+                    "prompt": "Weitere Anmerkungen",
+                    "required": false,
+                    "type": "longText"
+                }
+            ],
+            "nextButtonLocation": "belowStimulus",
+            "nextButtonText": "Ende"
+        },
         "Demographic": {
             "type": "questionnaire",
             "response": [
@@ -737,30 +889,6 @@
             ],
             "nextButtonLocation": "belowStimulus",
             "nextButtonText": "Weiter"
-        },
-        "Feedback": {
-            "type": "questionnaire",
-            "response": [
-                {
-                    "id": "Study_Rating",
-                    "prompt": "Bewerten Sie Ihre Zufriedenheit mit dieser Studie auf einer Skala von 1 bis 5.",
-                    "required": false,
-                    "location": "aboveStimulus",
-                    "type": "likert",
-                    "leftLabel": "Nicht zufrieden",
-                    "rightLabel": "Sehr zufrieden",
-                    "numItems": 5
-                },
-                {
-                    "id": "Remarks",
-                    "prompt": "Weitere Anmerkungen",
-                    "required": false,
-                    "location": "aboveStimulus",
-                    "type": "longText"
-                }
-            ],
-            "nextButtonLocation": "belowStimulus",
-            "nextButtonText": "Ende"
         }
     },
 
@@ -802,8 +930,8 @@
                     "Temperatur_Regions_IsoGlyph"
                 ]
             },
-            "Demographic",
-            "Feedback"
+            "Feedback",
+            "Demographic"
         ]
     }
 }
