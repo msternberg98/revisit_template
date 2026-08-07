@@ -841,10 +841,40 @@
             "response": [
                 {
                     "id": "Method_Rating",
-                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?/Wie gut hat Ihnen diese Methode gefallen?",
+                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?",
                     "type": "checkbox",
                     "options": ["VSUP", "Skalierte Glyphen", "Isometrische Glyphen"],
                     "maxSelections": 1
+                },
+                {
+                    "id": "VSUP_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie verständlich fanden Sie die VSUP als Visualisierungsmethode?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht verständlich",
+                    "rightLabel": "Sehr verständlich"
+                },
+                {
+                    "id": "ScaledGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie verständlich fanden Sie die skalierten Glyphen als Visualisierungsmethode?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht verständlich",
+                    "rightLabel": "Sehr verständlich"
+                },
+                {
+                    "id": "IsoGlyph_Likert_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie verständlich fanden Sie die Isometrischen Glyphen als Visualisierungsmethode?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht verständlich",
+                    "rightLabel": "Sehr verständlich"
                 },
                 {
                     "id": "Remarks",
@@ -862,7 +892,7 @@
                 {
                     "id": "Qualification",
                     "prompt": "Welchen Bildungsabschluss haben Sie?",
-                    "required": false,
+                    "required": true,
                     "location": "aboveStimulus",
                     "type": "dropdown",
                     "placeholder": "Bitte geben Sie ihren Bildungsabschluss an",
@@ -871,7 +901,7 @@
                 {
                     "id": "Age",
                     "prompt": "Wie alt sind Sie?",
-                    "required": false,
+                    "required": true,
                     "location": "aboveStimulus",
                     "type": "dropdown",
                     "placeholder": "Bitte geben Sie ihr Alter an",
