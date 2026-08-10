@@ -430,7 +430,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             layout.style.gap = "0px";
             layout.style.width = "100%";
 
-            layout.appendChild (vsupPlotRegions);
+            layout.appendChild (vsupPlot);
             layout.appendChild (vsupLegend);
 
             container.appendChild (layout);
