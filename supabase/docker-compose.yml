@@ -33,7 +33,6 @@ services:
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       AUTH_JWT_SECRET: ${JWT_SECRET}
 
-      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
       LOGFLARE_URL: http://analytics:4000
       NEXT_PUBLIC_ENABLE_LOGS: true
       NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
@@ -54,7 +53,7 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
       SUPABASE_ANON_KEY: ${ANON_KEY}
@@ -193,6 +192,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SCHEMA: _analytics
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_PUBLIC_ACCESS_TOKEN: ${LOGFLARE_PUBLIC_ACCESS_TOKEN}
       LOGFLARE_SINGLE_TENANT: true
       LOGFLARE_SUPABASE_MODE: true
       LOGFLARE_MIN_CLUSTER_SIZE: 1
@@ -299,7 +299,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:5000/status"
+          "http://127.0.0.1:5000/status"
         ]
       timeout: 5s
       interval: 5s
