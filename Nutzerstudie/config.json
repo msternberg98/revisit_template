@@ -96,7 +96,7 @@
                 {
                     "id": "VSUP_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -131,7 +131,7 @@
                 {
                     "id": "ScaledGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -164,7 +164,7 @@
                 {
                     "id": "IsoGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -201,7 +201,7 @@
                 {
                     "id": "VSUP_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -243,7 +243,7 @@
                 {
                     "id": "ScaledGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -285,7 +285,7 @@
                 {
                     "id": "IsoGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -331,7 +331,7 @@
                 {
                     "id": "VSUP_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -373,7 +373,7 @@
                 {
                     "id": "ScaledGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -415,7 +415,7 @@
                 {
                     "id": "IsoGlyph_Response_Uncertainty",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -461,7 +461,7 @@
                 {
                     "id": "VSUP_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -503,7 +503,7 @@
                 {
                     "id": "ScaledGlyph_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -545,7 +545,7 @@
                 {
                     "id": "IsoGlyph_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -590,7 +590,7 @@
                 {
                     "id": "VSUP_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -632,7 +632,7 @@
                 {
                     "id": "ScaledGlyph_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -674,7 +674,7 @@
                 {
                     "id": "IsoGlyph_Response_Value",
                     "type": "numerical",
-                    "default": 0,
+                    "default": -999,
                     "hidden": true,
                     "required": true,
                     "prompt": "",
@@ -753,7 +753,7 @@
             "path": "libraries/uncertainty_visualization/ScaledGlyph/ScaledGlyph.tsx",
             "parameters": {
                 "preset": "temperature",
-                "output": "all"
+                "output": "ScaledGlyphRegions"
             },
             "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
