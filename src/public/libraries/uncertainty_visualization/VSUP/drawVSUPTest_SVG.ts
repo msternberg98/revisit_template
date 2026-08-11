@@ -33,9 +33,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     const valueKey = config.valueKey;
 
     let valueExtent = d3.extent(data, d => d[valueKey]) as [number, number];
-    if (valueExtent [0] === valueExtent [1]) {
-        valueExtent = [valueExtent [0] - 4, valueExtent [1] + 16];
-    }
+    valueExtent = [valueExtent [0] - 4, valueExtent [1] + 6];
     const uncertaintyExtent = d3.extent (data, (d: any) => d.uncertainty_std,) as [number, number];
 
     // Diskrete Schritte

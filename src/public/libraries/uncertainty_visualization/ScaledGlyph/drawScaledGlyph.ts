@@ -413,6 +413,15 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
 
         return wrapper;
     })();
+
+    // Region Aufgabenstellung
+    const regionTask = document.createElement ("div");
+
+    regionTask.innerHTML = `
+    <p style="margin-top:0; margin-bottom:0px;">
+        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
+    </p>
+    `;
     
     // Container Switch
     switch (output) {
@@ -483,19 +492,54 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             // container.appendChild (scaledGlyphPlotRegions);
             // container.appendChild (scaledGlyphLegend);
 
+            // const layout = document.createElement ("div");
+
+            // layout.style.display = "flex";
+            // layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
+            // layout.style.alignItems = "flex-start";
+            // layout.style.justifyContent = "center";
+            // layout.style.gap = "0px";
+            // layout.style.width = "100%";
+
+            // layout.appendChild (scaledGlyphPlotRegions);
+            // layout.appendChild (scaledGlyphLegend);
+
+            // container.appendChild (layout);
+
             const layout = document.createElement ("div");
 
             layout.style.display = "flex";
-            layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
-            layout.style.alignItems = "flex-start";
-            layout.style.justifyContent = "center";
-            layout.style.gap = "0px";
+            layout.style.flexDirection = "column";
+            layout.style.alignItems = "center";
             layout.style.width = "100%";
+            layout.style.gap = "10px";
 
-            layout.appendChild (scaledGlyphPlot);
-            layout.appendChild (scaledGlyphLegend);
 
+            // Erklärung oben
+            layout.appendChild (regionTask);
+
+
+            // Unterer Bereich mit Plot + Legende
+            const plotLayout = document.createElement ("div");
+
+            plotLayout.style.display = "flex";
+            plotLayout.style.flexDirection = "row";
+            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.justifyContent = "center";
+            plotLayout.style.gap = "0px";
+            plotLayout.style.width = "100%";
+
+            plotLayout.appendChild (scaledGlyphPlotRegions);
+            plotLayout.appendChild (scaledGlyphLegend);
+
+
+            // Plot-Bereich unter den Text setzen
+            layout.appendChild (plotLayout);
+
+
+            // Alles in den Container
             container.appendChild (layout);
+
             break;
         }
 

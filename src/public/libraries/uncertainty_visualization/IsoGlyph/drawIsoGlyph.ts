@@ -432,13 +432,13 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
     })();
 
     // Region Aufgabenstellung
-    // const regionTask = document.createElement ("div");
+    const regionTask = document.createElement ("div");
 
-    // regionTask.innerHTML = `
-    // <p style="margin-top:0; margin-bottom:0px;">
-    //     Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
-    // </p>
-    // `;
+    regionTask.innerHTML = `
+    <p style="margin-top:0; margin-bottom:0px;">
+        Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.
+    </p>
+    `;
 
     // Container Switch
     switch (output) {
@@ -515,19 +515,54 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             // container.appendChild (isoGlyphPlotRegions);
             // container.appendChild (valueLegend);
 
+            // const layout = document.createElement ("div");
+
+            // layout.style.display = "flex";
+            // layout.style.flexDirection = "row";
+            // layout.style.alignItems = "flex-start";
+            // layout.style.justifyContent = "center";
+            // layout.style.gap = "0px";
+            // layout.style.width = "100%";
+
+            // layout.appendChild (isoGlyphPlotRegions);
+            // layout.appendChild (valueLegend);
+
+            // container.appendChild (layout);
+            
             const layout = document.createElement ("div");
 
             layout.style.display = "flex";
-            layout.style.flexDirection = "row";
-            layout.style.alignItems = "flex-start";
-            layout.style.justifyContent = "center";
-            layout.style.gap = "0px";
+            layout.style.flexDirection = "column";
+            layout.style.alignItems = "center";
             layout.style.width = "100%";
+            layout.style.gap = "10px";
 
-            layout.appendChild (isoGlyphPlotRegions);
-            layout.appendChild (valueLegend);
 
+            // Erklärung oben
+            layout.appendChild (regionTask);
+
+
+            // Unterer Bereich mit Plot + Legende
+            const plotLayout = document.createElement ("div");
+
+            plotLayout.style.display = "flex";
+            plotLayout.style.flexDirection = "row";
+            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.justifyContent = "center";
+            plotLayout.style.gap = "0px";
+            plotLayout.style.width = "100%";
+
+            plotLayout.appendChild (isoGlyphPlotRegions);
+            plotLayout.appendChild (valueLegend);
+
+
+            // Plot-Bereich unter den Text setzen
+            layout.appendChild (plotLayout);
+
+
+            // Alles in den Container
             container.appendChild (layout);
+
             break;
         }
 
