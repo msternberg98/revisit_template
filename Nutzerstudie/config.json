@@ -714,7 +714,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -755,7 +755,7 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -797,7 +797,7 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Für ein neu entwickeltes Teleskop werden Umgebungstemperaturen von möglichst -12°C bevorzugt. Gleichzeitig sind möglichst verlässliche Temperaturprognosen wünschenswert, da starke Temperaturschwankungen die Funktion der Technik ebenfalls beeinträchtigen können. Die fünf markierten Regionen unterscheiden sich sowohl in ihrer prognostizierten Temperatur als auch in der Unsicherheit dieser Vorhersage.<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -841,10 +841,14 @@
             "response": [
                 {
                     "id": "Method_Rating",
-                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?",
-                    "type": "checkbox",
-                    "options": ["VSUP", "Skalierte Glyphen", "Isometrische Glyphen"],
-                    "maxSelections": 1
+                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?\n\n| VSUP | Skalierte Glyphen | Isometrische Glyphen |\n|---|---|---|\n| <img src=\"Nutzerstudie/Assets/Plots/Test/Vsup/Test_VSUP_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/ScaledGlyph/Test_ScaledGlyph_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/IsoGlyph/Test_IsoGlyph_Plot.png\" width=\"280\" /> |",
+                    "type": "radio",
+                    "required": true,
+                    "options": [
+                        "VSUP",
+                        "Skalierte Glyphen",
+                        "Isometrische Glyphen"
+                    ]
                 },
                 {
                     "id": "VSUP_Likert_Response",
@@ -884,7 +888,7 @@
                 }
             ],
             "nextButtonLocation": "belowStimulus",
-            "nextButtonText": "Ende"
+            "nextButtonText": "Weiter"
         },
         "Demographic": {
             "type": "questionnaire",
@@ -918,7 +922,7 @@
                 }
             ],
             "nextButtonLocation": "belowStimulus",
-            "nextButtonText": "Weiter"
+            "nextButtonText": "Ende"
         }
     },
 

@@ -71,4 +71,4 @@ for name, uncertainty in uncertainties.items ():
 
     df.to_csv (script_dir / f"{name}.csv", index = False)
 
-    print (f"{name}.csv gespeichert.")
+    print (f"{name}_neu.csv gespeichert.")
