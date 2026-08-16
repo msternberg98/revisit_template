@@ -38,5 +38,5 @@ export function vsupColor ({
 
     const blend = uncertaintyLevel / (uncertaintySteps - 1);
 
-    return d3.interpolateRgb (base, "#d9d9d9") (blend * 0.7);
+    return d3.interpolateRgb (base, "#d9d9d9") (blend * 0.9);
 }

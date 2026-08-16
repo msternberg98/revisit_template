@@ -182,15 +182,25 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
 
     isoGlyphExplanation.innerHTML = `
     <h3 style="font-size:36px; margin-top:0; margin-bottom:0px;">
-        Isometrische Glyphen
+        Mehrteilige Farbdarstellung
     </h3>
 
+    <h4> Darstellung </h4>
     <p>
-        Bei dieser Visualisierung besteht jede Glyphe aus drei Bereichen: einem äußeren Quadrat, einem äußeren Kreis und einem inneren Kreis. Der äußere Kreis stellt den Mittelwert dar. Das Quadrat zeigt den Wert Mittelwert + Standardabweichung, während der innere Kreis den Wert Mittelwert - Standardabweichung darstellt. Die Unsicherheit lässt sich über den Farbunterschied innerhalb einer Glyphe erkennen. Sollte keine Unsicherheit vorhanden sein, haben wir eine farblich einheitliche Fläche, während die Glyphe bei zunehmender Unsicherheit einen starken Kontrast hat und deutlich hervorsticht.
+        Bei dieser Visualisierung wird jeder Datenpunkt durch drei farbige Bereiche dargestellt: Der innere Kreis zeigt den Mittelwert minus Standardabweichung. Der Ring darum zeigt den Mittelwert. Der äußere Bereich zeigt den Mittelwert plus Standardabweichung. Bei geringer Unsicherheit liegen die drei Werte nah beieinander und die Bereiche haben ähnliche Farben. Bei hoher Unsicherheit unterscheiden sich die Farben der drei Bereiche stärker voneinander.
+    </p>
+
+    <h4> Legende </h4>
+    <p>
+        Die Legende zeigt, welche Farben den jeweiligen Werten entsprechen. So können Sie die Werte der drei Bereiche anhand ihrer Farben ablesen.
+    </p>
+
+    <p>
+        Nachdem Sie die Erklärung gelesen und sich mit der Visualisierung vertraut gemacht haben, beantworten Sie bitte die untenstehende Frage.
     </p>
 
     <p style="margin-bottom:40px;">
-        Diese Erklärung kann während der Studie jederzeit über <strong> Help </strong> erneut aufgerufen werden.
+        Diese Erklärung kann während der Studie jederzeit über <strong> Hilfe </strong> erneut aufgerufen werden.
     </p>
     `;
 

@@ -186,7 +186,7 @@ function RankingSublistComponent({
     <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <Stack gap="md" w="600px" mx="auto">
         <DroppableZone id="selected" title="">
-          <Text size="md" fw={500} ta="center" mb="sm">HIGH</Text>
+          <Text size="md" fw={500} ta="center" mb="sm">Am hilfreichsten</Text>
           <SortableContext items={state.selected.map((i) => i.symbol)} strategy={verticalListSortingStrategy}>
             <Stack>
               {state.selected.map((item, index) => (
@@ -194,10 +194,10 @@ function RankingSublistComponent({
               ))}
             </Stack>
           </SortableContext>
-          <Text size="md" fw={500} ta="center" mt="sm">LOW</Text>
+          <Text size="md" fw={500} ta="center" mt="sm">Am wenigsten hilfreich</Text>
         </DroppableZone>
 
-        <DroppableZone id="unassigned" title="Available Items">
+        <DroppableZone id="unassigned" title="Verfügbare Darstellungen">
           <SortableContext items={state.unassigned.map((i) => i.symbol)} strategy={verticalListSortingStrategy}>
             <Stack>
               {state.unassigned.map((item) => (

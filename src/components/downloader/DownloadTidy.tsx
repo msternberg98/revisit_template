@@ -42,6 +42,7 @@ const OPTIONAL_COMMON_PROPS = [
   'correctAnswer',
   'duration',
   'cleanedDuration',
+  'helpButtonClickedCount',
   'meta',
   'transcript',
   'startTime',
@@ -200,6 +201,9 @@ function participantDataToRows(
         if (properties.includes('cleanedDuration')) {
           tidyRow.cleanedDuration = cleanedDuration;
         }
+        if (properties.includes('helpButtonClickedCount')) {
+          tidyRow.helpButtonClickedCount = trialAnswer.helpButtonClickedCount ?? 0;
+        }
         if (properties.includes('meta')) {
           tidyRow.meta = JSON.stringify(completeComponent.meta, null, 2);
         }
@@ -330,6 +334,7 @@ export function DownloadTidy({
     'correctAnswer',
     'duration',
     'cleanedDuration',
+    'helpButtonClickedCount',
   ]);
 
   const { storageEngine } = useStorageEngine();

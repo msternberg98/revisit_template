@@ -185,22 +185,76 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         Aufgabentypen
     </h3>
 
+    <h4> Aufbau </h4>
     <p>
-        In dieser Studie wird Ihnen die jeweilige Aufgabenstellung immer auf der linken Seite angezeigt.
-        Wenn Sie aufgefordert werden, auf eine bestimmte Stelle im Bild zu klicken, wählen Sie diese einfach mit der linken Maustaste aus. Die von Ihnen ausgewählte Stelle wird anschließend mit einem rosa Quadrat markiert. Sie können Ihre Auswahl jederzeit ändern, indem Sie auf eine andere Stelle im Bild klicken. Innerhalb eines Bildes können Sie mit dem Mausrad zoomen und das Bild mithilfe der linken Maustaste verschieben.
-        Weitere Fragen oder Eingaben erscheinen unterhalb der jeweiligen Aufgabenstellung auf der linken Seite. <br>
-        Auf dieser Seite sehen Sie Beispiele für die Aufgabentypen. Sollte bei einem Mausklick auf das Bild unten kein Viereck angezeigt werden, dann unterstützt Ihr Browser diese Interaktion nicht und ich bitte Sie zu einem anderen zu wechseln. <br>
-        Bitte bearbeiten Sie alle Aufgaben vollständig. Die Korrektheit der Fragen hat Priorität, aber die Antwortzeit ist eine wichtige sekundäre Messgröße.
+        Die jeweilige Aufgabenstellung wird Ihnen während der Studie immer auf der linken Seite angezeigt.
+        Weitere Fragen oder Eingabefelder erscheinen unterhalb der Aufgabenstellung.
+    </p>
+
+    <h4> Beantwortung der Aufgaben </h4>
+    <p>
+        Je nach Aufgabe stehen Ihnen unterschiedliche Möglichkeiten zur Beantwortung zur Verfügung:
+    </p>
+
+    <ul>
+        <li>
+            <strong> Auswahl: </strong> Bei einigen Fragen wählen Sie eine der vorgegebenen Antwortmöglichkeiten aus.
+        </li>
+        <li>
+            <strong> Texteingabe: </strong> Bei Fragen mit einem Eingabefeld geben Sie Ihre Antwort über die Tastatur ein. Je nach Frage steht hierfür ein kurzes oder ein größeres Textfeld zur Verfügung.
+        </li>
+        <li>
+            <strong> Auswahlliste: </strong> Bei einigen Fragen wählen Sie eine Antwort aus einer aufklappbaren Liste aus.
+        </li>
+        <li>
+            <strong> Bewertungsskala: </strong> Bei Bewertungsfragen wählen Sie den Punkt auf der Skala aus, der Ihrer Einschätzung am besten entspricht.
+        </li>
+        <li>
+            <strong> Rangfolge: </strong> Bei Fragen zur Rangfolge ziehen Sie die verfügbaren Antworten mit gedrückter linker Maustaste in den dafür vorgesehenen Bereich und ordnen sie dort entsprechend der angegebenen Reihenfolge an.
+        </li>
+    </ul>
+
+    <h4> Interaktion mit den Visualisierungen </h4>
+    <p>
+        Wenn Sie aufgefordert werden, eine bestimmte Stelle in der Visualisierung auszuwählen,
+        klicken Sie diese mit der linken Maustaste an. Die ausgewählte Stelle wird anschließend
+        mit einem pinken Quadrat markiert. Sie können Ihre Auswahl jederzeit ändern, indem Sie
+        auf eine andere Stelle in der Visualisierung klicken.
+    </p>
+    <p>
+        Innerhalb einer Visualisierung können Sie mit dem Mausrad zoomen.
+        Zum Verschieben halten Sie die linke Maustaste gedrückt und bewegen die Maus.
+    </p>
+
+    <h4> Ablauf </h4>
+    <p>
+        Bevor Sie mit den eigentlichen Aufgaben beginnen, werden Ihnen zunächst alle
+        Visualisierungsmethoden erklärt. Anschließend wird überprüft, ob Sie die Methoden
+        richtig verstanden haben. Sollten Sie dabei dreimal eine falsche Antwort geben,
+        wird die Studie beendet.
     </p>
 
     <p>
-        Vor dem Start der Fragen werden einmal alle Visualisierungsmethoden erklärt und geprüft ob Sie diese richtig verstanden haben. Sollten Sie dabei dreimal falsch liegen, wird die Nutzerumfrage beendet.
-        Sobald Sie eine Aufgabe fertig bearbeitet haben, klicken Sie auf <strong> Weiter </strong> am Ende der Seite, um zur nächsten Aufgabe zu gelangen. <br>
-        Bei weiteren Fragen wenden Sie sich an den Studienleiter.
+        Sobald Sie eine Aufgabe vollständig bearbeitet haben, klicken Sie am Ende der Seite
+        auf <strong>Weiter</strong>, um zur nächsten Aufgabe zu gelangen.
+        Bitte bearbeiten Sie alle Aufgaben vollständig. Antworten Sie zügig, aber so genau wie möglich.
+    </p>
+
+    <h4> Hinweise </h4>
+    <p>
+        Auf dieser Seite sehen Sie Beispiele für die verschiedenen Aufgabentypen.
+        Sollte nach einem Mausklick auf die unten dargestellte Visualisierung kein pinkes Quadrat
+        erscheinen, unterstützt Ihr Browser diese Interaktion möglicherweise nicht.
+        Wechseln Sie in diesem Fall zu einem anderen Browser.
+    </p>
+
+    <p>
+        Getestete Browser: Microsoft Edge, Google Chrome und Mozilla Firefox
     </p>
 
     <p style="margin-bottom:40px;">
-        Diese Erklärung kann während der Studie jederzeit über <strong> Help </strong> erneut aufgerufen werden.
+        Bei weiteren Fragen oder Problemen wenden Sie sich bitte an den Studienleiter: maurice.sternberg@student.uni-siegen.de <br><br>
+        Diese Erklärung kann während der Studie jederzeit über <strong> Hilfe </strong> erneut aufgerufen werden.
     </p>
     `;
 
@@ -209,15 +263,27 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
 
     vsupExplanation.innerHTML = `
     <h3 style="font-size:36px; margin-top:0; margin-bottom:0px;">
-        Value-Suppressing Uncertainty Palette (VSUP) 
+        Farbdarstellung mit Entsättigung 
     </h3>
 
+    <h4> Darstellung </h4>
     <p>
-        Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird über die Farbsättigung kodiert. Je höher die Unsicherheit eines Datenpunkts ist, desto stärker werden die Farben entsättigt. Dadurch unterscheiden sich die Farben verschiedener Mittelwerte immer weniger. Bei maximaler Unsicherheit erscheinen alle Werte nahezu grau, unabhängig vom tatsächlichen Mittelwert. Dadurch wird signalisiert, dass diese Werte mit größerer Vorsicht interpretiert werden sollten. Bereiche mit geringer Unsicherheit besitzen dagegen kräftige Farben und lassen sich genauer Unterscheiden.
+        Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird über die Farbsättigung dargestellt. Je höher die Unsicherheit eines Datenpunkts ist, desto stärker wird die Farbe entsättigt. Dadurch werden die Farbunterschiede zwischen verschiedenen Mittelwerten mit zunehmender Unsicherheit geringer. Beim größten Unsicherheitswert werden die Farben am stärksten mit Grau vermischt. Bereiche mit geringer Unsicherheit werden dagegen mit kräftigeren Farben dargestellt.
+    </p>
+
+    <h4> Legende </h4>
+    <p>
+        Die Legende zeigt, welche Kombinationen aus Mittelwert und Unsicherheit den jeweiligen
+        Farben entsprechen. Anhand der Legende können Sie sowohl den dargestellten Mittelwert
+        als auch die zugehörige Unsicherheit ablesen.
+    </p>
+
+    <p>
+        Nachdem Sie die Erklärung gelesen und sich mit der Visualisierung vertraut gemacht haben, beantworten Sie bitte die untenstehende Frage.
     </p>
 
     <p style="margin-bottom:40px;">
-        Diese Erklärung kann während der Studie jederzeit über <strong> Help </strong> erneut aufgerufen werden.
+        Diese Erklärung kann während der Studie jederzeit über <strong> Hilfe </strong> erneut aufgerufen werden.
     </p>
     `;
 

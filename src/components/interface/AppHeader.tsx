@@ -228,7 +228,7 @@ export function AppHeader({ developmentModeEnabled, dataCollectionEnabled }: { d
                 variant="outline"
                 onClick={() => { storeDispatch(toggleShowHelpText()); storeDispatch(incrementHelpCounter({ identifier: `${currentComponent}_${currentStep}` })); }}
               >
-                Help
+                Hilfe
               </Button>
             )}
 

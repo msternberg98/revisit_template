@@ -194,17 +194,17 @@ export function StudyEnd() {
         {completed || !dataCollectionEnabled
           ? (processedStudyEndMsg
             ? <ReactMarkdownWrapper text={processedStudyEndMsg} />
-            : <Text size="xl" display="block">Thank you for completing the study. You may close this window now.</Text>)
+            : <Text size="xl" display="block">Vielen Dank für Ihre Teilnahme an der Studie. Sie können dieses Fenster nun schließen.</Text>)
           : (
             <>
               <Text size="xl" display="block">
                 {manualRetryRequired
                   ? retryAllowed
-                    ? 'We could not confirm your upload after 3 attempts.'
-                    : 'Your responses were saved, but we could not upload all recorded media from this tab.'
+                    ? 'Wir konnten den Upload nach 3 Versuchen nicht bestätigen.'
+                    : 'Ihre Antworten wurden gespeichert, aber es konnten nicht alle aufgezeichneten Mediendaten aus diesem Tab hochgeladen werden.'
                   : showRetryNotice
-                    ? 'We hit an issue while uploading your answers. Retrying automatically...'
-                    : 'Please wait while your answers are uploaded.'}
+                    ? 'Beim Hochladen Ihrer Antworten ist ein Problem aufgetreten. Der Upload wird automatisch erneut versucht...'
+                    : 'Bitte warten Sie, während Ihre Antworten hochgeladen werden.'}
               </Text>
               <Space h="lg" />
               {manualRetryRequired

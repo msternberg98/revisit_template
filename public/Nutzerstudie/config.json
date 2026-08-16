@@ -718,7 +718,7 @@
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_Regions_VSUP_Checkbox_Response",
+                    "id": "Temperatur_Regions_VSUP_Radio_Response",
                     "type": "radio",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
@@ -759,12 +759,11 @@
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_Regions_ScaledGlyph_Checkbox_Response",
-                    "type": "checkbox",
+                    "id": "Temperatur_Regions_ScaledGlyph_Radio_Response",
+                    "type": "radio",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
                     "options": ["R1", "R2", "R3", "R4", "R5"],
-                    "maxSelections": 1,
                     "location": "sidebar"
                 },
                 {
@@ -801,12 +800,11 @@
             "instructionLocation": "sidebar",
             "response": [
                 {
-                    "id": "Temperatur_Regions_IsoGlyph_Checkbox_Response",
-                    "type": "checkbox",
+                    "id": "Temperatur_Regions_IsoGlyph_Radio_Response",
+                    "type": "radio",
                     "required": true,
                     "prompt": "Welche Region würden Sie wählen?",
                     "options": ["R1", "R2", "R3", "R4", "R5"],
-                    "maxSelections": 1,
                     "location": "sidebar"
                 },
                 {
@@ -841,44 +839,93 @@
             "response": [
                 {
                     "id": "Method_Rating",
-                    "prompt": "Welche Visualisierungsmethode hat Ihnen am besten gefallen?\n\n| VSUP | Skalierte Glyphen | Isometrische Glyphen |\n|---|---|---|\n| <img src=\"Nutzerstudie/Assets/Plots/Test/Vsup/Test_VSUP_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/ScaledGlyph/Test_ScaledGlyph_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/IsoGlyph/Test_IsoGlyph_Plot.png\" width=\"280\" /> |",
-                    "type": "radio",
+                    "prompt": "Welche Darstellung fanden Sie am hilfreichsten für die Aufgaben?\n\n| Darstellung mit Farbsättigung | Darstellung mit Kreisgrößen | Darstellung mit mehreren Farbbereichen |\n|---|---|---|\n| <img src=\"Nutzerstudie/Assets/Plots/Test/Vsup/Test_VSUP_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/ScaledGlyph/Test_ScaledGlyph_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/IsoGlyph/Test_IsoGlyph_Plot.png\" width=\"280\" /> |",
+                    "type": "ranking-sublist",
                     "required": true,
                     "options": [
-                        "VSUP",
-                        "Skalierte Glyphen",
-                        "Isometrische Glyphen"
-                    ]
+                        "Darstellung mit Farbsättigung",
+                        "Darstellung mit Kreisgrößen",
+                        "Darstellung mit mehreren Farbbereichen"
+                    ],
+                    "numItems": 3
+                },
+
+                {
+                    "id": "VSUP_Heading",
+                    "type": "textOnly",
+                    "prompt": "### Darstellung mit Farbsättigung"
                 },
                 {
-                    "id": "VSUP_Likert_Response",
+                    "id": "VSUP_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie verständlich fanden Sie die VSUP als Visualisierungsmethode?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit Farbsättigung ablesen?",
                     "numItems": 7,
                     "labelLocation": "below",
-                    "leftLabel": "Gar nicht verständlich",
-                    "rightLabel": "Sehr verständlich"
+                    "leftLabel": "Sehr schwer",
+                    "rightLabel": "Sehr leicht"
                 },
                 {
-                    "id": "ScaledGlyph_Likert_Response",
+                    "id": "VSUP_Effort_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie verständlich fanden Sie die skalierten Glyphen als Visualisierungsmethode?",
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit Farbsättigung?",
                     "numItems": 7,
                     "labelLocation": "below",
-                    "leftLabel": "Gar nicht verständlich",
-                    "rightLabel": "Sehr verständlich"
+                    "leftLabel": "Gar nicht anstrengend",
+                    "rightLabel": "Sehr anstrengend"
+                },
+
+                {
+                    "id": "ScaledGlyph_Heading",
+                    "type": "textOnly",
+                    "prompt": "### Darstellung mit Kreisgrößen"
                 },
                 {
-                    "id": "IsoGlyph_Likert_Response",
+                    "id": "ScaledGlyph_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie verständlich fanden Sie die Isometrischen Glyphen als Visualisierungsmethode?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit Kreisgrößen ablesen?",
                     "numItems": 7,
                     "labelLocation": "below",
-                    "leftLabel": "Gar nicht verständlich",
-                    "rightLabel": "Sehr verständlich"
+                    "leftLabel": "Sehr schwer",
+                    "rightLabel": "Sehr leicht"
+                },
+                {
+                    "id": "ScaledGlyph_Effort_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit Kreisgrößen?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht anstrengend",
+                    "rightLabel": "Sehr anstrengend"
+                },
+
+                {
+                    "id": "IsoGlyph_Heading",
+                    "type": "textOnly",
+                    "prompt": "### Darstellung mit mehreren Farbbereichen"
+                },
+                {
+                    "id": "IsoGlyph_Readability_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit mehreren Farbbereichen ablesen?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Sehr schwer",
+                    "rightLabel": "Sehr leicht"
+                },
+                {
+                    "id": "IsoGlyph_Effort_Response",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit mehreren Farbbereichen?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht anstrengend",
+                    "rightLabel": "Sehr anstrengend"
                 },
                 {
                     "id": "Remarks",
@@ -895,11 +942,11 @@
             "response": [
                 {
                     "id": "Qualification",
-                    "prompt": "Welchen Bildungsabschluss haben Sie?",
+                    "prompt": "Was ist ihr höchster Bildungsabschluss?",
                     "required": true,
                     "location": "aboveStimulus",
                     "type": "dropdown",
-                    "placeholder": "Bitte geben Sie ihren Bildungsabschluss an",
+                    "placeholder": "Bitte geben Sie ihren höchsten Bildungsabschluss an",
                     "options": ["Hauptschule", "Realschule", "Gymnasium", "Bachelor", "Master"]
                 },
                 {

@@ -182,15 +182,25 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
 
     scaledGlyphExplanation.innerHTML = `
     <h3 style="font-size:36px; margin-top:0; margin-bottom:0px;">
-        Skalierte Glyphen
+        Kreise unterschiedlicher Größe
     </h3>
 
+    <h4> Darstellung </h4>
     <p>
-        Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird durch die Größe einer Kreisglyphe kodiert. Kleine Kreise stehen für geringe Unsicherheit und große Kreise für hohe Unsicherheit. Die Farbe bleibt dabei unverändert und zeigt ausschließlich den Mittelwert an.
+        Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird durch die Größe eines Kreises dargestellt. Dabei wird die Unsicherheit linear auf den Radius des Kreises abgebildet: Der kleinste Unsicherheitswert wird durch den kleinsten Kreis und der größte Unsicherheitswert durch den größten Kreis dargestellt. Auch der kleinste Unsicherheitswert wird als sichtbarer Kreis dargestellt.
+    </p>
+
+    <h4> Legende </h4>
+    <p>
+        Die Legende zeigt, welche Farben den jeweiligen Mittelwerten und welche Kreisgrößen den jeweiligen Unsicherheiten entsprechen. Anhand der Legende können Sie sowohl den dargestellten Mittelwert als auch die zugehörige Unsicherheit ablesen.
+    </p>
+
+    <p>
+        Nachdem Sie die Erklärung gelesen und sich mit der Visualisierung vertraut gemacht haben, beantworten Sie bitte die untenstehende Frage.
     </p>
 
     <p style="margin-bottom:40px;">
-        Diese Erklärung kann während der Studie jederzeit über <strong> Help </strong> erneut aufgerufen werden.
+        Diese Erklärung kann während der Studie jederzeit über <strong> Hilfe </strong> erneut aufgerufen werden.
     </p>
     `;
     
