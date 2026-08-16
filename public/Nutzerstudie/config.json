@@ -950,6 +950,16 @@
                     "options": ["Hauptschule", "Realschule", "Gymnasium", "Bachelor", "Master"]
                 },
                 {
+                    "id": "Familiarity",
+                    "type": "likert",
+                    "required": true,
+                    "prompt": "Wie vertraut sind Sie allgemein mit Unsicherheitsvisualisierungen?",
+                    "numItems": 7,
+                    "labelLocation": "below",
+                    "leftLabel": "Gar nicht vertraut",
+                    "rightLabel": "Sehr vertraut"
+                },
+                {
                     "id": "Age",
                     "prompt": "Wie alt sind Sie?",
                     "required": true,
