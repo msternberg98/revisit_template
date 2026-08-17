@@ -271,6 +271,8 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird über die Farbsättigung dargestellt. Je höher die Unsicherheit eines Datenpunkts ist, desto stärker wird die Farbe entsättigt. Dadurch werden die Farbunterschiede zwischen verschiedenen Mittelwerten mit zunehmender Unsicherheit geringer. Beim größten Unsicherheitswert werden die Farben am stärksten mit Grau vermischt. Bereiche mit geringer Unsicherheit werden dagegen mit kräftigeren Farben dargestellt.
     </p>
 
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_VSUP.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
+
     <h4> Legende </h4>
     <p>
         Die Legende zeigt, welche Kombinationen aus Mittelwert und Unsicherheit den jeweiligen

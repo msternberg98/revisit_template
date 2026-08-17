@@ -190,6 +190,8 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
         Bei dieser Visualisierung wird jeder Datenpunkt durch drei farbige Bereiche dargestellt: Der innere Kreis zeigt den Mittelwert minus Standardabweichung. Der Ring darum zeigt den Mittelwert. Der äußere Bereich zeigt den Mittelwert plus Standardabweichung. Bei geringer Unsicherheit liegen die drei Werte nah beieinander und die Bereiche haben ähnliche Farben. Bei hoher Unsicherheit unterscheiden sich die Farben der drei Bereiche stärker voneinander.
     </p>
 
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_IsoGlyph.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
+
     <h4> Legende </h4>
     <p>
         Die Legende zeigt, welche Farben den jeweiligen Werten entsprechen. So können Sie die Werte der drei Bereiche anhand ihrer Farben ablesen.

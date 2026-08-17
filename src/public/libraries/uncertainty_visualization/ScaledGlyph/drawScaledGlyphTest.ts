@@ -190,6 +190,8 @@ export async function drawScaledGlyphTest (container: HTMLDivElement, options: S
         Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird durch die Größe eines Kreises dargestellt. Dabei wird die Unsicherheit linear auf den Radius des Kreises abgebildet: Der kleinste Unsicherheitswert wird durch den kleinsten Kreis und der größte Unsicherheitswert durch den größten Kreis dargestellt. Auch der kleinste Unsicherheitswert wird als sichtbarer Kreis dargestellt.
     </p>
 
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_ScaledGlyph.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
+
     <h4> Legende </h4>
     <p>
         Die Legende zeigt, welche Farben den jeweiligen Mittelwerten und welche Kreisgrößen den jeweiligen Unsicherheiten entsprechen. Anhand der Legende können Sie sowohl den dargestellten Mittelwert als auch die zugehörige Unsicherheit ablesen.
