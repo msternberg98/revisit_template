@@ -53,7 +53,7 @@ export function AppHeader({
                   mr={16}
                 />
                 <Button component="a" href={studyHref ?? `${PREFIX}${studyId}`} target="_blank" leftSection={<IconListCheck />} mr="sm">
-                  Go to Study
+                  Zur Studie
                 </Button>
               </>
             )}

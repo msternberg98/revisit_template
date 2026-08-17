@@ -256,7 +256,7 @@ export function ResponseBlock({
   const [alertConfig, setAlertConfig] = useState(Object.fromEntries(allResponsesWithDefaults.map((response) => ([response.id, {
     visible: false,
     title: 'Correct Answer',
-    message: 'The correct answer is: ',
+    message: 'Die korrekte Antwort lautet: ',
     color: 'green',
   }]))));
   const updateAlertConfig = (id: string, visible: boolean, title: string, message: string, color: string) => {
@@ -298,25 +298,25 @@ export function ResponseBlock({
     if (hasCorrectAnswerFeedback) {
       allResponsesWithDefaults.forEach((response) => {
         if (correctAnswers[response.id] && !alertConfig[response.id]?.message.includes('You\'ve failed to answer this question correctly')) {
-          updateAlertConfig(response.id, true, 'Correct Answer', 'You have answered the question correctly.', 'green');
+          updateAlertConfig(response.id, true, 'Korrekte Antwort', 'Sie haben die Aufgabe korrekt bearbeitet.', 'green');
         } else {
           storeDispatch(saveIncorrectAnswer({ question: identifier, identifier: response.id, answer: allAnswers[response.id] }));
           let message = '';
           if (trainingAttempts === -1) {
-            message = 'Please try again.';
+            message = 'Bitte versuchen Sie es erneut.';
           } else if (newAttemptsUsed >= trainingAttempts) {
-            message = `You didn't answer this question correctly after ${trainingAttempts} attempts. ${allowFailedTraining ? 'You can continue to the next question.' : 'Unfortunately you have not met the criteria for continuing this study.'}`;
+            message = `Sie haben diese Aufgabe nach ${trainingAttempts} Versuchen nicht korrekt bearbeitet. ${allowFailedTraining ? 'You can continue to the next question.' : 'Leider erfüllen Sie somit nicht die Vorraussetzungen um an der Studie teilzunehmen.'}`;
 
             // If the user has failed the training, wait 5 seconds and redirect to a fail page
             if (!allowFailedTraining) {
               setTimeout(() => {
                 navigate(`./../__trainingFailed${window.location.search}`);
-              }, 5000);
+              }, 10000);
             }
           } else if (trainingAttempts - newAttemptsUsed === 1) {
-            message = 'Please try again. You have 1 attempt left.';
+            message = 'Bitte versuchen Sie es erneut. Sie haben noch 1 Versuch.';
           } else {
-            message = `Please try again. You have ${trainingAttempts - newAttemptsUsed} attempts left.`;
+            message = `Bitte versuchen Sie es erneut. Sie haben noch ${trainingAttempts - newAttemptsUsed} Versuche.`;
           }
           if (response.type === 'checkbox') {
             const correct = config?.correctAnswer?.find((answer) => answer.id === response.id)?.answer;
@@ -328,7 +328,7 @@ export function ResponseBlock({
 
             message = `You have successfully checked ${matches.length}/${correct.length} correct boxes. ${tooManySelected}${message}`;
           }
-          updateAlertConfig(response.id, true, 'Incorrect Answer', message, 'red');
+          updateAlertConfig(response.id, true, 'Falsche Antwort', message, 'red');
         }
       });
 
@@ -462,7 +462,7 @@ export function ResponseBlock({
             onClick={() => checkAnswerProvideFeedback()}
             px={location === 'sidebar' ? 8 : undefined}
           >
-            Check Answer
+            Prüfe Antwort
           </Button>
         ) : null}
       />

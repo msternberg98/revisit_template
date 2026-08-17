@@ -297,7 +297,7 @@ function StudyCard({
                 component="a"
                 href={studyUrl}
               >
-                Go to Study
+                Zur Studie
               </Button>
             </Flex>
           </>

@@ -93,7 +93,7 @@ export function AppAside() {
               size="xs"
               disabled={nextParticipantDisabled}
             >
-              Next Participant
+              Nächster Teilnehmer
             </Button>
           </Tooltip>
           <CloseButton

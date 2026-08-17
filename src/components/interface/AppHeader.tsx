@@ -269,7 +269,7 @@ export function AppHeader({ developmentModeEnabled, dataCollectionEnabled }: { d
                     leftSection={<IconUserPlus size={14} />}
                     onClick={() => getNewParticipant(storageEngine, studyHref)}
                   >
-                    Next Participant
+                    Nächster Teilnehmer
                   </Menu.Item>
                 )}
                 {developmentModeEnabled && (
