@@ -125,6 +125,8 @@ Note: ${f4e}. ${h4e}, or ${zIt}.`,VIt=`The ${COe} method is not valid in multi-t
         Bei dieser Visualisierung wird jeder Datenpunkt durch drei farbige Bereiche dargestellt: Der innere Kreis zeigt den Mittelwert minus Standardabweichung. Der Ring darum zeigt den Mittelwert. Der äußere Bereich zeigt den Mittelwert plus Standardabweichung. Bei geringer Unsicherheit liegen die drei Werte nah beieinander und die Bereiche haben ähnliche Farben. Bei hoher Unsicherheit unterscheiden sich die Farben der drei Bereiche stärker voneinander.
     </p>
 
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_IsoGlyph.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
+
     <h4> Legende </h4>
     <p>
         Die Legende zeigt, welche Farben den jeweiligen Werten entsprechen. So können Sie die Werte der drei Bereiche anhand ihrer Farben ablesen.
@@ -151,6 +153,8 @@ Note: ${f4e}. ${h4e}, or ${zIt}.`,VIt=`The ${COe} method is not valid in multi-t
     <p>
         Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird durch die Größe eines Kreises dargestellt. Dabei wird die Unsicherheit linear auf den Radius des Kreises abgebildet: Der kleinste Unsicherheitswert wird durch den kleinsten Kreis und der größte Unsicherheitswert durch den größten Kreis dargestellt. Auch der kleinste Unsicherheitswert wird als sichtbarer Kreis dargestellt.
     </p>
+
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_ScaledGlyph.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
 
     <h4> Legende </h4>
     <p>
@@ -253,6 +257,8 @@ Note: ${f4e}. ${h4e}, or ${zIt}.`,VIt=`The ${COe} method is not valid in multi-t
     <p>
         Bei dieser Visualisierung wird der Mittelwert eines Datenpunkts durch die Farbe dargestellt. Die Unsicherheit (Standardabweichung) wird über die Farbsättigung dargestellt. Je höher die Unsicherheit eines Datenpunkts ist, desto stärker wird die Farbe entsättigt. Dadurch werden die Farbunterschiede zwischen verschiedenen Mittelwerten mit zunehmender Unsicherheit geringer. Beim größten Unsicherheitswert werden die Farben am stärksten mit Grau vermischt. Bereiche mit geringer Unsicherheit werden dagegen mit kräftigeren Farben dargestellt.
     </p>
+
+    <img src = "/Nutzerstudie/Assets/Plots/Annotierter_Pixel_VSUP.png" alt = "Annotierter_Pixel_VSUP" style = "max-width: 100%; width: 900px;"/>
 
     <h4> Legende </h4>
     <p>
@@ -775,7 +781,7 @@ Suggested solution: ${t.workaround}`),new Error(n)}static createWebSocket(t,n){c
     if (e.data.event === "start") {
       setInterval(() => postMessage({ event: "keepAlive" }), e.data.interval);
     }
-  });`;class UCn{constructor(t,n){var r;if(this.accessTokenValue=null,this.apiKey=null,this.channels=new Array,this.endPoint="",this.httpEndpoint="",this.headers={},this.params={},this.timeout=qX,this.transport=null,this.heartbeatIntervalMs=h4.HEARTBEAT_INTERVAL,this.heartbeatTimer=void 0,this.pendingHeartbeatRef=null,this.heartbeatCallback=Pq,this.ref=0,this.reconnectTimer=null,this.logger=Pq,this.conn=null,this.sendBuffer=[],this.serializer=new DCn,this.stateChangeCallbacks={open:[],close:[],error:[],message:[]},this.accessToken=null,this._connectionState="disconnected",this._wasManualDisconnect=!1,this._authPromise=null,this._resolveFetch=i=>{let s;return i?s=i:typeof fetch>"u"?s=(...o)=>NP(async()=>{const{default:a}=await import("./index-CWxF-Cl5.js");return{default:a}},[]).then(({default:a})=>a(...o)).catch(a=>{throw new Error(`Failed to load @supabase/node-fetch: ${a.message}. This is required for HTTP requests in Node.js environments without native fetch.`)}):s=fetch,(...o)=>s(...o)},!(!((r=n?.params)===null||r===void 0)&&r.apikey))throw new Error("API key is required to connect to Realtime");this.apiKey=n.params.apikey,this.endPoint=`${t}/${WX.websocket}`,this.httpEndpoint=uqe(t),this._initializeOptions(n),this._setupReconnectionTimer(),this.fetch=this._resolveFetch(n?.fetch)}connect(){if(!(this.isConnecting()||this.isDisconnecting()||this.conn!==null&&this.isConnected())){if(this._setConnectionState("connecting"),this._setAuthSafely("connect"),this.transport)this.conn=new this.transport(this.endpointURL());else try{this.conn=TCn.createWebSocket(this.endpointURL())}catch(t){this._setConnectionState("disconnected");const n=t.message;throw n.includes("Node.js")?new Error(`${n}
+  });`;class UCn{constructor(t,n){var r;if(this.accessTokenValue=null,this.apiKey=null,this.channels=new Array,this.endPoint="",this.httpEndpoint="",this.headers={},this.params={},this.timeout=qX,this.transport=null,this.heartbeatIntervalMs=h4.HEARTBEAT_INTERVAL,this.heartbeatTimer=void 0,this.pendingHeartbeatRef=null,this.heartbeatCallback=Pq,this.ref=0,this.reconnectTimer=null,this.logger=Pq,this.conn=null,this.sendBuffer=[],this.serializer=new DCn,this.stateChangeCallbacks={open:[],close:[],error:[],message:[]},this.accessToken=null,this._connectionState="disconnected",this._wasManualDisconnect=!1,this._authPromise=null,this._resolveFetch=i=>{let s;return i?s=i:typeof fetch>"u"?s=(...o)=>NP(async()=>{const{default:a}=await import("./index-D1Lca2Ww.js");return{default:a}},[]).then(({default:a})=>a(...o)).catch(a=>{throw new Error(`Failed to load @supabase/node-fetch: ${a.message}. This is required for HTTP requests in Node.js environments without native fetch.`)}):s=fetch,(...o)=>s(...o)},!(!((r=n?.params)===null||r===void 0)&&r.apikey))throw new Error("API key is required to connect to Realtime");this.apiKey=n.params.apikey,this.endPoint=`${t}/${WX.websocket}`,this.httpEndpoint=uqe(t),this._initializeOptions(n),this._setupReconnectionTimer(),this.fetch=this._resolveFetch(n?.fetch)}connect(){if(!(this.isConnecting()||this.isDisconnecting()||this.conn!==null&&this.isConnected())){if(this._setConnectionState("connecting"),this._setAuthSafely("connect"),this.transport)this.conn=new this.transport(this.endpointURL());else try{this.conn=TCn.createWebSocket(this.endpointURL())}catch(t){this._setConnectionState("disconnected");const n=t.message;throw n.includes("Node.js")?new Error(`${n}
 
 To use Realtime in Node.js, you need to provide a WebSocket implementation:
 
