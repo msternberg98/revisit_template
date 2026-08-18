@@ -2,7 +2,7 @@
 
 Willkommen zu dieser Nutzerstudie.
 
-Im Rahmen einer Bachelorarbeit an der Universität Siegen werden verschiedene Methoden zur Visualisierung von Unsicherheiten in zweidimensionalen Datensätzen untersucht.Der Fokus liegt dabei auf der Integration von Datenwerten und Unsicherheiten in eine gemeinsame visuelle Repräsentation.
+Im Rahmen einer Bachelorarbeit an der Universität Siegen werden verschiedene Methoden zur Visualisierung von Unsicherheiten in zweidimensionalen Datensätzen untersucht. Der Fokus liegt dabei auf der Integration von Datenwerten und Unsicherheiten in eine gemeinsame visuelle Repräsentation.
 
 Während der Studie werden Ihnen verschiedene Visualisierungen gezeigt. Zu jeder Visualisierung bearbeiten Sie eine Reihe von Aufgaben und beantworten Fragen. Dabei werden unter anderem die Genauigkeit Ihrer Antworten, Bearbeitungszeit sowie Ihre subjektive Einschätzung der jeweiligen Visualisierungsmethode erfasst.
 

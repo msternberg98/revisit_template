@@ -106,9 +106,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         // äußerer Wrapper
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
-        wrapper.style.width = `${width}px`;
-        wrapper.style.height = `${height}px`;
+        wrapper.style.width = "100%";
+        wrapper.style.maxWidth = `${width}px`;
+        wrapper.style.aspectRatio = `${width} / ${height}`;
         wrapper.style.overflow = "hidden";
+        wrapper.style.flexShrink = "1";
+        wrapper.style.minWidth = "0";
 
         // PNG
         const image = document.createElement ("img");
@@ -125,8 +128,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // SVG für Zoom
         const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
+            .attr ("viewBox", `0 0 ${width} ${height}`)
+            .attr ("preserveAspectRatio", "xMidYMid meet")
+            .style ("width", "100%")
+            .style ("height", "100%")
             .style ("position", "absolute")
             .style ("left", "0")
             .style ("top", "0");
@@ -148,6 +153,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // Zoom
         const zoom = d3.zoom <SVGSVGElement, undefined> ()
+            .extent ([[0, 0], [width, height]])
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -165,8 +171,14 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         const img = document.createElement ("img");
 
         img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Value_Legende.png`;
-        img.width = 130;
-        img.height = 380;
+        img.style.width = "130px";
+        img.style.height = "auto";
+        img.style.maxWidth = "25%";
+        img.style.objectFit = "contain";
+        img.style.flexShrink = "1";
+        img.style.minWidth = "0";
+        img.style.userSelect = "none";
+        img.draggable = false;
 
         return img;
     })();
@@ -177,9 +189,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         // äußerer Wrapper
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
-        wrapper.style.width = `${width}px`;
-        wrapper.style.height = `${height}px`;
+        wrapper.style.width = "100%";
+        wrapper.style.maxWidth = `${width}px`;
+        wrapper.style.aspectRatio = `${width} / ${height}`;
         wrapper.style.overflow = "hidden";
+        wrapper.style.flexShrink = "1";
+        wrapper.style.minWidth = "0";
     
         // PNG
         const image = document.createElement ("img");
@@ -196,8 +211,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // SVG für Zoom
         const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
+            .attr ("viewBox", `0 0 ${width} ${height}`)
+            .attr ("preserveAspectRatio", "xMidYMid meet")
+            .style ("width", "100%")
+            .style ("height", "100%")
             .style ("position", "absolute")
             .style ("left", "0")
             .style ("top", "0");
@@ -219,6 +236,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // Zoom
         const zoom = d3.zoom <SVGSVGElement, undefined> ()
+            .extent ([[0, 0], [width, height]])
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -236,8 +254,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         const img = document.createElement ("img");
 
         img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_Uncertainty_Legende.png`;
-        img.width = 150;
-        img.height = 380;
+        img.style.width = "150px";
+        img.style.height = "auto";
+        img.style.maxWidth = "25%";
+        img.style.objectFit = "contain";
+        img.style.flexShrink = "1";
+        img.style.minWidth = "0";
 
         return img;
     })();
@@ -248,9 +270,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         // äußerer Wrapper
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
-        wrapper.style.width = `${width}px`;
-        wrapper.style.height = `${height}px`;
+        wrapper.style.width = "100%";
+        wrapper.style.maxWidth = `${width}px`;
+        wrapper.style.aspectRatio = `${width} / ${height}`;
         wrapper.style.overflow = "hidden";
+        wrapper.style.flexShrink = "1";
+        wrapper.style.minWidth = "0";
     
         // PNG
         const image = document.createElement ("img");
@@ -267,8 +292,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // SVG für Zoom
         const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
+            .attr ("viewBox", `0 0 ${width} ${height}`)
+            .attr ("preserveAspectRatio", "xMidYMid meet")
+            .style ("width", "100%")
+            .style ("height", "100%")
             .style ("position", "absolute")
             .style ("left", "0")
             .style ("top", "0");
@@ -290,6 +317,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     
         // Zoom
         const zoom = d3.zoom <SVGSVGElement, undefined> ()
+            .extent ([[0, 0], [width, height]])
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -307,8 +335,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         const img = document.createElement ("img");
 
         img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
-        img.width = 280;
-        img.height = 280;
+        img.style.width = "280px";
+        img.style.height = "auto";
+        img.style.maxWidth = "25%";
+        img.style.objectFit = "contain";
+        img.style.flexShrink = "1";
+        img.style.minWidth = "0";
 
         return img;
     })();
@@ -319,9 +351,12 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         // äußerer Wrapper
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
-        wrapper.style.width = `${width}px`;
-        wrapper.style.height = `${height}px`;
+        wrapper.style.width = "100%";
+        wrapper.style.maxWidth = `${width}px`;
+        wrapper.style.aspectRatio = `${width} / ${height}`;
         wrapper.style.overflow = "hidden";
+        wrapper.style.flexShrink = "1";
+        wrapper.style.minWidth = "0";
 
         // PNG
         const image = document.createElement ("img");
@@ -338,8 +373,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // SVG für Zoom
         const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
+            .attr ("viewBox", `0 0 ${width} ${height}`)
+            .attr ("preserveAspectRatio", "xMidYMid meet")
+            .style ("width", "100%")
+            .style ("height", "100%")
             .style ("position", "absolute")
             .style ("left", "0")
             .style ("top", "0");
@@ -361,6 +398,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         // Zoom
         const zoom = d3.zoom <SVGSVGElement, undefined> ()
+            .extent ([[0, 0], [width, height]])
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -434,10 +472,20 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
             layout.style.display = "flex";
             layout.style.flexDirection = "row";     // Plots nebeneinander, statt untereinander (column)
-            layout.style.alignItems = "flex-start";
+            layout.style.alignItems = "center";
             layout.style.justifyContent = "center";
             layout.style.gap = "0px";
             layout.style.width = "100%";
+            layout.style.maxWidth = "100%";
+            layout.style.minWidth = "0";
+
+            // Plot darf verfügbaren Platz nutzen und schrumpfen
+            vsupPlot.style.flex = "1 1 auto";
+            vsupPlot.style.minWidth = "0";
+
+            // Hier die ursprüngliche Breite der Legende einsetzen
+            valueLegend.style.flex = "0 1 130px";
+            valueLegend.style.minWidth = "0";
 
             layout.appendChild (vsupPlot);
             layout.appendChild (vsupLegend);
@@ -470,22 +518,30 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             layout.style.flexDirection = "column";
             layout.style.alignItems = "center";
             layout.style.width = "100%";
+            layout.style.maxWidth = "100%";
+            layout.style.minWidth = "0";
             layout.style.gap = "10px";
-
 
             // Erklärung oben
             layout.appendChild (regionTask);
-
 
             // Unterer Bereich mit Plot + Legende
             const plotLayout = document.createElement ("div");
 
             plotLayout.style.display = "flex";
             plotLayout.style.flexDirection = "row";
-            plotLayout.style.alignItems = "flex-start";
+            plotLayout.style.alignItems = "center";
             plotLayout.style.justifyContent = "center";
             plotLayout.style.gap = "0px";
             plotLayout.style.width = "100%";
+            plotLayout.style.maxWidth = "100%";
+            plotLayout.style.minWidth = "0";
+
+            vsupPlotRegions.style.flex = "1 1 auto";
+            vsupPlotRegions.style.minWidth = "0";
+
+            vsupLegend.style.flex = "0 1 280px";
+            vsupLegend.style.minWidth = "0";
 
             plotLayout.appendChild (vsupPlotRegions);
             plotLayout.appendChild (vsupLegend);

@@ -112,9 +112,19 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         // äußerer Wrapper
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
-        wrapper.style.width = `${width}px`;
-        wrapper.style.height = `${height}px`;
+
+        // Normalerweise ursprüngliche Größe,
+        // bei zu wenig Platz automatisch verkleinern
+        wrapper.style.width = "100%";
+        wrapper.style.maxWidth = `${width}px`;
+        wrapper.style.aspectRatio = `${width} / ${height}`;
+
+        // Verhindert, dass der Plot vertikal aus dem Fenster läuft.
+        // Durch aspectRatio bleibt das Seitenverhältnis erhalten.
+        wrapper.style.maxHeight = "65vh";
+
         wrapper.style.overflow = "hidden";
+        wrapper.style.flexShrink = "1";
     
         // PNG
         const image = document.createElement ("img");
@@ -131,11 +141,17 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     
         // SVG für Zoom
         const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
+            // Internes Koordinatensystem bleibt unverändert
+            .attr ("viewBox", `0 0 ${width} ${height}`)
+            .attr ("preserveAspectRatio", "xMidYMid meet")
+
+            // Sichtbare Größe richtet sich nach dem Wrapper
+            .style ("width", "100%")
+            .style ("height", "100%")
             .style ("position", "absolute")
             .style ("left", "0")
-            .style ("top", "0");
+            .style ("top", "0")
+            .style ("display", "block");
     
         const contentGroup = svg.append ("g");
     
@@ -154,6 +170,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     
         // Zoom
         const zoom = d3.zoom <SVGSVGElement, undefined> ()
+            .extent ([[0, 0], [width, height]])
             .scaleExtent ([1, 20])
             .translateExtent ([[-20, -20], [width + 20, height + 20]])
             .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
@@ -171,8 +188,20 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         const img = document.createElement ("img");
 
         img.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Legende.png`;
-        img.width = 280;
-        img.height = 280;
+        // Bisherige Größe als Maximum beibehalten
+        img.style.width = "280px";
+        img.style.height = "auto";
+        img.style.maxWidth = "25%";
+        img.style.maxHeight = "65vh";
+
+        // Seitenverhältnis erhalten
+        img.style.objectFit = "contain";
+
+        // Darf im Flex-Layout kleiner werden
+        img.style.flexShrink = "1";
+
+        img.style.userSelect = "none";
+        img.draggable = false;
 
         return img;
     })();
@@ -208,9 +237,6 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         </li>
         <li>
             <strong> Bewertungsskala: </strong> Bei Bewertungsfragen wählen Sie den Punkt auf der Skala aus, der Ihrer Einschätzung am besten entspricht.
-        </li>
-        <li>
-            <strong> Rangfolge: </strong> Bei Fragen zur Rangfolge ziehen Sie die verfügbaren Antworten mit gedrückter linker Maustaste in den dafür vorgesehenen Bereich und ordnen sie dort entsprechend der angegebenen Reihenfolge an.
         </li>
     </ul>
 
@@ -263,7 +289,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
 
     vsupExplanation.innerHTML = `
     <h3 style="font-size:36px; margin-top:0; margin-bottom:0px;">
-        Farbdarstellung mit Entsättigung 
+        Darstellung A 
     </h3>
 
     <h4> Darstellung </h4>
@@ -314,6 +340,8 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             layout.style.alignItems = "center";
             layout.style.gap = "10px";
             layout.style.width = "100%";
+            layout.style.maxWidth = "100%";
+            layout.style.minWidth = "0";
 
             layout.appendChild (vsupExplanation);
 
@@ -325,7 +353,19 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             plotLayout.style.alignItems = "flex-start";
             plotLayout.style.justifyContent = "center";
             plotLayout.style.gap = "0px";
+
             plotLayout.style.width = "100%";
+            plotLayout.style.maxWidth = "100%";
+            plotLayout.style.minWidth = "0";
+
+            // Plot nimmt den verbleibenden Platz ein
+            vsupPlot.style.flex = "1 1 auto";
+            vsupPlot.style.minWidth = "0";
+
+            // Legende soll normalerweise 240px breit sein,
+            // darf bei Platzmangel aber schrumpfen
+            vsupLegend.style.flex = "0 1 280px";
+            vsupLegend.style.minWidth = "0";
 
             plotLayout.appendChild (vsupPlot);
             plotLayout.appendChild (vsupLegend);
