@@ -490,35 +490,35 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
         const regions = [
             {
-                //Region 1: mean value -13.1901; mean uncertainty 5.4356
+                //Region 1: mean value -13.1901063; deviation 1.1901063; mean uncertainty 5.4355829
                 latitudeMin: 77.4058880820788,
                 latitudeMax: 84.86197029204237,
                 longitudeMin: 9.375,
                 longitudeMax: 16.875
             },
             {
-                //Region 2: mean value -1.2391; mean uncertainty 3.1356
+                //Region 2: mean value -1.23907347408; deviation 10.76092652592; mean uncertainty 3.135608284
                 latitudeMin: 49.42915369712305,
                 latitudeMax: 56.89001260135711,
                 longitudeMin: 22.5,
                 longitudeMax: 30
             },
             {
-                //Region 3: mean value 0.4607; mean uncertainty 1.4989 
+                //Region 3: mean value 0.46065072160; deviation 12.46065072160; mean uncertainty 1.4988802804 
                 latitudeMin: 41.96822026907538,
                 latitudeMax: 49.42915369712305,
                 longitudeMin: 296.25,
                 longitudeMax: 303.75
             },
             {
-                //Region 4: mean value -20.0962; uncertainty 1.4297
+                //Region 4: mean value -20.09617172000; deviation 8.09617172000; uncertainty 1.429650956
                 latitudeMin: -84.86197029204237,
                 latitudeMax: -77.4058880820788,
                 longitudeMin: 275.625,
                 longitudeMax: 283.125
             },
             {
-                //Region 5: mean value 2.7040; uncertainty 0.6454
+                //Region 5: mean value 2.70402026400; deviation 14.70402026400; uncertainty 0.6453833008
                 latitudeMin: 49.42915369712305,
                 latitudeMax: 56.89001260135711,
                 longitudeMin: 166.875,

@@ -560,39 +560,39 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
 
         const regions = [
             {
-                //Region 1: mean value -13.1901; mean uncertainty 5.4356
-                latitudeMin: 77.4058880820788,
-                latitudeMax: 84.86197029204237,
-                longitudeMin: 9.375,
-                longitudeMax: 16.875
+                //Region 1: mean value -13.1901063; deviation 1.1901063; mean uncertainty 5.4355829
+                latitudeMin: 75.54106145287895,
+                latitudeMax: 82.99894164283755,
+                longitudeMin: 13.125,
+                longitudeMax: 20.625
             },
             {
-                //Region 2: mean value -1.2391; mean uncertainty 3.1356
-                latitudeMin: 49.42915369712305,
-                latitudeMax: 56.89001260135711,
-                longitudeMin: 22.5,
-                longitudeMax: 30
+                //Region 2: mean value -0.94865091016; deviation 11.05134908984; mean uncertainty 3.129501516
+                latitudeMin: 38.23773599056483,
+                latitudeMax: 45.698693877701785,
+                longitudeMin: 260.625,
+                longitudeMax: 268.125
             },
             {
-                //Region 3: mean value 0.4607; mean uncertainty 1.4989 
-                latitudeMin: 41.96822026907538,
-                latitudeMax: 49.42915369712305,
-                longitudeMin: 296.25,
-                longitudeMax: 303.75
+                //Region 3: mean value 0.58398272800; deviation 12.58398272800; mean uncertainty 1.5260805704
+                latitudeMin: 56.89001260135711,
+                latitudeMax: 64.35073040887207,
+                longitudeMin: 303.75,
+                longitudeMax: 311.25
             },
             {
-                //Region 4: mean value -20.0962; uncertainty 1.4297
-                latitudeMin: -84.86197029204237,
-                latitudeMax: -77.4058880820788,
-                longitudeMin: 275.625,
-                longitudeMax: 283.125
+                //Region 4: mean value -3.604896392; deviation 8.395103608; uncertainty 1.424277884
+                latitudeMin: 27.04623949994481,
+                latitudeMax: 34.50724334150103,
+                longitudeMin: 95.625,
+                longitudeMax: 103.125
             },
             {
-                //Region 5: mean value 2.7040; uncertainty 0.6454
-                latitudeMin: 49.42915369712305,
-                latitudeMax: 56.89001260135711,
-                longitudeMin: 166.875,
-                longitudeMax: 174.375
+                //Region 5: mean value 2.78459602000; deviation 14.78459602000; uncertainty 0.6421452136
+                latitudeMin: -69.94608064698343,
+                latitudeMax: -62.48557052203639,
+                longitudeMin: 26.25,
+                longitudeMax: 33.75
             }
         ];
         
