@@ -997,23 +997,140 @@
             "ScaledGlyph_Explanation",            
             "IsoGlyph_Explanation",
             {
-                "order": "random",
+                "order": "latinSquare",
+                "numSamples": 1,
                 "components": [
-                    "Niederschlag_Uncertainty_Maxima_VSUP",
-                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
-                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Luftdruck_Value_Minima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_IsoGlyph"
+                                ]
+                            }
+                        ]
+                    },
 
-                    "Niederschlag_Uncertainty_Minima_VSUP",
-                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
-                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP"
+                                ]
+                            }
+                        ]
+                    },
 
-                    "Luftdruck_Value_Maxima_VSUP",
-                    "Luftdruck_Value_Maxima_ScaledGlyph",
-                    "Luftdruck_Value_Maxima_IsoGlyph",
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Luftdruck_Value_Maxima_IsoGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph"
+                                ]
+                            }
+                        ]
+                    },
 
-                    "Luftdruck_Value_Minima_VSUP",
-                    "Luftdruck_Value_Minima_ScaledGlyph",
-                    "Luftdruck_Value_Minima_IsoGlyph"
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph"
+                                ]
+                            }
+                        ]
+                    }
                 ]
             },
             "Region_Task",
