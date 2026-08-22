@@ -209,16 +209,16 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             const scaleValue = valueExtent [0] + tRaw * (valueExtent [1] - valueExtent [0]);
 
             svg.append ("text")
-                .attr ("x", 60)
+                .attr ("x", 56)
                 .attr ("y", y + 4)
-                .attr ("font-size", 11)
+                .attr ("font-size", 13)
                 .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`)
         }
 
         svg.append ("text")
             .attr ("x", 20)
-            .attr ("y", 10)
-            .attr ("font-size", 12)
+            .attr ("y", 11)
+            .attr ("font-size", 16)
             .text (config.valueLabel)
 
         return svg.node () as SVGSVGElement;

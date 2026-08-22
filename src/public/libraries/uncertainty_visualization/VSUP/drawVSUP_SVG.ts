@@ -389,7 +389,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             svg.append ("text")
                 .attr ("x", centerX - 14)
                 .attr ("y", y + 4)
-                .attr ("font-size", 10)
+                .attr ("font-size", 12)
                 .attr ("text-anchor", "end")
                 .text ((uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals));
         }
@@ -397,7 +397,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         svg.append ("text")
             .attr ("transform",`translate (${centerX - 40},${centerY - maxRadius / 2}) rotate (-90)`)
             .attr ("text-anchor", "middle")
-            .attr ("font-size", 12)
+            .attr ("font-size", 16)
             .text (config.uncertaintyLabel);
 
         // Werte Label
@@ -445,7 +445,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             svg.append("text")
                 .attr ("x", lx)
                 .attr ("y", ly + 4)
-                .attr ("font-size", 10)
+                .attr ("font-size", 12)
                 .attr ("text-anchor", "middle")
                 .text ((value * config.factor).toFixed (config.decimals));
                 //.text (`${(value * config.factor).toFixed (config.decimals)} ${config.unit}`);
@@ -454,7 +454,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         svg.append ("text")
             .attr ("x", centerX + 85 + maxRadius * 0.55)
             .attr ("y", centerY - maxRadius)
-            .attr ("font-size", 12)
+            .attr ("font-size", 16)
             .attr ("text-anchor", "middle")
             .text (config.valueLabel);
 

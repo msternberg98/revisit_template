@@ -720,7 +720,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -761,7 +761,7 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -802,7 +802,7 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -842,7 +842,7 @@
 
         "Feedback": {
             "type": "questionnaire",
-            "instruction": "Ziehen Sie die verfügbaren Antworten mit gedrückter linker Maustaste in den dafür vorgesehenen Bereich und ordnen sie dort entsprechend der angegebenen Reihenfolge an.",
+            "instruction": "Ziehen Sie die verfügbaren Antworten mit gedrückter linker Maustaste in den dafür vorgesehenen Bereich und ordnen sie dort entsprechend der angegebenen Reihenfolge an.<br> Geben Sie außerdem an wie leicht Sie Werte ablesen konnten und wie anstrengend die Arbeit mit den Darstellungen war.",
             "response": [
                 {
                     "id": "Method_Rating",

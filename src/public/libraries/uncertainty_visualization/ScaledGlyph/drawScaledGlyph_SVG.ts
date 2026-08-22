@@ -464,15 +464,15 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             svg.append ("text")
                 .attr ("x", 55)
                 .attr ("y", y + 4)
-                .attr ("font-size", 11)
+                .attr ("font-size", 13)
                 .text (`${(scaleValue * config.factor).toFixed (config.decimals)} ${config.unit}`);
         }
 
         // Werte Label
         svg.append ("text")
-            .attr ("x", 20)
+            .attr ("x", 10)
             .attr ("y", 10)
-            .attr ("font-size", 12)
+            .attr ("font-size", 14)
             .text (config.valueLabel);
 
         // Skalierte Glyphen
@@ -486,17 +486,17 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
             drawScaledGlyphs (g, uncertaintyValue);
 
             svg.append ("text")
-                .attr ("x", 155)
+                .attr ("x", 165)
                 .attr ("y", y + 4)
-                .attr ("font-size", 11)
+                .attr ("font-size", 13)
                 .text (`${(uncertaintyValue * config.factor).toFixed (config.uncertainty_decimals)} ${config.unit}`);
         }
 
         svg.append ("text")
-            .attr ("x", 145)
+            .attr ("x", 160)
             .attr ("y", 10)
             .attr ("text-anchor", "middle")
-            .attr ("font-size", 12)
+            .attr ("font-size", 14)
             .text (config.uncertaintyLabel);
 
         return svg.node () as SVGSVGElement
