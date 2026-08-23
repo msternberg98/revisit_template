@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { drawIsoGlyphTest, IsoGlyphOptions } from "./drawIsoGlyphTest_SVG";
+import { drawIsoGlyphTest, IsoGlyphOptions } from "./drawIsoGlyphTest";
 
 interface IsoGlyphProps {
     parameters?: {

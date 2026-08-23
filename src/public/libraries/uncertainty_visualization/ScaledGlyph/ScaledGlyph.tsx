@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { drawScaledGlyph, ScaledGlyphOptions } from "./drawScaledGlyph_SVG";
+import { drawScaledGlyph, ScaledGlyphOptions } from "./drawScaledGlyph";
 
 interface ScaledGlyphProps {
     parameters?: {

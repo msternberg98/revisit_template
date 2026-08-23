@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { drawVSUPTest, VSUPOptions } from "./drawVSUPTest_SVG";
+import { drawVSUPTest, VSUPOptions } from "./drawVSUPTest";
 
 interface VSUPProps {
     parameters?: {

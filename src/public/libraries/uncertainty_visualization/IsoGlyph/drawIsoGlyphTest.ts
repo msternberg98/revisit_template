@@ -223,7 +223,7 @@ export async function drawIsoGlyphTest (container: HTMLDivElement, options: IsoG
 
     <h4> Legende </h4>
     <p>
-        Die Legende zeigt, welche Farben den jeweiligen Werten entsprechen. So können Sie die Werte der drei Bereiche anhand ihrer Farben ablesen.
+        Die Legende zeigt, welche Farben den jeweiligen Werten entsprechen. So können Sie die Werte der drei Bereiche anhand ihrer Farben ablesen. In diesem Beispiel werden einmal zusätzlich Glyphen mit dem gleichen Mittelwert und verschiedenen Standardabweichungen dargestellt, in den späteren Aufgaben wird nur die Farbskala gezeigt. 
     </p>
 
     <p>
