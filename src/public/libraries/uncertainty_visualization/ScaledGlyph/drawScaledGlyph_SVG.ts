@@ -565,11 +565,11 @@ export async function drawScaledGlyph (container: HTMLDivElement, options: Scale
                 longitudeMax: 288.75
             },
             {
-                //Region 3: mean value -24.59424760000; deviation 12.59424760000; mean uncertainty 1.500571984 
-                latitudeMin: -86.72253095466814,
-                latitudeMax: -79.27055903485967,
-                longitudeMin: 268.125,
-                longitudeMax: 275.625
+                //Region 3: mean value 0.619351364; deviation 12.619351364; mean uncertainty 1.5227066124
+                latitudeMin: 68.08099098565125,
+                latitudeMax: 75.54106145287895,
+                longitudeMin: 28.125,
+                longitudeMax: 35.625
             },
             {
                 //Region 4: mean value -19.99693754000; deviation 7.99693754000; uncertainty 1.455844682
