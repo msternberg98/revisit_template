@@ -707,6 +707,12 @@
 
 
 
+        "Region_Task": {
+            "type": "markdown",
+            "path": "Nutzerstudie/Assets/Region_Aufgabenstellung.md",
+            "response": [],
+            "nextButtonText": "Weiter"
+        },
         "Temperatur_Regions_VSUP": {
             "type": "react-component",
             "path": "libraries/uncertainty_visualization/VSUP/VSUP.tsx",
@@ -714,7 +720,7 @@
                 "preset": "temperature",
                 "output": "VsupRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -755,7 +761,7 @@
                 "preset": "temperature",
                 "output": "ScaledGlyphRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -796,7 +802,7 @@
                 "preset": "temperature",
                 "output": "IsoGlyphRegions"
             },
-            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Standort würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
+            "instruction": "Lesen Sie sich die Erklärung aufmerksam durch und bearbeiten Sie folgende Aufgaben:<br> Welchen Region würden Sie auswählen? <br> Wählen Sie eine Region aus und begründen Sie Ihre Entscheidung.",
             "instructionLocation": "sidebar",
             "response": [
                 {
@@ -836,16 +842,17 @@
 
         "Feedback": {
             "type": "questionnaire",
+            "instruction": "Ziehen Sie die verfügbaren Antworten mit gedrückter linker Maustaste in den dafür vorgesehenen Bereich und ordnen sie dort entsprechend der angegebenen Reihenfolge an.<br> Geben Sie außerdem an wie leicht Sie Werte ablesen konnten und wie anstrengend die Arbeit mit den Darstellungen war.",
             "response": [
                 {
                     "id": "Method_Rating",
-                    "prompt": "Welche Darstellung fanden Sie am hilfreichsten für die Aufgaben?\n\n| Darstellung mit Farbsättigung | Darstellung mit Kreisgrößen | Darstellung mit mehreren Farbbereichen |\n|---|---|---|\n| <img src=\"Nutzerstudie/Assets/Plots/Test/Vsup/Test_VSUP_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/ScaledGlyph/Test_ScaledGlyph_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/IsoGlyph/Test_IsoGlyph_Plot.png\" width=\"280\" /> |",
+                    "prompt": "Welche Darstellung fanden Sie am hilfreichsten für die Aufgaben?\n\n| Darstellung A | Darstellung B | Darstellung C |\n|---|---|---|\n| <img src=\"Nutzerstudie/Assets/Plots/Test/Vsup/Test_VSUP_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/ScaledGlyph/Test_ScaledGlyph_Plot.png\" width=\"280\" /> | <img src=\"Nutzerstudie/Assets/Plots/Test/IsoGlyph/Test_IsoGlyph_Plot.png\" width=\"280\" /> |",
                     "type": "ranking-sublist",
                     "required": true,
                     "options": [
-                        "Darstellung mit Farbsättigung",
-                        "Darstellung mit Kreisgrößen",
-                        "Darstellung mit mehreren Farbbereichen"
+                        "Darstellung A",
+                        "Darstellung B",
+                        "Darstellung C"
                     ],
                     "numItems": 3
                 },
@@ -853,13 +860,13 @@
                 {
                     "id": "VSUP_Heading",
                     "type": "textOnly",
-                    "prompt": "### Darstellung mit Farbsättigung"
+                    "prompt": "### Darstellung A"
                 },
                 {
                     "id": "VSUP_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit Farbsättigung ablesen?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung A ablesen?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Sehr schwer",
@@ -869,7 +876,7 @@
                     "id": "VSUP_Effort_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit Farbsättigung?",
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung A?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Gar nicht anstrengend",
@@ -879,13 +886,13 @@
                 {
                     "id": "ScaledGlyph_Heading",
                     "type": "textOnly",
-                    "prompt": "### Darstellung mit Kreisgrößen"
+                    "prompt": "### Darstellung B"
                 },
                 {
                     "id": "ScaledGlyph_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit Kreisgrößen ablesen?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung B ablesen?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Sehr schwer",
@@ -895,7 +902,7 @@
                     "id": "ScaledGlyph_Effort_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit Kreisgrößen?",
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung B?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Gar nicht anstrengend",
@@ -905,13 +912,13 @@
                 {
                     "id": "IsoGlyph_Heading",
                     "type": "textOnly",
-                    "prompt": "### Darstellung mit mehreren Farbbereichen"
+                    "prompt": "### Darstellung C"
                 },
                 {
                     "id": "IsoGlyph_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung mit mehreren Farbbereichen ablesen?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung C?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Sehr schwer",
@@ -921,7 +928,7 @@
                     "id": "IsoGlyph_Effort_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung mit mehreren Farbbereichen?",
+                    "prompt": "Wie anstrengend war die Arbeit mit der Darstellung C?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Gar nicht anstrengend",
@@ -941,6 +948,15 @@
             "type": "questionnaire",
             "response": [
                 {
+                    "id": "Age",
+                    "prompt": "Wie alt sind Sie?",
+                    "required": true,
+                    "location": "aboveStimulus",
+                    "type": "dropdown",
+                    "placeholder": "Bitte geben Sie ihr Alter an",
+                    "options": ["18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+"]
+                },
+                {
                     "id": "Qualification",
                     "prompt": "Was ist ihr höchster Bildungsabschluss?",
                     "required": true,
@@ -953,29 +969,12 @@
                     "id": "Familiarity",
                     "type": "likert",
                     "required": true,
+                    "location": "aboveStimulus",
                     "prompt": "Wie vertraut sind Sie allgemein mit Unsicherheitsvisualisierungen?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Gar nicht vertraut",
                     "rightLabel": "Sehr vertraut"
-                },
-                {
-                    "id": "Age",
-                    "prompt": "Wie alt sind Sie?",
-                    "required": true,
-                    "location": "aboveStimulus",
-                    "type": "dropdown",
-                    "placeholder": "Bitte geben Sie ihr Alter an",
-                    "options": ["18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+"]
-                },
-                {
-                    "id": "Eyesight",
-                    "prompt": "Haben Sie eine Farbsehschwäche?",
-                    "required": true,
-                    "location": "aboveStimulus",
-                    "type": "dropdown",
-                    "placeholder": "Bitte geben Sie ihre Farbsehschwäche an",
-                    "options": ["Keine", "Deuteranopie (Grünblindheit)", "Protanopie (Rotblindheit)", "Tritanopie (Blaublindheit)", "Monochromasie", "Achromatopsie"]
                 }
             ],
             "nextButtonLocation": "belowStimulus",
@@ -998,23 +997,146 @@
             "ScaledGlyph_Explanation",            
             "IsoGlyph_Explanation",
             {
+                "order": "latinSquare",
+                "numSamples": 1,
+                "components": [
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Luftdruck_Value_Minima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_IsoGlyph"
+                                ]
+                            }
+                        ]
+                    },
+
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP"
+                                ]
+                            }
+                        ]
+                    },
+
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP",
+                                    "Luftdruck_Value_Maxima_IsoGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph"
+                                ]
+                            }
+                        ]
+                    },
+
+                    {
+                        "order": "latinSquare",
+                        "components": [
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_VSUP",
+                                    "Luftdruck_Value_Maxima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_VSUP"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_ScaledGlyph",
+                                    "Luftdruck_Value_Maxima_VSUP",
+                                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
+                                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph"
+                                ]
+                            },
+                            {
+                                "order": "fixed",
+                                "components": [
+                                    "Luftdruck_Value_Minima_IsoGlyph",
+                                    "Luftdruck_Value_Maxima_ScaledGlyph",
+                                    "Niederschlag_Uncertainty_Minima_VSUP",
+                                    "Niederschlag_Uncertainty_Maxima_IsoGlyph"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Region_Task",
+            {
                 "order": "random",
                 "components": [
-                    "Niederschlag_Uncertainty_Maxima_VSUP",
-                    "Niederschlag_Uncertainty_Maxima_ScaledGlyph",
-                    "Niederschlag_Uncertainty_Maxima_IsoGlyph",
-
-                    "Niederschlag_Uncertainty_Minima_VSUP",
-                    "Niederschlag_Uncertainty_Minima_ScaledGlyph",
-                    "Niederschlag_Uncertainty_Minima_IsoGlyph",
-
-                    "Luftdruck_Value_Maxima_VSUP",
-                    "Luftdruck_Value_Maxima_ScaledGlyph",
-                    "Luftdruck_Value_Maxima_IsoGlyph",
-
-                    "Luftdruck_Value_Minima_VSUP",
-                    "Luftdruck_Value_Minima_ScaledGlyph",
-                    "Luftdruck_Value_Minima_IsoGlyph",
 
                     "Temperatur_Regions_VSUP",
                     "Temperatur_Regions_ScaledGlyph",
