@@ -104,17 +104,14 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
     const onClickPoint = options.onClickPoint;
 
     // Raster Plot
-    function createInteractionLayer (): SVGSVGElement {
-    
-        const svg = d3.create <SVGSVGElement> ("svg")
-            .attr ("width", width)
-            .attr ("height", height)
-            .style ("position", "absolute")
-            .style ("left", "0")
-            .style ("top", "0");
+    function createInteractionLayer (): SVGGElement {
+        
+        const layer = d3.create <SVGGElement> ("svg:g")
+            .attr ("class", "interaction-layer")
+            .attr ("pointer-events", "all");
 
         // Alle transparenten Klickfelder
-        const rects = svg.selectAll <SVGRectElement, typeof data [number]> ("rect")
+        const rects = layer.selectAll <SVGRectElement, typeof data [number]> ("rect")
             .data (data)
             .join ("rect")
             .attr ("x", d => xScale (shiftedLongitude (d.longitude)))
@@ -122,10 +119,12 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("width", cellWidth)
             .attr ("height", cellHeight)
             .attr ("fill", "transparent")
-            .style ("pointer-events", "all");
+            .attr ("pointer-events", "all")
+            .style ("cursor", "pointer");
 
-        const selectionLayer = svg.append ("g")
-            .attr ("class", "selection-layer");
+        const selectionLayer = layer.append ("g")
+            .attr ("class", "selection-layer")
+            .attr ("pointer-events", "none");
 
         rects.on ("click", function (event, d) {
 
@@ -139,11 +138,9 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                 .attr ("height", cellHeight)
                 .attr ("fill", "none")
                 .attr ("stroke", "#FF00FF")
-                .attr ("stroke-width", 0.8)
-                .attr ("pointer-events", "none");
+                .attr ("stroke-width", 0.8);
 
-            onClickPoint?.({
-
+            onClickPoint?. ({
                 latitude: d.latitude,
                 longitude: d.longitude,
                 meanValue: d [valueKey] as number,
@@ -155,8 +152,9 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
                     uncertainty_std: d.uncertainty_std
                 }]
             });
-        })
-        return svg.node () as SVGSVGElement;
+        });
+
+        return layer.node () as SVGGElement;
     }
 
     // Datensatz Werte Plot
@@ -202,7 +200,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("x", 0)
             .attr ("y", 0)
             .attr ("width", width)
-            .attr ("height", height);
+            .attr ("height", height)
+            .attr ("pointer-events", "none");
 
         foreignObject.node ()!.appendChild (image);
 
@@ -285,7 +284,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("x", 0)
             .attr ("y", 0)
             .attr ("width", width)
-            .attr ("height", height);
+            .attr ("height", height)
+            .attr ("pointer-events", "none");
 
         foreignObject.node ()!.appendChild (image);
 
@@ -366,7 +366,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("x", 0)
             .attr ("y", 0)
             .attr ("width", width)
-            .attr ("height", height);
+            .attr ("height", height)
+            .attr ("pointer-events", "none");
 
         foreignObject.node ()!.appendChild (image);
 
@@ -447,7 +448,8 @@ export async function drawIsoGlyph (container: HTMLDivElement, options: IsoGlyph
             .attr ("x", 0)
             .attr ("y", 0)
             .attr ("width", width)
-            .attr ("height", height);
+            .attr ("height", height)
+            .attr ("pointer-events", "none");
 
         foreignObject.node ()!.appendChild (image);
 
