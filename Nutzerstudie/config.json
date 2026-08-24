@@ -918,7 +918,7 @@
                     "id": "IsoGlyph_Readability_Response",
                     "type": "likert",
                     "required": true,
-                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung C?",
+                    "prompt": "Wie leicht konnten Sie die Werte aus der Darstellung C ablesen?",
                     "numItems": 7,
                     "labelLocation": "below",
                     "leftLabel": "Sehr schwer",
