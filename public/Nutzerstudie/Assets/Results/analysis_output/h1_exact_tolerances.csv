@@ -1,0 +1,3 @@
+﻿variable;correct_min;correct_max;value_range;exact_tolerance;exact_percentage
+Luftdruck_Value;98008.52;103119.4;5110.87999999999;51.1087999999999;0.01
+Niederschlag_Uncertainty;1.4379904e-09;7.260401e-05;7.26025720096e-05;7.26025720096e-07;0.01

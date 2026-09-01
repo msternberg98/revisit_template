@@ -1,0 +1,4 @@
+﻿visualization;n_trials;n_answered;mean_abs_error;median_abs_error;mean_duration_ms;median_duration_ms;answer_rate
+IsoGlyph;48;0;;;7224.541666666667;6884.5;0.0
+ScaledGlyph;48;0;;;7677.666666666667;6890.0;0.0
+VSUP;48;0;;;9204.645833333334;7990.5;0.0

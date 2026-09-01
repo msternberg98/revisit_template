@@ -1,0 +1,2 @@
+﻿test;n_complete_participants;statistic;df;p;significant_0.05;note
+Friedman-Test;12;10.177777777777768;2;0.006164865934143108;True;Verwendet, weil mindestens eine paarweise Differenz Shapiro p < .05 hatte.
