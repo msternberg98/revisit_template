@@ -1,0 +1,38 @@
+TESTENTSCHEIDUNGEN DER AUSWERTUNG
+================================
+
+Die Auswahl zwischen parametrischem und nichtparametrischem Pfad erfolgt anhand der Normalität der paarweisen Differenzen.
+Parametrischer Pfad: Repeated-Measures-ANOVA -> gepaarte t-Tests.
+Fallback: Friedman-Test -> Wilcoxon-Tests.
+
+H1 – Genauigkeit / absolute Abweichung
+Keine Testentscheidung berechnet.
+
+H1 – Antwortzeit (sekundär)
+Keine Testentscheidung berechnet.
+
+H2 – Unsicherheit der gewählten Region
+Verwendeter Omnibustest: Friedman-Test
+Normalitätsannahme der paarweisen Differenzen erfüllt: Nein
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.000628194
+  VSUP - IsoGlyph: p = 0.000184673
+  ScaledGlyph - IsoGlyph: p = 0.000643765
+Omnibus-p-Wert: 0.627089
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: Wilcoxon signed-rank
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Omnibustest nicht signifikant.
+
+H2 – Abweichung vom Zielwert -12 °C (zusätzlich)
+Verwendeter Omnibustest: Friedman-Test
+Normalitätsannahme der paarweisen Differenzen erfüllt: Nein
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.110504
+  VSUP - IsoGlyph: p = 0.0127529
+  ScaledGlyph - IsoGlyph: p = 0.000839719
+Omnibus-p-Wert: 0.00616487
+Omnibustest signifikant (alpha=0,05): Ja
+Vorgesehener Post-hoc-Test bei Signifikanz: Wilcoxon signed-rank
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: durchgeführt.
