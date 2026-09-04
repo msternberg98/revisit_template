@@ -32,6 +32,15 @@ from statsmodels.stats.anova import AnovaRM
 
 METHOD_ORDER = ["VSUP", "ScaledGlyph", "IsoGlyph"]
 
+# Feste Darstellungsreihenfolge in der Excel-Auswertung.
+# Die tatsächliche Bearbeitungsreihenfolge bleibt zusätzlich in trialOrder erhalten.
+H1_TASK_ORDER = [
+    "Niederschlag_Uncertainty_Maxima",
+    "Niederschlag_Uncertainty_Minima",
+    "Luftdruck_Value_Maxima",
+    "Luftdruck_Value_Minima",
+]
+
 # ---------------------------------------------------------------------
 # Ergebnisdatei auswählen
 # ---------------------------------------------------------------------
@@ -868,116 +877,52 @@ def region_summaries(region: pd.DataFrame):
 # Freitext
 # ---------------------------------------------------------------------
 
-def build_text_outputs(
-    df: pd.DataFrame,
-    region: pd.DataFrame
-) -> pd.DataFrame:
-    rows = []
-
-    for _, r in region.iterrows():
-        text = r.get("justification")
-
-        if pd.notna(text) and str(text).strip():
-            rows.append(
-                {
-                    "task": "Temperatur – Standortentscheidung",
-                    "visualization": r["visualization"],
-                    "participantId": r["participantId"],
-                    "selected_answer": r.get("region"),
-                    "text": str(text).strip(),
-                }
-            )
-
+def build_feedback_output(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Enthält ausschließlich das freie Textfeld aus dem Abschluss-Feedback.
+    Die Begründungen der H2-Regionsaufgabe bleiben nur in H2 Regionsauswahl
+    und werden hier nicht doppelt ausgegeben.
+    """
     comments = df[
         (df["trialId"] == "Feedback")
         & (df["status"] == "completed")
         & (df["responsePrompt"] == GENERAL_COMMENT_PROMPT)
-    ]
+    ].copy()
 
+    rows = []
     for _, r in comments.iterrows():
         text = r.get("answer")
-
         if pd.notna(text) and str(text).strip():
             rows.append(
                 {
-                    "task": "Abschlussfeedback – Weitere Anmerkungen",
-                    "visualization": "",
                     "participantId": str(r["participantId"]),
-                    "selected_answer": "",
+                    "feedback_prompt": str(r.get("responsePrompt", GENERAL_COMMENT_PROMPT)),
                     "text": str(text).strip(),
                 }
             )
 
     out = pd.DataFrame(rows)
-
     if not out.empty:
-        order_map = {
-            "VSUP": 0,
-            "ScaledGlyph": 1,
-            "IsoGlyph": 2,
-            "": 3,
-        }
-        out["_method_order"] = (
-            out["visualization"]
-            .map(order_map)
-            .fillna(99)
-        )
-
-        out = (
-            out.sort_values(
-                [
-                    "task",
-                    "_method_order",
-                    "participantId"
-                ]
-            )
-            .drop(columns="_method_order")
-            .reset_index(drop=True)
-        )
+        out = out.sort_values("participantId").reset_index(drop=True)
 
     return out
 
 
-def write_text_markdown(
-    text_df: pd.DataFrame,
+def write_feedback_markdown(
+    feedback_df: pd.DataFrame,
     path: Path
 ) -> None:
     with path.open("w", encoding="utf-8") as f:
-        f.write("# Freitextantworten nach Aufgabe\n\n")
+        f.write("# Abschlussfeedback\n\n")
 
-        if text_df.empty:
-            f.write("Keine Freitextantworten gefunden.\n")
+        if feedback_df.empty:
+            f.write("Keine Freitextantworten im Abschlussfeedback gefunden.\n")
             return
 
-        for task, tsub in text_df.groupby(
-            "task",
-            sort=False
-        ):
-            f.write(f"## {task}\n\n")
-
-            for method, msub in tsub.groupby(
-                "visualization",
-                sort=False,
-                dropna=False
-            ):
-                if str(method).strip():
-                    f.write(f"### {method}\n\n")
-
-                for _, r in msub.iterrows():
-                    prefix = f"**{r['participantId']}**"
-
-                    selected = str(
-                        r["selected_answer"]
-                    ).strip()
-
-                    if selected and selected != "nan":
-                        prefix += (
-                            f" — Auswahl: **{selected}**"
-                        )
-
-                    f.write(prefix + "\n\n")
-                    f.write(str(r["text"]).strip() + "\n\n")
-                    f.write("---\n\n")
+        for _, r in feedback_df.iterrows():
+            f.write(f"**{r['participantId']}**\n\n")
+            f.write(str(r["text"]).strip() + "\n\n")
+            f.write("---\n\n")
 
 
 def write_missing_report(
@@ -1156,117 +1101,352 @@ def export_csv(df: pd.DataFrame, path: Path) -> None:
     )
 
 
+GERMAN_COLUMN_NAMES = {
+    "participantId": "Teilnehmer-ID",
+    "task": "Aufgabe",
+    "visualization": "Visualisierung",
+    "answer": "Antwort",
+    "correctAnswer": "Korrekte Antwort",
+    "abs_error": "Absolute Abweichung",
+    "answered": "Beantwortet",
+    "exact_tolerance": "Exaktheits-Toleranz",
+    "exact": "Exakt",
+    "duration_ms": "Antwortzeit (ms)",
+    "duration_raw_ms": "Roh-Antwortzeit (ms)",
+    "trialId": "Trial-ID",
+    "trialOrder": "Ursprüngliche Reihenfolge",
+    "variable": "Variable",
+    "correct_min": "Korrektes Minimum",
+    "correct_max": "Korrektes Maximum",
+    "value_range": "Wertspanne",
+    "exact_percentage": "Exakt-Toleranz (Anteil)",
+    "n_trials": "Anzahl Aufgaben",
+    "n_answered": "Anzahl beantwortet",
+    "mean_abs_error": "Mittlere absolute Abweichung",
+    "median_abs_error": "Mediane absolute Abweichung",
+    "mean_duration_ms": "Mittlere Antwortzeit (ms)",
+    "median_duration_ms": "Mediane Antwortzeit (ms)",
+    "answer_rate": "Beantwortungsquote",
+    "n_exact": "Anzahl exakt",
+    "n_exact_evaluable": "Auswertbare Antworten für Exakt",
+    "n_evaluable": "Auswertbare Antworten",
+    "exact_rate": "Anteil exakt",
+    "exact_display": "Exakt (Anzahl)",
+    "n_tasks": "Anzahl Aufgaben",
+    "comparison": "Vergleich",
+    "shapiro_W": "Shapiro-Wilk W",
+    "shapiro_p": "Shapiro-Wilk p",
+    "normal_at_0.05": "Normalverteilt (α = 0,05)",
+    "test": "Test",
+    "n_complete_participants": "Vollständige Teilnehmer",
+    "statistic": "Teststatistik",
+    "df": "Freiheitsgrade",
+    "p": "p-Wert",
+    "significant_0.05": "Signifikant (α = 0,05)",
+    "note": "Hinweis",
+    "p_raw": "p-Wert (unkorrigiert)",
+    "p_bonferroni": "p-Wert (Bonferroni)",
+    "significant_bonferroni_0.05": "Signifikant nach Bonferroni",
+    "region": "Gewählte Region",
+    "justification": "Begründung",
+    "confidence": "Subjektive Sicherheit",
+    "chosen_temperature_mean": "Gewählter Temperaturmittelwert (°C)",
+    "deviation_from_target": "Abweichung vom Zielwert -12 °C",
+    "chosen_uncertainty": "Unsicherheit der gewählten Region",
+    "is_safest_region": "Sicherste Region gewählt",
+    "n_choices": "Anzahl Entscheidungen",
+    "mean_chosen_uncertainty": "Mittlere gewählte Unsicherheit",
+    "median_chosen_uncertainty": "Mediane gewählte Unsicherheit",
+    "mean_deviation_from_target": "Mittlere Zielabweichung",
+    "median_deviation_from_target": "Mediane Zielabweichung",
+    "mean_confidence": "Mittlere subjektive Sicherheit",
+    "median_confidence": "Mediane subjektive Sicherheit",
+    "safest_region_rate": "Anteil sicherste Region gewählt",
+    "n_safest_evaluable": "Auswertbare Entscheidungen",
+    "n": "Anzahl",
+    "proportion_within_method": "Anteil innerhalb Methode",
+    "feedback_prompt": "Feedback-Frage",
+    "text": "Feedback-Text",
+    "type": "Typ",
+}
+
+
+def germanize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None:
+        return pd.DataFrame()
+    return df.copy().rename(columns=GERMAN_COLUMN_NAMES)
+
+
+def sort_h1_for_excel(df: pd.DataFrame) -> pd.DataFrame:
+    """Feste, lesbare Reihenfolge je Teilnehmer; trialOrder bleibt sichtbar."""
+    if df is None or df.empty:
+        return df.copy() if df is not None else pd.DataFrame()
+
+    out = df.copy()
+    task_order = {name: i for i, name in enumerate(H1_TASK_ORDER)}
+    method_order = {name: i for i, name in enumerate(METHOD_ORDER)}
+
+    out["_task_order"] = out["task"].map(task_order).fillna(999)
+    out["_method_order"] = out["visualization"].map(method_order).fillna(999)
+
+    out = (
+        out.sort_values(
+            ["participantId", "_task_order", "_method_order", "trialOrder"],
+            na_position="last"
+        )
+        .drop(columns=["_task_order", "_method_order"])
+        .reset_index(drop=True)
+    )
+    return out
+
+
+def sort_h2_for_excel(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return df.copy() if df is not None else pd.DataFrame()
+
+    out = df.copy()
+    method_order = {name: i for i, name in enumerate(METHOD_ORDER)}
+    out["_method_order"] = out["visualization"].map(method_order).fillna(999)
+    out = (
+        out.sort_values(["participantId", "_method_order"])
+        .drop(columns="_method_order")
+        .reset_index(drop=True)
+    )
+    return out
+
+
+def add_blank_rows_between_groups(
+    df: pd.DataFrame,
+    group_col: str
+) -> pd.DataFrame:
+    """Nur für die Excel-Darstellung: Leerzeile zwischen Teilnehmern."""
+    if df is None or df.empty or group_col not in df.columns:
+        return df.copy() if df is not None else pd.DataFrame()
+
+    parts = []
+    groups = list(df.groupby(group_col, sort=False, dropna=False))
+
+    for i, (_, group) in enumerate(groups):
+        parts.append(group)
+        if i < len(groups) - 1:
+            parts.append(pd.DataFrame([{col: None for col in df.columns}]))
+
+    return pd.concat(parts, ignore_index=True)
+
+
+def excel_sheet(
+    df: pd.DataFrame,
+    description: str | None = None,
+    blank_between: str | None = None,
+) -> dict:
+    return {
+        "description": description,
+        "df": df,
+        "blank_between": blank_between,
+    }
+
+
+def excel_sections(
+    sections: list[tuple[str, pd.DataFrame, str | None]],
+    description: str | None = None,
+) -> dict:
+    return {
+        "description": description,
+        "sections": sections,
+    }
+
+
+def _xlsx_column_width(df: pd.DataFrame, col: str) -> int:
+    values = df[col].astype("string").fillna("") if col in df.columns else pd.Series([], dtype="string")
+    max_len = max([len(str(col))] + [len(v) for v in values.head(500)])
+    is_text = col in {
+        "Hinweis", "Begründung", "Feedback-Text", "Typ",
+        "Trial-ID", "Aufgabe"
+    }
+    return min(max(max_len + 5, 15), 70 if is_text else 38)
+
+
 def export_results_xlsx(
     path: Path,
-    sheets: dict[str, pd.DataFrame],
+    sheets: dict[str, dict],
 ) -> None:
     """
-    Schreibt alle Auswertungstabellen zusätzlich in eine zentrale XLSX-Datei.
-    Jedes Ergebnis erhält ein eigenes Tabellenblatt.
+    Zentrale, lesbare Excel-Datei.
+    - deutsche Spaltennamen
+    - mehrere Statistikschritte auf einem Blatt
+    - erklärende Hinweise oberhalb technischer Tabellen
+    - feste H1-Reihenfolge und Leerzeilen zwischen Teilnehmern
     """
-    # xlsxwriter ist in vielen Anaconda-Installationen bereits enthalten.
-    # Falls nicht, kann alternativ engine="openpyxl" verwendet werden.
     try:
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
     except ModuleNotFoundError:
         writer = pd.ExcelWriter(path, engine="openpyxl")
 
     with writer:
-        for sheet_name, df in sheets.items():
-            # Excel erlaubt maximal 31 Zeichen pro Blattname.
+        for sheet_name, spec in sheets.items():
             safe_name = sheet_name[:31]
-            export_df = df.copy() if df is not None else pd.DataFrame()
 
-            export_df.to_excel(
-                writer,
-                sheet_name=safe_name,
-                index=False,
-            )
-
-            worksheet = writer.sheets[safe_name]
-
-            # Formatierung für xlsxwriter.
-            if writer.engine == "xlsxwriter":
-                workbook = writer.book
-                header_format = workbook.add_format({
-                    "bold": True,
-                    "text_wrap": True,
-                    "valign": "top",
-                    "border": 1,
-                })
-                text_format = workbook.add_format({
-                    "text_wrap": True,
-                    "valign": "top",
-                })
-                percent_format = workbook.add_format({
-                    "num_format": "0.00%",
-                })
-
-                # Kopfzeile formatieren + Autofilter/Fixierung.
-                for col_num, value in enumerate(export_df.columns):
-                    worksheet.write(0, col_num, value, header_format)
-
-                if len(export_df.columns) > 0:
-                    worksheet.freeze_panes(1, 0)
-                    worksheet.autofilter(
-                        0, 0,
-                        max(len(export_df), 1),
-                        len(export_df.columns) - 1
-                    )
-
-                # Sinnvolle Spaltenbreiten anhand von Inhalt und Überschrift.
-                for col_num, col in enumerate(export_df.columns):
-                    # Erst in String umwandeln, dann fehlende Werte ersetzen.
-                    # Das ist wichtig für pandas' nullable Boolean-Datentyp
-                    # ("boolean" mit pd.NA), bei dem fillna("") sonst einen
-                    # TypeError auslöst.
-                    values = export_df[col].astype("string").fillna("")
-                    max_len = max(
-                        [len(str(col))]
-                        + [len(v) for v in values.head(500)]
-                    )
-
-                    is_text_col = col in {
-                        "text", "justification", "note", "type"
-                    }
-                    # Zusätzlicher Platz für den Excel-Filterpfeil in der
-                    # Kopfzeile, damit Spaltennamen vollständig sichtbar sind.
-                    width = min(
-                        max(max_len + 5, 15),
-                        70 if is_text_col else 36
-                    )
-
-                    fmt = text_format if is_text_col else None
-                    if (
-                        "rate" in col.lower()
-                        or "proportion" in col.lower()
-                    ):
-                        fmt = percent_format
-
-                    worksheet.set_column(
-                        col_num, col_num, width, fmt
-                    )
-
-            # Einfache Formatierung für openpyxl-Fallback.
-            else:
-                worksheet.freeze_panes = "A2"
-                worksheet.auto_filter.ref = worksheet.dimensions
-
-                for column_cells in worksheet.columns:
-                    max_length = 0
-                    column_letter = column_cells[0].column_letter
-
-                    for cell in column_cells[:501]:
-                        if cell.value is not None:
-                            max_length = max(
-                                max_length,
-                                len(str(cell.value))
+            if writer.engine != "xlsxwriter":
+                # Fallback: Inhalte weiterhin korrekt schreiben; reduzierte Formatierung.
+                if "sections" in spec:
+                    row = 0
+                    for title, frame, section_desc in spec["sections"]:
+                        frame = germanize_columns(frame)
+                        pd.DataFrame([[title]]).to_excel(
+                            writer, sheet_name=safe_name, index=False, header=False, startrow=row
+                        )
+                        row += 1
+                        if section_desc:
+                            pd.DataFrame([[section_desc]]).to_excel(
+                                writer, sheet_name=safe_name, index=False, header=False, startrow=row
                             )
+                            row += 1
+                        frame.to_excel(writer, sheet_name=safe_name, index=False, startrow=row)
+                        row += len(frame) + 3
+                else:
+                    frame = spec.get("df", pd.DataFrame()).copy()
+                    if spec.get("blank_between"):
+                        frame = add_blank_rows_between_groups(frame, spec["blank_between"])
+                    frame = germanize_columns(frame)
+                    startrow = 2 if spec.get("description") else 0
+                    frame.to_excel(writer, sheet_name=safe_name, index=False, startrow=startrow)
+                continue
 
-                    worksheet.column_dimensions[column_letter].width = min(
-                        max(max_length + 5, 15),
-                        70
+            workbook = writer.book
+            worksheet = workbook.add_worksheet(safe_name)
+            writer.sheets[safe_name] = worksheet
+
+            title_format = workbook.add_format({
+                "bold": True,
+                "font_size": 13,
+                "valign": "top",
+            })
+            section_format = workbook.add_format({
+                "bold": True,
+                "font_size": 11,
+                "bottom": 1,
+            })
+            description_format = workbook.add_format({
+                "italic": True,
+                "text_wrap": True,
+                "valign": "top",
+            })
+            header_format = workbook.add_format({
+                "bold": True,
+                "text_wrap": True,
+                "valign": "top",
+                "border": 1,
+            })
+            text_format = workbook.add_format({
+                "text_wrap": True,
+                "valign": "top",
+            })
+            percent_format = workbook.add_format({
+                "num_format": "0.00%",
+            })
+
+            max_cols_seen = 1
+            used_frames = []
+
+            description = spec.get("description")
+            current_row = 0
+
+            if description:
+                worksheet.write(current_row, 0, description, description_format)
+                current_row += 2
+
+            if "sections" in spec:
+                # Mehrere zusammengehörige Tabellen direkt untereinander.
+                for title, frame, section_desc in spec["sections"]:
+                    frame = germanize_columns(frame)
+                    used_frames.append(frame)
+                    max_cols_seen = max(max_cols_seen, len(frame.columns))
+
+                    worksheet.write(current_row, 0, title, section_format)
+                    current_row += 1
+
+                    if section_desc:
+                        worksheet.write(current_row, 0, section_desc, description_format)
+                        current_row += 1
+
+                    header_row = current_row
+
+                    for col_num, col in enumerate(frame.columns):
+                        worksheet.write(header_row, col_num, col, header_format)
+
+                    if not frame.empty:
+                        frame.to_excel(
+                            writer,
+                            sheet_name=safe_name,
+                            index=False,
+                            header=False,
+                            startrow=header_row + 1,
+                        )
+
+                    current_row = header_row + len(frame) + 3
+
+            else:
+                frame = spec.get("df", pd.DataFrame()).copy()
+                if spec.get("blank_between"):
+                    frame = add_blank_rows_between_groups(
+                        frame,
+                        spec["blank_between"]
                     )
+
+                frame = germanize_columns(frame)
+                used_frames.append(frame)
+                max_cols_seen = max(max_cols_seen, len(frame.columns))
+
+                header_row = current_row
+
+                for col_num, col in enumerate(frame.columns):
+                    worksheet.write(header_row, col_num, col, header_format)
+
+                if not frame.empty:
+                    frame.to_excel(
+                        writer,
+                        sheet_name=safe_name,
+                        index=False,
+                        header=False,
+                        startrow=header_row + 1,
+                    )
+
+                if len(frame.columns) > 0:
+                    worksheet.freeze_panes(header_row + 1, 0)
+                    worksheet.autofilter(
+                        header_row,
+                        0,
+                        header_row + max(len(frame), 1),
+                        len(frame.columns) - 1,
+                    )
+
+            # Spaltenbreite über alle Tabellen des Blattes bestimmen.
+            all_columns = []
+            for frame in used_frames:
+                for col in frame.columns:
+                    if col not in all_columns:
+                        all_columns.append(col)
+
+            for col_num, col in enumerate(all_columns):
+                widths = [
+                    _xlsx_column_width(frame, col)
+                    for frame in used_frames
+                    if col in frame.columns
+                ]
+                width = max(widths) if widths else 15
+
+                fmt = text_format if col in {
+                    "Hinweis", "Begründung", "Feedback-Text", "Typ", "Aufgabe"
+                } else None
+
+                if (
+                    "Anteil" in col
+                    or "Quote" in col
+                ):
+                    fmt = percent_format
+
+                worksheet.set_column(col_num, col_num, width, fmt)
+
 
 
 # ---------------------------------------------------------------------
@@ -1460,19 +1640,28 @@ def main():
         output_dir / "h2_deviation_posthoc_tests.csv"
     )
 
-    # Freitext ---------------------------------------------------------
-    text_df = build_text_outputs(base, region)
+    # Abschlussfeedback -------------------------------------------------
+    feedback_df = build_feedback_output(base)
 
     export_csv(
-        text_df,
-        output_dir / "text_answers_by_task.csv"
+        feedback_df,
+        output_dir / "feedback.csv"
     )
 
-    write_text_markdown(
-        text_df,
-        output_dir /
-        "text_answers_by_task.md"
+    write_feedback_markdown(
+        feedback_df,
+        output_dir / "feedback.md"
     )
+
+    # Alte, inzwischen überflüssige Freitextdateien aus früheren Versionen
+    # entfernen, damit im Ausgabeordner keine doppelten H2-Begründungen bleiben.
+    for obsolete_name in [
+        "text_answers_by_task.csv",
+        "text_answers_by_task.md",
+    ]:
+        obsolete_path = output_dir / obsolete_name
+        if obsolete_path.exists():
+            obsolete_path.unlink()
 
     write_missing_report(
         h1,
@@ -1492,29 +1681,175 @@ def main():
     # Zentrale Excel-Arbeitsmappe mit allen Tabellen.
     # Leere Tabellenblätter sind bei den Testdaten erwartbar, wenn z.B.
     # für H1 keine gültigen Antworten vorhanden sind.
+    # Excel-spezifische Sortierung: feste Reihenfolge für bessere Lesbarkeit.
+    h1_excel = sort_h1_for_excel(h1)
+    paired_h1_excel = sort_h1_for_excel(paired_h1)
+    region_excel = sort_h2_for_excel(region)
+
     workbook_sheets = {
-        "H1 Übersicht": h1_sum,
-        "H1 Einzelantworten": h1,
-        "H1 Toleranzen": exact_tol,
-        "H1 Exakt deskriptiv": exact_by_task,
-        "H1 gepaarte Aufgaben": paired_h1,
-        "H1 Teilnehmer Methoden": pma,
-        "H1 Normalität": normality,
-        "H1 Omnibustest": omnibus,
-        "H1 Posthoc": posthoc,
-        "H1 Zeit Normalität": n_t,
-        "H1 Zeit Omnibus": o_t,
-        "H1 Zeit Posthoc": p_t,
-        "H2 Übersicht": summary,
-        "H2 Regionsauswahl": region,
-        "H2 Auswahlhäufigkeit": freq,
-        "H2 Unsicherheit Normalität": n_r,
-        "H2 Unsicherheit Omnibus": o_r,
-        "H2 Unsicherheit Posthoc": p_r,
-        "H2 Abweichung Normalität": n_d,
-        "H2 Abweichung Omnibus": o_d,
-        "H2 Abweichung Posthoc": p_d,
-        "Freitext": text_df,
+        "H1 Übersicht": excel_sheet(
+            h1_sum,
+            description=(
+                "Zusammenfassung der H1-Ergebnisse je Visualisierung. "
+                "'Anzahl' bezeichnet jeweils die Zahl der berücksichtigten Beobachtungen."
+            ),
+        ),
+
+        # Direkt nebeneinander: vollständige Einzelantworten und daraus
+        # gefilterte gepaarte Antworten.
+        "H1 Einzelantworten": excel_sheet(
+            h1_excel,
+            description=(
+                "Alle H1-Einzelantworten. Für die Lesbarkeit werden die Aufgaben "
+                "innerhalb jedes Teilnehmers in einer festen Reihenfolge und die "
+                "Visualisierungen als VSUP → ScaledGlyph → IsoGlyph dargestellt. "
+                "Die tatsächlich präsentierte Reihenfolge bleibt in "
+                "'Ursprüngliche Reihenfolge' erhalten."
+            ),
+            blank_between="participantId",
+        ),
+
+        "H1 Gepaarte Antworten": excel_sheet(
+            paired_h1_excel,
+            description=(
+                "Nur Teilnehmer-Aufgaben, für die alle drei Visualisierungsmethoden "
+                "gültig beantwortet wurden. Diese vollständigen Within-Subject-Paare "
+                "bilden die Grundlage für die gepaarten Methodenvergleiche. "
+                "Im Gegensatz zu 'H1 Einzelantworten' fehlen hier unvollständige "
+                "Dreiergruppen."
+            ),
+        ),
+
+        "H1 Exakte Antworten": excel_sections(
+            [
+                (
+                    "Verwendete Toleranzen",
+                    exact_tol,
+                    (
+                        "Eine Antwort gilt rein deskriptiv als exakt, wenn ihre "
+                        "absolute Abweichung höchstens 1 % der Wertspanne der "
+                        "jeweiligen Variable beträgt."
+                    ),
+                ),
+                (
+                    "Exakte Antworten nach Aufgabe und Visualisierung",
+                    exact_by_task,
+                    (
+                        "Diese Kennzahl ist nur eine Zusatzangabe und beeinflusst "
+                        "ANOVA, t-Test, Friedman oder Wilcoxon nicht."
+                    ),
+                ),
+            ]
+        ),
+
+        "H1 Teilnehmer Methoden": excel_sheet(
+            pma,
+            description=(
+                "Auf Teilnehmer × Visualisierung aggregierte Werte der vollständig "
+                "gepaarten H1-Aufgaben. Diese Tabelle speist die inferenzstatistischen Tests."
+            ),
+        ),
+
+        "H1 Genauigkeit Statistik": excel_sections(
+            [
+                (
+                    "1. Normalitätsprüfung",
+                    normality,
+                    "Prüfung der paarweisen Differenzen mit Shapiro-Wilk.",
+                ),
+                (
+                    "2. Omnibustest",
+                    omnibus,
+                    (
+                        "Bei erfüllter Normalitätsannahme: Repeated-Measures-ANOVA; "
+                        "ansonsten Friedman-Test."
+                    ),
+                ),
+                (
+                    "3. Post-hoc-Vergleiche",
+                    posthoc,
+                    (
+                        "Nur nach signifikantem Omnibustest. Parametrisch: gepaarte "
+                        "t-Tests; nichtparametrisch: Wilcoxon; jeweils Bonferroni-korrigiert."
+                    ),
+                ),
+            ],
+            description="Statistischer Entscheidungsweg für die H1-Genauigkeit.",
+        ),
+
+        "H1 Zeit Statistik": excel_sections(
+            [
+                ("1. Normalitätsprüfung", n_t, "Shapiro-Wilk der paarweisen Zeitdifferenzen."),
+                (
+                    "2. Omnibustest",
+                    o_t,
+                    "Repeated-Measures-ANOVA oder Friedman-Test für die Antwortzeit.",
+                ),
+                (
+                    "3. Post-hoc-Vergleiche",
+                    p_t,
+                    "Gepaarte t-Tests oder Wilcoxon mit Bonferroni-Korrektur.",
+                ),
+            ],
+            description="Sekundäre H1-Auswertung der Antwortzeit.",
+        ),
+
+        "H2 Übersicht": excel_sheet(summary),
+
+        "H2 Regionsauswahl": excel_sheet(
+            region_excel,
+            description=(
+                "Einzelentscheidungen der Regionsaufgabe inklusive ausgewählter Region, "
+                "zugehöriger Werte, subjektiver Sicherheit, Antwortzeit und Begründung."
+            ),
+        ),
+
+        "H2 Auswahlhäufigkeit": excel_sheet(freq),
+
+        "H2 Unsicherheit Statistik": excel_sections(
+            [
+                ("1. Normalitätsprüfung", n_r, "Shapiro-Wilk der paarweisen Differenzen."),
+                (
+                    "2. Omnibustest",
+                    o_r,
+                    "Vergleich der Unsicherheit der gewählten Regionen zwischen den Methoden.",
+                ),
+                (
+                    "3. Post-hoc-Vergleiche",
+                    p_r,
+                    "Paarweise Vergleiche nur nach signifikantem Omnibustest.",
+                ),
+            ],
+            description="Primäre inferenzstatistische H2-Auswertung.",
+        ),
+
+        "H2 Zielabweichung Statistik": excel_sections(
+            [
+                ("1. Normalitätsprüfung", n_d, "Shapiro-Wilk der paarweisen Differenzen."),
+                (
+                    "2. Omnibustest",
+                    o_d,
+                    "Zusätzlicher Vergleich der Abweichung vom Zielwert -12 °C.",
+                ),
+                (
+                    "3. Post-hoc-Vergleiche",
+                    p_d,
+                    "Paarweise Vergleiche nur nach signifikantem Omnibustest.",
+                ),
+            ],
+            description=(
+                "Zusätzliche H2-Analyse; die Unsicherheit der gewählten Region "
+                "bleibt die primäre H2-Messgröße."
+            ),
+        ),
+
+        "Feedback": excel_sheet(
+            feedback_df,
+            description=(
+                "Nur das freie Textfeld aus dem Abschlussfeedback. "
+                "Die H2-Begründungen stehen ausschließlich in 'H2 Regionsauswahl'."
+            ),
+        ),
     }
 
     export_results_xlsx(
@@ -1572,7 +1907,7 @@ def main():
         "\nFertig. Alle Ergebnisdateien liegen in:"
     )
     print(output_dir)
-    print("Excel-Gesamtübersicht: 00_Studienauswertung.xlsx")
+    print("Excel-Gesamtübersicht: 00_Studienauswertung.xlsx (deutsche, zusammengefasste Tabellenblätter)")
     print("CSV-Dateien: Semikolon-getrennt und UTF-8-BOM für deutsches Excel")
 
 
