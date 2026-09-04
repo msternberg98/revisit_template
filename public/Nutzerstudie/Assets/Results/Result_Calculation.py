@@ -476,7 +476,7 @@ def h1_summary(h1: pd.DataFrame) -> pd.DataFrame:
         grouped["n_answered"] / grouped["n_trials"]
     )
 
-    if h1["exact"].notna().any():
+    if not h1.empty and h1["exact"].notna().any():
         ex_source = h1.dropna(subset=["exact"]).copy()
         ex_source["exact_int"] = ex_source["exact"].astype(int)
 
@@ -1724,7 +1724,10 @@ def main():
     )
 
     # Hauptmessgröße H2:
-    # Unsicherheit der tatsächlich gewählten Region
+    # Unsicherheit der tatsächlich gewählten Region.
+    # Es wird exakt derselbe Testpfad wie bei H1 verwendet:
+    # Normalitätsprüfung -> Repeated-Measures-ANOVA + gepaarte t-Tests
+    # oder bei verletzter Normalitätsannahme Friedman + Wilcoxon.
     n_r, o_r, p_r = omnibus_and_posthoc(
         region,
         "chosen_uncertainty"
@@ -1814,7 +1817,11 @@ def main():
         "H1 Übersicht": excel_sheet(
             h1_sum,
             description=(
-                "Zusammenfassung der H1-Ergebnisse je Visualisierung. "
+                "Deskriptive Zusammenfassung aller H1-Einzelantworten je Visualisierung. "
+                "Hier werden auch Antworten aus unvollständigen Dreiergruppen berücksichtigt, "
+                "solange die jeweilige Einzelaufgabe beantwortet wurde. "
+                "Die inferenzstatistischen Methodenvergleiche basieren dagegen ausschließlich "
+                "auf den vollständig gepaarten Aufgaben aus 'H1 Gepaarte Antworten'. "
                 "'Anzahl' bezeichnet jeweils die Zahl der berücksichtigten Beobachtungen."
             ),
         ),
@@ -1870,8 +1877,11 @@ def main():
         "H1 Teilnehmer Methoden": excel_sheet(
             pma,
             description=(
-                "Auf Teilnehmer × Visualisierung aggregierte Werte der vollständig "
-                "gepaarten H1-Aufgaben. Diese Tabelle speist die inferenzstatistischen Tests."
+                "Auf Teilnehmer × Visualisierung aggregierte Werte ausschließlich aus "
+                "vollständig gepaarten H1-Aufgaben. Unvollständige Dreiergruppen wurden vorher "
+                "entfernt. Dadurch kann die hier ausgewiesene Anzahl berücksichtigter Aufgaben "
+                "kleiner sein als in 'H1 Übersicht'. Diese Tabelle bildet die direkte Grundlage "
+                "für Normalitätsprüfung, Gesamtvergleich und gegebenenfalls paarweise Vergleiche."
             ),
         ),
 
@@ -1972,7 +1982,6 @@ def main():
             feedback_df,
             description=(
                 "Nur das freie Textfeld aus dem Abschlussfeedback. "
-                "Die H2-Begründungen stehen ausschließlich in 'H2 Regionsauswahl'."
             ),
         ),
     }
