@@ -1,0 +1,58 @@
+TESTENTSCHEIDUNGEN DER AUSWERTUNG
+================================
+
+Die Auswahl zwischen parametrischem und nichtparametrischem Pfad erfolgt anhand der Normalität der paarweisen Differenzen.
+Parametrischer Pfad: Repeated-Measures-ANOVA -> gepaarte t-Tests.
+Fallback: Friedman-Test -> Wilcoxon-Tests.
+
+H1 – Genauigkeit / absolute Abweichung
+Verwendeter Gesamtvergleich: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.211406
+  VSUP - IsoGlyph: p = 0.977089
+  ScaledGlyph - IsoGlyph: p = 0.702615
+Omnibus-p-Wert: 0.609223
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Gesamtvergleich nicht signifikant.
+
+H1 – Antwortzeit (sekundär)
+Verwendeter Gesamtvergleich: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.61207
+  VSUP - IsoGlyph: p = 0.896044
+  ScaledGlyph - IsoGlyph: p = 0.126034
+Omnibus-p-Wert: 0.743609
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Gesamtvergleich nicht signifikant.
+
+H2 – Unsicherheit der gewählten Region
+Verwendeter Gesamtvergleich: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.372087
+  VSUP - IsoGlyph: p = 0.76229
+  ScaledGlyph - IsoGlyph: p = 0.458796
+Omnibus-p-Wert: 0.0144254
+Omnibustest signifikant (alpha=0,05): Ja
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: durchgeführt.
+
+H2 – Abweichung vom Zielwert -12 °C (zusätzlich)
+Verwendeter Gesamtvergleich: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.925544
+  VSUP - IsoGlyph: p = 0.48264
+  ScaledGlyph - IsoGlyph: p = 0.435808
+Omnibus-p-Wert: 0.311443
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Gesamtvergleich nicht signifikant.

@@ -1,0 +1,13 @@
+﻿task;visualization;n_exact;n_evaluable;exact_rate;exact_display
+Luftdruck_Value_Maxima;IsoGlyph;3;3;1.0;3/3
+Luftdruck_Value_Maxima;ScaledGlyph;2;3;0.6666666666666666;2/3
+Luftdruck_Value_Maxima;VSUP;3;3;1.0;3/3
+Luftdruck_Value_Minima;IsoGlyph;1;3;0.3333333333333333;1/3
+Luftdruck_Value_Minima;ScaledGlyph;0;3;0.0;0/3
+Luftdruck_Value_Minima;VSUP;0;3;0.0;0/3
+Niederschlag_Uncertainty_Maxima;IsoGlyph;0;3;0.0;0/3
+Niederschlag_Uncertainty_Maxima;ScaledGlyph;0;3;0.0;0/3
+Niederschlag_Uncertainty_Maxima;VSUP;0;3;0.0;0/3
+Niederschlag_Uncertainty_Minima;IsoGlyph;2;3;0.6666666666666666;2/3
+Niederschlag_Uncertainty_Minima;ScaledGlyph;1;3;0.3333333333333333;1/3
+Niederschlag_Uncertainty_Minima;VSUP;1;3;0.3333333333333333;1/3

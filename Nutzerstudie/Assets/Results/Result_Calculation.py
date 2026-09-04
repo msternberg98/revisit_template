@@ -48,9 +48,9 @@ H1_TASK_ORDER = [
 # Zum Wechseln zwischen Test-, Pilot- und Finaldaten einfach genau EINE
 # der folgenden Zeilen aktiv lassen bzw. den Dateinamen anpassen.
 
-CSV_FILENAME = "Nutzerstudie_all_tidy.csv"       # aktuelle Testdaten
-# CSV_FILENAME = "Nutzerstudie_Pilot_tidy.csv"  # spätere Pilotstudie
-# CSV_FILENAME = "Nutzerstudie_Final_tidy.csv"  # spätere Hauptstudie
+CSV_FILENAME = "Nutzerstudie_all_tidy_Test.csv"       # aktuelle Testdaten
+# CSV_FILENAME = "Nutzerstudie_all_tidy_Pilot.csv"  # spätere Pilotstudie
+# CSV_FILENAME = "Nutzerstudie_all_tidy_Final.csv"  # spätere Hauptstudie
 
 OUTPUT_FOLDER = "analysis_output"
 
@@ -293,13 +293,16 @@ def apply_automatic_exact_tolerance(h1: pd.DataFrame) -> pd.DataFrame:
         how="left",
     )
 
-    exact = out["abs_error"] <= out["exact_tolerance"]
-    exact[
+    # Als pandas Nullable-Boolean anlegen, damit fehlende Werte (pd.NA)
+    # auch mit neueren pandas-Versionen sauber gesetzt werden können.
+    exact = (out["abs_error"] <= out["exact_tolerance"]).astype("boolean")
+    invalid_exact = (
         out["abs_error"].isna()
         | out["exact_tolerance"].isna()
         | (out["value_range"] <= 0)
-    ] = pd.NA
-    out["exact"] = exact.astype("boolean")
+    )
+    exact = exact.mask(invalid_exact, pd.NA)
+    out["exact"] = exact
 
     return out
 
@@ -655,7 +658,7 @@ def omnibus_and_posthoc(
                 "p_raw": np.nan,
                 "p_bonferroni": np.nan,
                 "significant_bonferroni_0.05": pd.NA,
-                "note": "Omnibustest nicht signifikant.",
+                "note": "Gesamtvergleich nicht signifikant.",
             }]
         )
         return normality, omnibus, posthoc
@@ -998,7 +1001,7 @@ def describe_test_decision(
         return "\n".join(lines)
 
     test_name = str(omnibus.iloc[0].get("test", "unbekannt"))
-    lines.append(f"Verwendeter Omnibustest: {test_name}")
+    lines.append(f"Verwendeter Gesamtvergleich: {test_name}")
 
     if not normality.empty and "normal_at_0.05" in normality.columns:
         vals = normality["normal_at_0.05"].dropna()
@@ -1035,7 +1038,7 @@ def describe_test_decision(
     if not posthoc.empty:
         first_comp = str(posthoc.iloc[0].get("comparison", ""))
         if first_comp == "nicht durchgeführt":
-            lines.append("Post-hoc-Tests: nicht durchgeführt, da Omnibustest nicht signifikant.")
+            lines.append("Post-hoc-Tests: nicht durchgeführt, da Gesamtvergleich nicht signifikant.")
         elif first_comp:
             lines.append("Post-hoc-Tests: durchgeführt.")
 
@@ -1839,6 +1842,7 @@ def main():
                 "Im Gegensatz zu 'H1 Einzelantworten' fehlen hier unvollständige "
                 "Dreiergruppen."
             ),
+            blank_between="participantId",
         ),
 
         "H1 Exakte Antworten": excel_sections(
@@ -1879,7 +1883,7 @@ def main():
                     "Prüfung der paarweisen Differenzen mit Shapiro-Wilk.",
                 ),
                 (
-                    "2. Omnibustest",
+                    "2. Gesamtvergleich der Methoden",
                     omnibus,
                     (
                         "Bei erfüllter Normalitätsannahme: Repeated-Measures-ANOVA; "
@@ -1887,10 +1891,10 @@ def main():
                     ),
                 ),
                 (
-                    "3. Post-hoc-Vergleiche",
+                    "3. Paarweise Vergleiche",
                     posthoc,
                     (
-                        "Nur nach signifikantem Omnibustest. Parametrisch: gepaarte "
+                        "Nur nach signifikantem Gesamtvergleich. Parametrisch: gepaarte "
                         "t-Tests; nichtparametrisch: Wilcoxon; jeweils Bonferroni-korrigiert."
                     ),
                 ),
@@ -1902,12 +1906,12 @@ def main():
             [
                 ("1. Normalitätsprüfung", n_t, "Shapiro-Wilk der paarweisen Zeitdifferenzen."),
                 (
-                    "2. Omnibustest",
+                    "2. Gesamtvergleich der Methoden",
                     o_t,
                     "Repeated-Measures-ANOVA oder Friedman-Test für die Antwortzeit.",
                 ),
                 (
-                    "3. Post-hoc-Vergleiche",
+                    "3. Paarweise Vergleiche",
                     p_t,
                     "Gepaarte t-Tests oder Wilcoxon mit Bonferroni-Korrektur.",
                 ),
@@ -1931,14 +1935,14 @@ def main():
             [
                 ("1. Normalitätsprüfung", n_r, "Shapiro-Wilk der paarweisen Differenzen."),
                 (
-                    "2. Omnibustest",
+                    "2. Gesamtvergleich der Methoden",
                     o_r,
                     "Vergleich der Unsicherheit der gewählten Regionen zwischen den Methoden.",
                 ),
                 (
-                    "3. Post-hoc-Vergleiche",
+                    "3. Paarweise Vergleiche",
                     p_r,
-                    "Paarweise Vergleiche nur nach signifikantem Omnibustest.",
+                    "Paarweise Vergleiche nur nach signifikantem Gesamtvergleich.",
                 ),
             ],
             description="Primäre inferenzstatistische H2-Auswertung.",
@@ -1948,14 +1952,14 @@ def main():
             [
                 ("1. Normalitätsprüfung", n_d, "Shapiro-Wilk der paarweisen Differenzen."),
                 (
-                    "2. Omnibustest",
+                    "2. Gesamtvergleich der Methoden",
                     o_d,
                     "Zusätzlicher Vergleich der Abweichung vom Zielwert -12 °C.",
                 ),
                 (
-                    "3. Post-hoc-Vergleiche",
+                    "3. Paarweise Vergleiche",
                     p_d,
-                    "Paarweise Vergleiche nur nach signifikantem Omnibustest.",
+                    "Paarweise Vergleiche nur nach signifikantem Gesamtvergleich.",
                 ),
             ],
             description=(
