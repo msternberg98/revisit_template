@@ -48,9 +48,9 @@ H1_TASK_ORDER = [
 # Zum Wechseln zwischen Test-, Pilot- und Finaldaten einfach genau EINE
 # der folgenden Zeilen aktiv lassen bzw. den Dateinamen anpassen.
 
-CSV_FILENAME = "Nutzerstudie_all_tidy_Test.csv"       # aktuelle Testdaten
-# CSV_FILENAME = "Nutzerstudie_all_tidy_Pilot.csv"  # spätere Pilotstudie
-# CSV_FILENAME = "Nutzerstudie_all_tidy_Final.csv"  # spätere Hauptstudie
+CSV_FILENAME = "Nutzerstudie_all_tidy.csv"       # aktuelle Testdaten
+# CSV_FILENAME = "Nutzerstudie_Pilot_tidy.csv"  # spätere Pilotstudie
+# CSV_FILENAME = "Nutzerstudie_Final_tidy.csv"  # spätere Hauptstudie
 
 OUTPUT_FOLDER = "analysis_output"
 
@@ -1272,10 +1272,15 @@ def export_results_xlsx(
 ) -> None:
     """
     Zentrale, lesbare Excel-Datei.
+    Funktioniert sowohl mit xlsxwriter als auch mit openpyxl.
+
+    Layout:
+    - keine unnötigen Leerzeilen am Blattanfang
+    - Beschreibung (falls vorhanden) direkt in Zeile 1
+    - Tabellenüberschrift direkt darunter
+    - großzügige Spaltenbreiten inklusive Platz für Filterpfeile
     - deutsche Spaltennamen
-    - mehrere Statistikschritte auf einem Blatt
-    - erklärende Hinweise oberhalb technischer Tabellen
-    - feste H1-Reihenfolge und Leerzeilen zwischen Teilnehmern
+    - zusammengehörige Statistikschritte auf einem Blatt
     """
     try:
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
@@ -1285,89 +1290,91 @@ def export_results_xlsx(
     with writer:
         for sheet_name, spec in sheets.items():
             safe_name = sheet_name[:31]
-
-            if writer.engine != "xlsxwriter":
-                # Fallback: Inhalte weiterhin korrekt schreiben; reduzierte Formatierung.
-                if "sections" in spec:
-                    row = 0
-                    for title, frame, section_desc in spec["sections"]:
-                        frame = germanize_columns(frame)
-                        pd.DataFrame([[title]]).to_excel(
-                            writer, sheet_name=safe_name, index=False, header=False, startrow=row
-                        )
-                        row += 1
-                        if section_desc:
-                            pd.DataFrame([[section_desc]]).to_excel(
-                                writer, sheet_name=safe_name, index=False, header=False, startrow=row
-                            )
-                            row += 1
-                        frame.to_excel(writer, sheet_name=safe_name, index=False, startrow=row)
-                        row += len(frame) + 3
-                else:
-                    frame = spec.get("df", pd.DataFrame()).copy()
-                    if spec.get("blank_between"):
-                        frame = add_blank_rows_between_groups(frame, spec["blank_between"])
-                    frame = germanize_columns(frame)
-                    startrow = 2 if spec.get("description") else 0
-                    frame.to_excel(writer, sheet_name=safe_name, index=False, startrow=startrow)
-                continue
-
-            workbook = writer.book
-            worksheet = workbook.add_worksheet(safe_name)
-            writer.sheets[safe_name] = worksheet
-
-            title_format = workbook.add_format({
-                "bold": True,
-                "font_size": 13,
-                "valign": "top",
-            })
-            section_format = workbook.add_format({
-                "bold": True,
-                "font_size": 11,
-                "bottom": 1,
-            })
-            description_format = workbook.add_format({
-                "italic": True,
-                "text_wrap": True,
-                "valign": "top",
-            })
-            header_format = workbook.add_format({
-                "bold": True,
-                "text_wrap": True,
-                "valign": "top",
-                "border": 1,
-            })
-            text_format = workbook.add_format({
-                "text_wrap": True,
-                "valign": "top",
-            })
-            percent_format = workbook.add_format({
-                "num_format": "0.00%",
-            })
-
-            max_cols_seen = 1
-            used_frames = []
-
             description = spec.get("description")
-            current_row = 0
 
-            if description:
-                worksheet.write(current_row, 0, description, description_format)
-                current_row += 2
+            # ==========================================================
+            # XLSXWRITER
+            # ==========================================================
+            if writer.engine == "xlsxwriter":
+                workbook = writer.book
+                worksheet = workbook.add_worksheet(safe_name)
+                writer.sheets[safe_name] = worksheet
 
-            if "sections" in spec:
-                # Mehrere zusammengehörige Tabellen direkt untereinander.
-                for title, frame, section_desc in spec["sections"]:
-                    frame = germanize_columns(frame)
-                    used_frames.append(frame)
-                    max_cols_seen = max(max_cols_seen, len(frame.columns))
+                description_format = workbook.add_format({
+                    "italic": True,
+                    "text_wrap": True,
+                    "valign": "top",
+                })
+                section_format = workbook.add_format({
+                    "bold": True,
+                    "font_size": 11,
+                    "bottom": 1,
+                })
+                header_format = workbook.add_format({
+                    "bold": True,
+                    "text_wrap": True,
+                    "valign": "top",
+                    "border": 1,
+                })
+                text_format = workbook.add_format({
+                    "text_wrap": True,
+                    "valign": "top",
+                })
+                percent_format = workbook.add_format({
+                    "num_format": "0.00%",
+                })
 
-                    worksheet.write(current_row, 0, title, section_format)
+                current_row = 0
+                used_frames = []
+
+                # Beschreibung direkt in die erste Zeile; KEINE Leerzeile davor.
+                if description:
+                    worksheet.write(current_row, 0, description, description_format)
                     current_row += 1
 
-                    if section_desc:
-                        worksheet.write(current_row, 0, section_desc, description_format)
+                if "sections" in spec:
+                    for section_index, (title, frame, section_desc) in enumerate(spec["sections"]):
+                        frame = germanize_columns(frame)
+                        used_frames.append(frame)
+
+                        # Nur zwischen Sektionen eine Leerzeile.
+                        if section_index > 0:
+                            current_row += 1
+
+                        worksheet.write(current_row, 0, title, section_format)
                         current_row += 1
+
+                        if section_desc:
+                            worksheet.write(current_row, 0, section_desc, description_format)
+                            current_row += 1
+
+                        header_row = current_row
+
+                        for col_num, col in enumerate(frame.columns):
+                            worksheet.write(header_row, col_num, col, header_format)
+
+                        if not frame.empty:
+                            frame.to_excel(
+                                writer,
+                                sheet_name=safe_name,
+                                index=False,
+                                header=False,
+                                startrow=header_row + 1,
+                            )
+
+                        current_row = header_row + len(frame) + 1
+
+                else:
+                    frame = spec.get("df", pd.DataFrame()).copy()
+
+                    if spec.get("blank_between"):
+                        frame = add_blank_rows_between_groups(
+                            frame,
+                            spec["blank_between"]
+                        )
+
+                    frame = germanize_columns(frame)
+                    used_frames.append(frame)
 
                     header_row = current_row
 
@@ -1383,69 +1390,183 @@ def export_results_xlsx(
                             startrow=header_row + 1,
                         )
 
-                    current_row = header_row + len(frame) + 3
+                    if len(frame.columns) > 0:
+                        worksheet.freeze_panes(header_row + 1, 0)
+                        worksheet.autofilter(
+                            header_row,
+                            0,
+                            header_row + max(len(frame), 1),
+                            len(frame.columns) - 1,
+                        )
 
-            else:
-                frame = spec.get("df", pd.DataFrame()).copy()
-                if spec.get("blank_between"):
-                    frame = add_blank_rows_between_groups(
-                        frame,
-                        spec["blank_between"]
+                # Spaltenbreite: Überschrift + bis zu 500 Werte berücksichtigen.
+                all_columns = []
+                for frame in used_frames:
+                    for col in frame.columns:
+                        if col not in all_columns:
+                            all_columns.append(col)
+
+                for col_num, col in enumerate(all_columns):
+                    max_len = len(str(col))
+
+                    for frame in used_frames:
+                        if col not in frame.columns:
+                            continue
+                        values = frame[col].astype("string").fillna("")
+                        if not values.empty:
+                            max_len = max(
+                                max_len,
+                                max(len(str(v)) for v in values.head(500))
+                            )
+
+                    is_text = col in {
+                        "Hinweis", "Begründung", "Feedback-Text",
+                        "Typ", "Aufgabe", "Trial-ID"
+                    }
+
+                    # Deutlich mehr Reserve für Dropdown/Filter-Symbol.
+                    width = min(
+                        max(max_len + 8, 18),
+                        75 if is_text else 45
                     )
 
-                frame = germanize_columns(frame)
-                used_frames.append(frame)
-                max_cols_seen = max(max_cols_seen, len(frame.columns))
+                    fmt = text_format if is_text else None
+                    if "Anteil" in col or "Quote" in col:
+                        fmt = percent_format
 
-                header_row = current_row
+                    worksheet.set_column(col_num, col_num, width, fmt)
 
-                for col_num, col in enumerate(frame.columns):
-                    worksheet.write(header_row, col_num, col, header_format)
+                # Kopfzeilen etwas höher, damit Umbruch nicht abgeschnitten wird.
+                worksheet.set_default_row(18)
 
-                if not frame.empty:
-                    frame.to_excel(
+            # ==========================================================
+            # OPENPYXL-FALLBACK
+            # ==========================================================
+            else:
+                from openpyxl.styles import Font, Alignment
+                from openpyxl.utils import get_column_letter
+
+                current_row = 0
+                written_frames = []
+
+                # Beschreibung wirklich schreiben statt nur zwei Zeilen freizuhalten.
+                if description:
+                    pd.DataFrame([[description]]).to_excel(
                         writer,
                         sheet_name=safe_name,
                         index=False,
                         header=False,
-                        startrow=header_row + 1,
+                        startrow=current_row,
+                    )
+                    current_row += 1
+
+                if "sections" in spec:
+                    for section_index, (title, frame, section_desc) in enumerate(spec["sections"]):
+                        frame = germanize_columns(frame)
+                        written_frames.append(frame)
+
+                        if section_index > 0:
+                            current_row += 1
+
+                        pd.DataFrame([[title]]).to_excel(
+                            writer,
+                            sheet_name=safe_name,
+                            index=False,
+                            header=False,
+                            startrow=current_row,
+                        )
+                        current_row += 1
+
+                        if section_desc:
+                            pd.DataFrame([[section_desc]]).to_excel(
+                                writer,
+                                sheet_name=safe_name,
+                                index=False,
+                                header=False,
+                                startrow=current_row,
+                            )
+                            current_row += 1
+
+                        frame.to_excel(
+                            writer,
+                            sheet_name=safe_name,
+                            index=False,
+                            startrow=current_row,
+                        )
+                        current_row += len(frame) + 2
+
+                else:
+                    frame = spec.get("df", pd.DataFrame()).copy()
+
+                    if spec.get("blank_between"):
+                        frame = add_blank_rows_between_groups(
+                            frame,
+                            spec["blank_between"]
+                        )
+
+                    frame = germanize_columns(frame)
+                    written_frames.append(frame)
+
+                    frame.to_excel(
+                        writer,
+                        sheet_name=safe_name,
+                        index=False,
+                        startrow=current_row,
                     )
 
-                if len(frame.columns) > 0:
-                    worksheet.freeze_panes(header_row + 1, 0)
-                    worksheet.autofilter(
-                        header_row,
-                        0,
-                        header_row + max(len(frame), 1),
-                        len(frame.columns) - 1,
+                worksheet = writer.sheets[safe_name]
+
+                # Lesbare Überschriften / Beschreibungen.
+                for row in worksheet.iter_rows():
+                    for cell in row:
+                        if cell.value is None:
+                            continue
+                        cell.alignment = Alignment(
+                            vertical="top",
+                            wrap_text=True
+                        )
+
+                # Erste nichtleere Tabellenkopfzeilen fett formatieren.
+                # Alle Zellen mit bekannten deutschen Spaltennamen erkennen.
+                known_headers = set(GERMAN_COLUMN_NAMES.values())
+                for row in worksheet.iter_rows():
+                    header_hits = sum(
+                        1 for cell in row if cell.value in known_headers
                     )
+                    if header_hits >= 1:
+                        for cell in row:
+                            if cell.value is not None:
+                                cell.font = Font(bold=True)
+                                cell.alignment = Alignment(
+                                    vertical="top",
+                                    wrap_text=True
+                                )
 
-            # Spaltenbreite über alle Tabellen des Blattes bestimmen.
-            all_columns = []
-            for frame in used_frames:
-                for col in frame.columns:
-                    if col not in all_columns:
-                        all_columns.append(col)
+                # Spaltenbreite mit großzügigem Aufschlag für Filterpfeile.
+                max_col = worksheet.max_column
+                for col_idx in range(1, max_col + 1):
+                    max_len = 0
 
-            for col_num, col in enumerate(all_columns):
-                widths = [
-                    _xlsx_column_width(frame, col)
-                    for frame in used_frames
-                    if col in frame.columns
-                ]
-                width = max(widths) if widths else 15
+                    for row_idx in range(1, min(worksheet.max_row, 500) + 1):
+                        value = worksheet.cell(row_idx, col_idx).value
+                        if value is not None:
+                            max_len = max(max_len, len(str(value)))
 
-                fmt = text_format if col in {
-                    "Hinweis", "Begründung", "Feedback-Text", "Typ", "Aufgabe"
-                } else None
+                    width = min(max(max_len + 8, 18), 75)
+                    worksheet.column_dimensions[
+                        get_column_letter(col_idx)
+                    ].width = width
 
-                if (
-                    "Anteil" in col
-                    or "Quote" in col
-                ):
-                    fmt = percent_format
-
-                worksheet.set_column(col_num, col_num, width, fmt)
+                # Nur bei einfachen Tabellen filtern/fixieren.
+                if "sections" not in spec:
+                    header_row_excel = 2 if description else 1
+                    if worksheet.max_column > 0:
+                        worksheet.freeze_panes = f"A{header_row_excel + 1}"
+                        worksheet.auto_filter.ref = (
+                            f"A{header_row_excel}:"
+                            f"{get_column_letter(worksheet.max_column)}"
+                            f"{worksheet.max_row}"
+                        )
 
 
 
