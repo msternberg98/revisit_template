@@ -1,2 +1,4 @@
 ﻿test;comparison;n;statistic;p_raw;p_bonferroni;significant_bonferroni_0.05;note
-Wilcoxon signed-rank;nicht durchgeführt;12;;;;;Omnibustest nicht signifikant.
+paired t-test;VSUP vs ScaledGlyph;3;1.1010960834476196;0.3856589176071172;1.0;False;"Bonferroni über 3 Vergleiche; äquivalent alpha=0.0167."
+paired t-test;VSUP vs IsoGlyph;3;3.625319111609501;0.0683749470433575;0.2051248411300725;False;"Bonferroni über 3 Vergleiche; äquivalent alpha=0.0167."
+paired t-test;ScaledGlyph vs IsoGlyph;3;4.359568732270759;0.048796351702077606;0.14638905510623282;False;"Bonferroni über 3 Vergleiche; äquivalent alpha=0.0167."

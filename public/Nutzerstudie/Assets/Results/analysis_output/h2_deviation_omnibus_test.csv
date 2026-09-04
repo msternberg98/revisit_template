@@ -1,2 +1,2 @@
 ﻿test;n_complete_participants;statistic;df;p;significant_0.05;note
-Friedman-Test;12;10.177777777777768;2;0.006164865934143108;True;Verwendet, weil mindestens eine paarweise Differenz Shapiro p < .05 hatte.
+Repeated Measures ANOVA;3;1.5837735773572934;2, 4;0.31144320862307423;False;Verwendet, weil alle paarweisen Differenzen Shapiro p >= .05 hatten.
