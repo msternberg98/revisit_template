@@ -6,33 +6,53 @@ Parametrischer Pfad: Repeated-Measures-ANOVA -> gepaarte t-Tests.
 Fallback: Friedman-Test -> Wilcoxon-Tests.
 
 H1 – Genauigkeit / absolute Abweichung
-Keine Testentscheidung berechnet.
-
-H1 – Antwortzeit (sekundär)
-Keine Testentscheidung berechnet.
-
-H2 – Unsicherheit der gewählten Region
-Verwendeter Omnibustest: Friedman-Test
-Normalitätsannahme der paarweisen Differenzen erfüllt: Nein
+Verwendeter Omnibustest: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
 Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
-  VSUP - ScaledGlyph: p = 0.000628194
-  VSUP - IsoGlyph: p = 0.000184673
-  ScaledGlyph - IsoGlyph: p = 0.000643765
-Omnibus-p-Wert: 0.627089
+  VSUP - ScaledGlyph: p = 0.211406
+  VSUP - IsoGlyph: p = 0.977089
+  ScaledGlyph - IsoGlyph: p = 0.702615
+Omnibus-p-Wert: 0.609223
 Omnibustest signifikant (alpha=0,05): Nein
-Vorgesehener Post-hoc-Test bei Signifikanz: Wilcoxon signed-rank
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
 Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
 Post-hoc-Tests: nicht durchgeführt, da Omnibustest nicht signifikant.
 
-H2 – Abweichung vom Zielwert -12 °C (zusätzlich)
-Verwendeter Omnibustest: Friedman-Test
-Normalitätsannahme der paarweisen Differenzen erfüllt: Nein
+H1 – Antwortzeit (sekundär)
+Verwendeter Omnibustest: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
 Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
-  VSUP - ScaledGlyph: p = 0.110504
-  VSUP - IsoGlyph: p = 0.0127529
-  ScaledGlyph - IsoGlyph: p = 0.000839719
-Omnibus-p-Wert: 0.00616487
+  VSUP - ScaledGlyph: p = 0.61207
+  VSUP - IsoGlyph: p = 0.896044
+  ScaledGlyph - IsoGlyph: p = 0.126034
+Omnibus-p-Wert: 0.743609
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Omnibustest nicht signifikant.
+
+H2 – Unsicherheit der gewählten Region
+Verwendeter Omnibustest: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.372087
+  VSUP - IsoGlyph: p = 0.76229
+  ScaledGlyph - IsoGlyph: p = 0.458796
+Omnibus-p-Wert: 0.0144254
 Omnibustest signifikant (alpha=0,05): Ja
-Vorgesehener Post-hoc-Test bei Signifikanz: Wilcoxon signed-rank
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
 Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
 Post-hoc-Tests: durchgeführt.
+
+H2 – Abweichung vom Zielwert -12 °C (zusätzlich)
+Verwendeter Omnibustest: Repeated Measures ANOVA
+Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
+Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
+  VSUP - ScaledGlyph: p = 0.925544
+  VSUP - IsoGlyph: p = 0.48264
+  ScaledGlyph - IsoGlyph: p = 0.435808
+Omnibus-p-Wert: 0.311443
+Omnibustest signifikant (alpha=0,05): Nein
+Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
+Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
+Post-hoc-Tests: nicht durchgeführt, da Omnibustest nicht signifikant.

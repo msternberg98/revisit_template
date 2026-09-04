@@ -39,9 +39,9 @@ METHOD_ORDER = ["VSUP", "ScaledGlyph", "IsoGlyph"]
 # Zum Wechseln zwischen Test-, Pilot- und Finaldaten einfach genau EINE
 # der folgenden Zeilen aktiv lassen bzw. den Dateinamen anpassen.
 
-CSV_FILENAME = "Nutzerstudie_all_tidy.csv"       # aktuelle Testdaten
-# CSV_FILENAME = "Nutzerstudie_Pilot_tidy.csv"  # spätere Pilotstudie
-# CSV_FILENAME = "Nutzerstudie_Final_tidy.csv"  # spätere Hauptstudie
+CSV_FILENAME = "Nutzerstudie_all_tidy_Test.csv"       # aktuelle Testdaten
+# CSV_FILENAME = "Nutzerstudie_all_tidy_Pilot.csv"  # spätere Pilotstudie
+# CSV_FILENAME = "Nutzerstudie_all_tidy_Final.csv"  # spätere Hauptstudie
 
 OUTPUT_FOLDER = "analysis_output"
 

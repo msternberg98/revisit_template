@@ -1,37 +1,10 @@
 ﻿participantId;visualization;region;justification;confidence;duration_ms;trialId;chosen_temperature_mean;deviation_from_target;chosen_uncertainty;is_safest_region
-0a118baa-2055-44b8-b7d2-3768aa75c6c2;VSUP;R2;Testdurchlauf 7;7;16831.0;Temperatur_Regions_VSUP;-1.23907347408;10.76092652592;3.135608284;False
-0a118baa-2055-44b8-b7d2-3768aa75c6c2;ScaledGlyph;R2;Testdurchlauf 7;7;11518.0;Temperatur_Regions_ScaledGlyph;-0.9009721432;11.0990278568;3.080212368;False
-0a118baa-2055-44b8-b7d2-3768aa75c6c2;IsoGlyph;R2;Testdurchlauf 7;7;13273.0;Temperatur_Regions_IsoGlyph;-0.94865091016;11.05134908984;3.129501516;False
-0efb5de4-df17-4e00-b641-1277e2e62db2;VSUP;R1;Testdurchlauf ;1;19321.0;Temperatur_Regions_VSUP;-13.1901063;1.1901063;5.4355829;False
-0efb5de4-df17-4e00-b641-1277e2e62db2;ScaledGlyph;R1;Testdurchlauf 1;1;18374.0;Temperatur_Regions_ScaledGlyph;-13.324312746;1.324312746;5.06290306;False
-0efb5de4-df17-4e00-b641-1277e2e62db2;IsoGlyph;R1;Testdurchlauf 1;1;19304.0;Temperatur_Regions_IsoGlyph;-13.1901063;1.1901063;5.4355829;False
-27a2e590-a9e7-4a96-bf62-b9648a940757;VSUP;R4;Testdurchlauf 4;4;21575.0;Temperatur_Regions_VSUP;-20.09617172;8.09617172;1.429650956;False
-27a2e590-a9e7-4a96-bf62-b9648a940757;ScaledGlyph;R4;Testdurchlauf 4;4;13989.0;Temperatur_Regions_ScaledGlyph;-19.99693754;7.99693754;1.455844682;False
-27a2e590-a9e7-4a96-bf62-b9648a940757;IsoGlyph;R4;Testdurchlauf 4;4;10445.0;Temperatur_Regions_IsoGlyph;-3.604896392;8.395103608;1.424277884;False
-74897d82-8174-4892-849a-6fac4c6c0027;VSUP;R5;Testdurchlauf 5;5;17368.0;Temperatur_Regions_VSUP;2.704020264;14.704020264;0.6453833008;True
-74897d82-8174-4892-849a-6fac4c6c0027;ScaledGlyph;R5;Testdurchlauf 5;5;17069.0;Temperatur_Regions_ScaledGlyph;2.77247876;14.77247876;0.650520978;True
-74897d82-8174-4892-849a-6fac4c6c0027;IsoGlyph;R5;Testdurchlauf 5;5;15722.0;Temperatur_Regions_IsoGlyph;2.78459602;14.78459602;0.6421452136;True
-84501fdb-30ee-48c8-a5a0-510ea096d1ef;VSUP;R4;Testdurchlauf 9;2;20244.0;Temperatur_Regions_VSUP;-20.09617172;8.09617172;1.429650956;False
-84501fdb-30ee-48c8-a5a0-510ea096d1ef;ScaledGlyph;R4;Testdurchlauf 9;2;14134.0;Temperatur_Regions_ScaledGlyph;-19.99693754;7.99693754;1.455844682;False
-84501fdb-30ee-48c8-a5a0-510ea096d1ef;IsoGlyph;R4;Testdurchlauf 9;2;8438.0;Temperatur_Regions_IsoGlyph;-3.604896392;8.395103608;1.424277884;False
-9cb5881c-c42d-4d0f-a558-a31f33addc62;VSUP;R2;Testdurchlauf 12;5;9969.0;Temperatur_Regions_VSUP;-1.23907347408;10.76092652592;3.135608284;False
-9cb5881c-c42d-4d0f-a558-a31f33addc62;ScaledGlyph;R2;Testdurchlauf 12;5;8700.0;Temperatur_Regions_ScaledGlyph;-0.9009721432;11.0990278568;3.080212368;False
-9cb5881c-c42d-4d0f-a558-a31f33addc62;IsoGlyph;R2;Testdurchlauf 12;5;8527.0;Temperatur_Regions_IsoGlyph;-0.94865091016;11.05134908984;3.129501516;False
-9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;VSUP;R1;Testdurchlauf 6;1;11354.0;Temperatur_Regions_VSUP;-13.1901063;1.1901063;5.4355829;False
-9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;ScaledGlyph;R1;Testdurchlauf 6;1;19625.0;Temperatur_Regions_ScaledGlyph;-13.324312746;1.324312746;5.06290306;False
-9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;IsoGlyph;R1;Testdurchlauf 6;1;9036.0;Temperatur_Regions_IsoGlyph;-13.1901063;1.1901063;5.4355829;False
-b1304e8e-3741-404f-a939-a430e73db3ad;VSUP;R2;Testdurchlauf 2;2;35880.0;Temperatur_Regions_VSUP;-1.23907347408;10.76092652592;3.135608284;False
-b1304e8e-3741-404f-a939-a430e73db3ad;ScaledGlyph;R2;Testdurchlauf 2;2;25617.0;Temperatur_Regions_ScaledGlyph;-0.9009721432;11.0990278568;3.080212368;False
-b1304e8e-3741-404f-a939-a430e73db3ad;IsoGlyph;R2;Testdurchlauf 2;2;13193.0;Temperatur_Regions_IsoGlyph;-0.94865091016;11.05134908984;3.129501516;False
-dc4458ce-da19-4b18-952c-6d77c4e08d9a;VSUP;R3;Testdurchlauf 8;1;11194.0;Temperatur_Regions_VSUP;0.4606507216;12.4606507216;1.4988802804;False
-dc4458ce-da19-4b18-952c-6d77c4e08d9a;ScaledGlyph;R3;Testdurchlauf 8;1;9794.0;Temperatur_Regions_ScaledGlyph;0.619351364;12.619351364;1.5227066124;False
-dc4458ce-da19-4b18-952c-6d77c4e08d9a;IsoGlyph;R3;Testdurchlauf 8;1;9766.0;Temperatur_Regions_IsoGlyph;0.583982728;12.583982728;1.5260805704;False
-e306f907-ccb5-4e0d-bcbf-27727bb9beb7;VSUP;R5;Testdurchlauf 10;3;12516.0;Temperatur_Regions_VSUP;2.704020264;14.704020264;0.6453833008;True
-e306f907-ccb5-4e0d-bcbf-27727bb9beb7;ScaledGlyph;R5;Testdurchlauf 10;3;13969.0;Temperatur_Regions_ScaledGlyph;2.77247876;14.77247876;0.650520978;True
-e306f907-ccb5-4e0d-bcbf-27727bb9beb7;IsoGlyph;R5;Testdurchlauf 10;3;10123.0;Temperatur_Regions_IsoGlyph;2.78459602;14.78459602;0.6421452136;True
-e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;VSUP;R3;Testdurchlauf 3;3;12252.0;Temperatur_Regions_VSUP;0.4606507216;12.4606507216;1.4988802804;False
-e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;ScaledGlyph;R3;Testdurchlauf 3;3;14151.0;Temperatur_Regions_ScaledGlyph;0.619351364;12.619351364;1.5227066124;False
-e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;IsoGlyph;R3;Testdurchlauf 3;3;15397.0;Temperatur_Regions_IsoGlyph;0.583982728;12.583982728;1.5260805704;False
-e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;VSUP;R1;Testdurchlauf 11;4;12815.0;Temperatur_Regions_VSUP;-13.1901063;1.1901063;5.4355829;False
-e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;ScaledGlyph;R1;Testdurchlauf 11;4;9469.0;Temperatur_Regions_ScaledGlyph;-13.324312746;1.324312746;5.06290306;False
-e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;IsoGlyph;R1;Testdurchlauf 11;4;10535.0;Temperatur_Regions_IsoGlyph;-13.1901063;1.1901063;5.4355829;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;VSUP;R2;Einheitliche Temperatur nah an -12 und geringe Unsicherheit;5;55819.0;Temperatur_Regions_VSUP;-1.23907347408;10.76092652592;3.135608284;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;ScaledGlyph;R2;Temperatur sehr nah an -12 Grad;6;45428.0;Temperatur_Regions_ScaledGlyph;-0.9009721432;11.0990278568;3.080212368;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;IsoGlyph;R4;Trotz gewisser Unsicherheit die Region die am nähsten an -12 Grad liegt;6;66632.0;Temperatur_Regions_IsoGlyph;-3.604896392;8.395103608;1.424277884;False
+69febfea-93f2-4aee-8411-6778d021f078;VSUP;R1;Passendste Temperatur;5;28302.0;Temperatur_Regions_VSUP;-13.1901063;1.1901063;5.4355829;False
+69febfea-93f2-4aee-8411-6778d021f078;ScaledGlyph;R1;Ideale Temperatur von -12 Grad;4;49140.0;Temperatur_Regions_ScaledGlyph;-13.324312746;1.324312746;5.06290306;False
+69febfea-93f2-4aee-8411-6778d021f078;IsoGlyph;R2;Konstante Temperatur und Unsicherheit;6;36300.0;Temperatur_Regions_IsoGlyph;-0.94865091016;11.05134908984;3.129501516;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;VSUP;R4;Sichere Region mit guten Werten;6;71881.0;Temperatur_Regions_VSUP;-20.09617172;8.09617172;1.429650956;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;ScaledGlyph;R4;Insgesamt die sicherste Region;5;52013.0;Temperatur_Regions_ScaledGlyph;-19.99693754;7.99693754;1.455844682;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;IsoGlyph;R5;Aufgrund der geringen Unsicherheit die vorhersehbarste Region;5;43866.0;Temperatur_Regions_IsoGlyph;2.78459602;14.78459602;0.6421452136;True

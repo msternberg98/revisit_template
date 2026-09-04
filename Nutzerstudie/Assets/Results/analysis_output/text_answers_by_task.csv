@@ -1,49 +1,12 @@
 ﻿task;visualization;participantId;selected_answer;text
-Abschlussfeedback – Weitere Anmerkungen;;0a118baa-2055-44b8-b7d2-3768aa75c6c2;;Testdurchlauf 7
-Abschlussfeedback – Weitere Anmerkungen;;0efb5de4-df17-4e00-b641-1277e2e62db2;;Testdurchlauf 1
-Abschlussfeedback – Weitere Anmerkungen;;27a2e590-a9e7-4a96-bf62-b9648a940757;;Testdurchlauf 4
-Abschlussfeedback – Weitere Anmerkungen;;74897d82-8174-4892-849a-6fac4c6c0027;;Testdurchlauf 5
-Abschlussfeedback – Weitere Anmerkungen;;84501fdb-30ee-48c8-a5a0-510ea096d1ef;;Testdurchlauf 9
-Abschlussfeedback – Weitere Anmerkungen;;9cb5881c-c42d-4d0f-a558-a31f33addc62;;Testdurchlauf 12
-Abschlussfeedback – Weitere Anmerkungen;;9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;;Testdurchlauf 6
-Abschlussfeedback – Weitere Anmerkungen;;b1304e8e-3741-404f-a939-a430e73db3ad;;Testdurchlauf 2
-Abschlussfeedback – Weitere Anmerkungen;;dc4458ce-da19-4b18-952c-6d77c4e08d9a;;Testdurchlauf 8
-Abschlussfeedback – Weitere Anmerkungen;;e306f907-ccb5-4e0d-bcbf-27727bb9beb7;;Testdurchlauf 10
-Abschlussfeedback – Weitere Anmerkungen;;e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;;Testdurchlauf 3
-Abschlussfeedback – Weitere Anmerkungen;;e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;;Testdurchlauf 11
-Temperatur – Standortentscheidung;VSUP;0a118baa-2055-44b8-b7d2-3768aa75c6c2;R2;Testdurchlauf 7
-Temperatur – Standortentscheidung;VSUP;0efb5de4-df17-4e00-b641-1277e2e62db2;R1;Testdurchlauf
-Temperatur – Standortentscheidung;VSUP;27a2e590-a9e7-4a96-bf62-b9648a940757;R4;Testdurchlauf 4
-Temperatur – Standortentscheidung;VSUP;74897d82-8174-4892-849a-6fac4c6c0027;R5;Testdurchlauf 5
-Temperatur – Standortentscheidung;VSUP;84501fdb-30ee-48c8-a5a0-510ea096d1ef;R4;Testdurchlauf 9
-Temperatur – Standortentscheidung;VSUP;9cb5881c-c42d-4d0f-a558-a31f33addc62;R2;Testdurchlauf 12
-Temperatur – Standortentscheidung;VSUP;9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;R1;Testdurchlauf 6
-Temperatur – Standortentscheidung;VSUP;b1304e8e-3741-404f-a939-a430e73db3ad;R2;Testdurchlauf 2
-Temperatur – Standortentscheidung;VSUP;dc4458ce-da19-4b18-952c-6d77c4e08d9a;R3;Testdurchlauf 8
-Temperatur – Standortentscheidung;VSUP;e306f907-ccb5-4e0d-bcbf-27727bb9beb7;R5;Testdurchlauf 10
-Temperatur – Standortentscheidung;VSUP;e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;R3;Testdurchlauf 3
-Temperatur – Standortentscheidung;VSUP;e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;R1;Testdurchlauf 11
-Temperatur – Standortentscheidung;ScaledGlyph;0a118baa-2055-44b8-b7d2-3768aa75c6c2;R2;Testdurchlauf 7
-Temperatur – Standortentscheidung;ScaledGlyph;0efb5de4-df17-4e00-b641-1277e2e62db2;R1;Testdurchlauf 1
-Temperatur – Standortentscheidung;ScaledGlyph;27a2e590-a9e7-4a96-bf62-b9648a940757;R4;Testdurchlauf 4
-Temperatur – Standortentscheidung;ScaledGlyph;74897d82-8174-4892-849a-6fac4c6c0027;R5;Testdurchlauf 5
-Temperatur – Standortentscheidung;ScaledGlyph;84501fdb-30ee-48c8-a5a0-510ea096d1ef;R4;Testdurchlauf 9
-Temperatur – Standortentscheidung;ScaledGlyph;9cb5881c-c42d-4d0f-a558-a31f33addc62;R2;Testdurchlauf 12
-Temperatur – Standortentscheidung;ScaledGlyph;9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;R1;Testdurchlauf 6
-Temperatur – Standortentscheidung;ScaledGlyph;b1304e8e-3741-404f-a939-a430e73db3ad;R2;Testdurchlauf 2
-Temperatur – Standortentscheidung;ScaledGlyph;dc4458ce-da19-4b18-952c-6d77c4e08d9a;R3;Testdurchlauf 8
-Temperatur – Standortentscheidung;ScaledGlyph;e306f907-ccb5-4e0d-bcbf-27727bb9beb7;R5;Testdurchlauf 10
-Temperatur – Standortentscheidung;ScaledGlyph;e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;R3;Testdurchlauf 3
-Temperatur – Standortentscheidung;ScaledGlyph;e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;R1;Testdurchlauf 11
-Temperatur – Standortentscheidung;IsoGlyph;0a118baa-2055-44b8-b7d2-3768aa75c6c2;R2;Testdurchlauf 7
-Temperatur – Standortentscheidung;IsoGlyph;0efb5de4-df17-4e00-b641-1277e2e62db2;R1;Testdurchlauf 1
-Temperatur – Standortentscheidung;IsoGlyph;27a2e590-a9e7-4a96-bf62-b9648a940757;R4;Testdurchlauf 4
-Temperatur – Standortentscheidung;IsoGlyph;74897d82-8174-4892-849a-6fac4c6c0027;R5;Testdurchlauf 5
-Temperatur – Standortentscheidung;IsoGlyph;84501fdb-30ee-48c8-a5a0-510ea096d1ef;R4;Testdurchlauf 9
-Temperatur – Standortentscheidung;IsoGlyph;9cb5881c-c42d-4d0f-a558-a31f33addc62;R2;Testdurchlauf 12
-Temperatur – Standortentscheidung;IsoGlyph;9d6e61bf-ee0c-48fc-8518-0dd9a072f6d5;R1;Testdurchlauf 6
-Temperatur – Standortentscheidung;IsoGlyph;b1304e8e-3741-404f-a939-a430e73db3ad;R2;Testdurchlauf 2
-Temperatur – Standortentscheidung;IsoGlyph;dc4458ce-da19-4b18-952c-6d77c4e08d9a;R3;Testdurchlauf 8
-Temperatur – Standortentscheidung;IsoGlyph;e306f907-ccb5-4e0d-bcbf-27727bb9beb7;R5;Testdurchlauf 10
-Temperatur – Standortentscheidung;IsoGlyph;e73616b6-1d24-4c7d-89a5-7eddc71e6b3b;R3;Testdurchlauf 3
-Temperatur – Standortentscheidung;IsoGlyph;e9998af5-0c1f-4c86-88c4-a05b0ac6e5b8;R1;Testdurchlauf 11
+Abschlussfeedback – Weitere Anmerkungen;;69febfea-93f2-4aee-8411-6778d021f078;;Diese Textbox reagiert sehr langsam
+Abschlussfeedback – Weitere Anmerkungen;;ee65e316-170a-44d6-9f78-450e8ec54ccf;;Die ist ein Test
+Temperatur – Standortentscheidung;VSUP;4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;R2;Einheitliche Temperatur nah an -12 und geringe Unsicherheit
+Temperatur – Standortentscheidung;VSUP;69febfea-93f2-4aee-8411-6778d021f078;R1;Passendste Temperatur
+Temperatur – Standortentscheidung;VSUP;ee65e316-170a-44d6-9f78-450e8ec54ccf;R4;Sichere Region mit guten Werten
+Temperatur – Standortentscheidung;ScaledGlyph;4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;R2;Temperatur sehr nah an -12 Grad
+Temperatur – Standortentscheidung;ScaledGlyph;69febfea-93f2-4aee-8411-6778d021f078;R1;Ideale Temperatur von -12 Grad
+Temperatur – Standortentscheidung;ScaledGlyph;ee65e316-170a-44d6-9f78-450e8ec54ccf;R4;Insgesamt die sicherste Region
+Temperatur – Standortentscheidung;IsoGlyph;4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;R4;Trotz gewisser Unsicherheit die Region die am nähsten an -12 Grad liegt
+Temperatur – Standortentscheidung;IsoGlyph;69febfea-93f2-4aee-8411-6778d021f078;R2;Konstante Temperatur und Unsicherheit
+Temperatur – Standortentscheidung;IsoGlyph;ee65e316-170a-44d6-9f78-450e8ec54ccf;R5;Aufgrund der geringen Unsicherheit die vorhersehbarste Region

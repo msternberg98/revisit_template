@@ -1,4 +1,4 @@
-﻿visualization;n_trials;n_answered;mean_abs_error;median_abs_error;mean_duration_ms;median_duration_ms;answer_rate
-IsoGlyph;48;0;;;7224.541666666667;6884.5;0.0
-ScaledGlyph;48;0;;;7677.666666666667;6890.0;0.0
-VSUP;48;0;;;9204.645833333334;7990.5;0.0
+﻿visualization;n_trials;n_answered;mean_abs_error;median_abs_error;mean_duration_ms;median_duration_ms;answer_rate;n_exact;n_exact_evaluable;exact_rate;exact_display
+IsoGlyph;12;12;61.034171782080875;2.9156035e-05;19619.666666666668;18659.5;1.0;6;12;0.5;6/12
+ScaledGlyph;12;12;43.08666874049305;9.072836104800001e-06;19335.833333333332;13000.5;1.0;3;12;0.25;3/12
+VSUP;12;12;62.624167869804744;3.878080000000005e-06;17168.666666666668;14420.0;1.0;4;12;0.3333333333333333;4/12
