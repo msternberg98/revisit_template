@@ -1,0 +1,2 @@
+﻿test;n_complete_participants;statistic;df;p;significant_0.05;note
+Repeated Measures ANOVA;3;1.5837735773572934;2, 4;0.31144320862307423;False;Verwendet, weil alle paarweisen Differenzen Shapiro p >= .05 hatten.
