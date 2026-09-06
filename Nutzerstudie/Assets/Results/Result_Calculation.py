@@ -456,6 +456,124 @@ def participant_method_aggregate(paired_h1: pd.DataFrame) -> pd.DataFrame:
     return agg
 
 
+
+def build_method_ranks(
+    df: pd.DataFrame,
+    value_col: str,
+    metric_name: str,
+    lower_is_better: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Erstellt eine ergänzende Within-Participant-Rangfolge der drei Methoden.
+
+    Wichtig:
+    - Es werden nur Teilnehmende verwendet, für die alle drei Methoden für
+      die jeweilige Kennzahl vorliegen.
+    - Die Rangbildung erfolgt innerhalb derselben Person und reduziert damit
+      den Einfluss unterschiedlicher individueller Ausgangsniveaus.
+    - Bei Gleichständen wird der durchschnittliche Rang vergeben.
+    - Diese Rangtabellen sind ergänzend/deskriptiv und ersetzen die bisherigen
+      ANOVA/Friedman- bzw. t-Test/Wilcoxon-Auswertungen nicht.
+    """
+    required = {"participantId", "visualization", value_col}
+    if df is None or df.empty or not required.issubset(df.columns):
+        return pd.DataFrame(), pd.DataFrame()
+
+    x = df[["participantId", "visualization", value_col]].dropna().copy()
+
+    wide = x.pivot_table(
+        index="participantId",
+        columns="visualization",
+        values=value_col,
+        aggfunc="mean",
+    )
+
+    methods = [m for m in METHOD_ORDER if m in wide.columns]
+    if len(methods) != len(METHOD_ORDER):
+        return pd.DataFrame(), pd.DataFrame()
+
+    wide = wide[METHOD_ORDER].dropna()
+    if wide.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    long = (
+        wide.reset_index()
+        .melt(
+            id_vars="participantId",
+            var_name="visualization",
+            value_name="value",
+        )
+    )
+
+    long["metric"] = metric_name
+    long["rank"] = (
+        long.groupby("participantId")["value"]
+        .rank(
+            method="average",
+            ascending=lower_is_better,
+        )
+    )
+
+    if lower_is_better:
+        best_value = long.groupby("participantId")["value"].transform("min")
+    else:
+        best_value = long.groupby("participantId")["value"].transform("max")
+
+    long["best_or_tied_best"] = np.isclose(
+        long["value"].astype(float),
+        best_value.astype(float),
+        rtol=0,
+        atol=1e-12,
+    )
+
+    # Für die Darstellung Methoden in fixer Reihenfolge sortieren.
+    method_order = {m: i for i, m in enumerate(METHOD_ORDER)}
+    long["_method_order"] = long["visualization"].map(method_order)
+    long = (
+        long.sort_values(["participantId", "_method_order"])
+        .drop(columns="_method_order")
+        .reset_index(drop=True)
+    )
+
+    summary = (
+        long.groupby("visualization", as_index=False)
+        .agg(
+            n_participants=("participantId", "nunique"),
+            mean_rank=("rank", "mean"),
+            median_rank=("rank", "median"),
+            n_best_or_tied_best=("best_or_tied_best", "sum"),
+        )
+    )
+    summary["best_rate"] = (
+        summary["n_best_or_tied_best"] / summary["n_participants"]
+    )
+    summary["metric"] = metric_name
+
+    # Finale Rangordnung über den mittleren Rang: kleiner = besser.
+    summary["final_rank_order"] = (
+        summary["mean_rank"]
+        .rank(method="average", ascending=True)
+    )
+
+    summary["_method_order"] = summary["visualization"].map(method_order)
+    summary = (
+        summary.sort_values(["final_rank_order", "_method_order"])
+        .drop(columns="_method_order")
+        .reset_index(drop=True)
+    )
+
+    return long, summary
+
+
+def combine_rank_tables(
+    tables: list[pd.DataFrame],
+) -> pd.DataFrame:
+    valid = [t for t in tables if t is not None and not t.empty]
+    if not valid:
+        return pd.DataFrame()
+    return pd.concat(valid, ignore_index=True)
+
+
 def h1_summary(h1: pd.DataFrame) -> pd.DataFrame:
     if h1.empty:
         return pd.DataFrame()
@@ -1171,6 +1289,16 @@ GERMAN_COLUMN_NAMES = {
     "feedback_prompt": "Feedback-Frage",
     "text": "Feedback-Text",
     "type": "Typ",
+    "metric": "Kennzahl",
+    "value": "Ausgangswert",
+    "rank": "Rang innerhalb Teilnehmer",
+    "best_or_tied_best": "Beste Methode / Gleichstand",
+    "n_participants": "Anzahl Teilnehmer",
+    "mean_rank": "Mittlerer Rang",
+    "median_rank": "Medianer Rang",
+    "n_best_or_tied_best": "Anzahl beste Methode / Gleichstand",
+    "best_rate": "Anteil beste Methode / Gleichstand",
+    "final_rank_order": "Finale Rangordnung",
 }
 
 
@@ -1451,6 +1579,7 @@ def export_results_xlsx(
 
                 current_row = 0
                 written_frames = []
+                header_rows_excel = []
 
                 # Beschreibung wirklich schreiben statt nur zwei Zeilen freizuhalten.
                 if description:
@@ -1490,6 +1619,8 @@ def export_results_xlsx(
                             )
                             current_row += 1
 
+                        # pandas startrow is zero-based; Excel row numbers are one-based.
+                        header_rows_excel.append(current_row + 1)
                         frame.to_excel(
                             writer,
                             sheet_name=safe_name,
@@ -1510,6 +1641,7 @@ def export_results_xlsx(
                     frame = germanize_columns(frame)
                     written_frames.append(frame)
 
+                    header_rows_excel.append(current_row + 1)
                     frame.to_excel(
                         writer,
                         sheet_name=safe_name,
@@ -1529,21 +1661,19 @@ def export_results_xlsx(
                             wrap_text=True
                         )
 
-                # Erste nichtleere Tabellenkopfzeilen fett formatieren.
-                # Alle Zellen mit bekannten deutschen Spaltennamen erkennen.
-                known_headers = set(GERMAN_COLUMN_NAMES.values())
-                for row in worksheet.iter_rows():
-                    header_hits = sum(
-                        1 for cell in row if cell.value in known_headers
-                    )
-                    if header_hits >= 1:
-                        for cell in row:
-                            if cell.value is not None:
-                                cell.font = Font(bold=True)
-                                cell.alignment = Alignment(
-                                    vertical="top",
-                                    wrap_text=True
-                                )
+                # Nur die tatsächlich beim Schreiben erzeugten Tabellenkopfzeilen
+                # fett formatieren. Nicht mehr anhand des Zelltexts raten:
+                # In H2 kann z.B. der Datenwert "Unsicherheit der gewählten Region"
+                # gleichzeitig auch ein Spaltenname sein und würde sonst fälschlich
+                # die gesamte Datenzeile fett markieren.
+                for header_row in header_rows_excel:
+                    for cell in worksheet[header_row]:
+                        if cell.value is not None:
+                            cell.font = Font(bold=True)
+                            cell.alignment = Alignment(
+                                vertical="top",
+                                wrap_text=True
+                            )
 
                 # Spaltenbreite mit großzügigem Aufschlag für Filterpfeile.
                 max_col = worksheet.max_column
@@ -1650,6 +1780,41 @@ def main():
         output_dir / "h1_participant_method.csv"
     )
 
+    # Ergänzende Within-Participant-Rangfolgen für H1.
+    # Genauigkeit: kleinere mittlere absolute Abweichung = besser.
+    h1_accuracy_ranks, h1_accuracy_rank_summary = build_method_ranks(
+        pma,
+        "mean_abs_error",
+        "Genauigkeit",
+        lower_is_better=True,
+    )
+
+    # Zeit: kleinere mittlere Antwortzeit = besser.
+    # Besonders hilfreich, da Hardware-/Systemunterschiede zwischen Personen
+    # die absoluten Zeiten beeinflussen können.
+    h1_time_ranks, h1_time_rank_summary = build_method_ranks(
+        pma,
+        "mean_duration_ms",
+        "Antwortzeit",
+        lower_is_better=True,
+    )
+
+    h1_rank_details = combine_rank_tables(
+        [h1_accuracy_ranks, h1_time_ranks]
+    )
+    h1_rank_summary = combine_rank_tables(
+        [h1_accuracy_rank_summary, h1_time_rank_summary]
+    )
+
+    export_csv(
+        h1_rank_details,
+        output_dir / "h1_method_ranks.csv"
+    )
+    export_csv(
+        h1_rank_summary,
+        output_dir / "h1_rank_summary.csv"
+    )
+
     normality = pd.DataFrame()
     omnibus = pd.DataFrame()
     posthoc = pd.DataFrame()
@@ -1709,6 +1874,51 @@ def main():
     export_csv(
         region,
         output_dir / "h2_region_choices_long.csv"
+    )
+
+    # Ergänzende Within-Participant-Rangfolgen für H2.
+    # Jeweils kleiner = besser.
+    h2_uncertainty_ranks, h2_uncertainty_rank_summary = build_method_ranks(
+        region,
+        "chosen_uncertainty",
+        "Unsicherheit der gewählten Region",
+        lower_is_better=True,
+    )
+    h2_deviation_ranks, h2_deviation_rank_summary = build_method_ranks(
+        region,
+        "deviation_from_target",
+        "Abweichung vom Zielwert -12 °C",
+        lower_is_better=True,
+    )
+    h2_time_ranks, h2_time_rank_summary = build_method_ranks(
+        region,
+        "duration_ms",
+        "Antwortzeit",
+        lower_is_better=True,
+    )
+
+    h2_rank_details = combine_rank_tables(
+        [
+            h2_uncertainty_ranks,
+            h2_deviation_ranks,
+            h2_time_ranks,
+        ]
+    )
+    h2_rank_summary = combine_rank_tables(
+        [
+            h2_uncertainty_rank_summary,
+            h2_deviation_rank_summary,
+            h2_time_rank_summary,
+        ]
+    )
+
+    export_csv(
+        h2_rank_details,
+        output_dir / "h2_method_ranks.csv"
+    )
+    export_csv(
+        h2_rank_summary,
+        output_dir / "h2_rank_summary.csv"
     )
 
     freq, summary = region_summaries(region)
@@ -1874,14 +2084,55 @@ def main():
             ]
         ),
 
-        "H1 Teilnehmer Methoden": excel_sheet(
-            pma,
+        "H1 Teilnehmer Methoden": excel_sections(
+            [
+                (
+                    "1. Absolute Werte pro Teilnehmer und Methode",
+                    pma,
+                    (
+                        "Auf Teilnehmer × Visualisierung aggregierte Werte ausschließlich aus "
+                        "vollständig gepaarten H1-Aufgaben. Diese absoluten Werte bilden die "
+                        "Grundlage der inferenzstatistischen H1-Auswertung."
+                    ),
+                ),
+                (
+                    "2. Rangfolge Genauigkeit pro Teilnehmer",
+                    h1_accuracy_ranks,
+                    (
+                        "Ergänzende Rangbetrachtung innerhalb derselben Person: "
+                        "Rang 1 entspricht der Methode mit der kleinsten mittleren absoluten Abweichung. "
+                        "Bei Gleichständen werden durchschnittliche Ränge vergeben."
+                    ),
+                ),
+                (
+                    "3. Zusammenfassung Rangfolge Genauigkeit",
+                    h1_accuracy_rank_summary,
+                    (
+                        "Über alle Teilnehmer zusammengefasste Rangordnung. "
+                        "Ein kleinerer mittlerer Rang bedeutet tendenziell höhere Genauigkeit."
+                    ),
+                ),
+                (
+                    "4. Rangfolge Antwortzeit pro Teilnehmer",
+                    h1_time_ranks,
+                    (
+                        "Ergänzende Within-Participant-Rangfolge der Antwortzeit. "
+                        "Rang 1 entspricht der schnellsten Methode derselben Person und reduziert "
+                        "damit den Einfluss unterschiedlicher Hardware-/Systemgeschwindigkeiten."
+                    ),
+                ),
+                (
+                    "5. Zusammenfassung Rangfolge Antwortzeit",
+                    h1_time_rank_summary,
+                    (
+                        "Über alle Teilnehmer zusammengefasste Zeit-Rangordnung. "
+                        "Ein kleinerer mittlerer Rang bedeutet tendenziell schnellere Bearbeitung."
+                    ),
+                ),
+            ],
             description=(
-                "Auf Teilnehmer × Visualisierung aggregierte Werte ausschließlich aus "
-                "vollständig gepaarten H1-Aufgaben. Unvollständige Dreiergruppen wurden vorher "
-                "entfernt. Dadurch kann die hier ausgewiesene Anzahl berücksichtigter Aufgaben "
-                "kleiner sein als in 'H1 Übersicht'. Diese Tabelle bildet die direkte Grundlage "
-                "für Normalitätsprüfung, Gesamtvergleich und gegebenenfalls paarweise Vergleiche."
+                "Absolute H1-Werte und direkt anschließend die ergänzenden "
+                "Within-Participant-Rangfolgen für Genauigkeit und Antwortzeit."
             ),
         ),
 
@@ -1929,7 +2180,68 @@ def main():
             description="Sekundäre H1-Auswertung der Antwortzeit.",
         ),
 
-        "H2 Übersicht": excel_sheet(summary),
+        "H2 Übersicht": excel_sections(
+            [
+                (
+                    "1. Absolute/deskriptive Werte nach Methode",
+                    summary,
+                    (
+                        "Zusammenfassung der tatsächlich gewählten Regionen und ihrer "
+                        "Unsicherheit, Zielabweichung, subjektiven Sicherheit und Antwortzeit."
+                    ),
+                ),
+                (
+                    "2. Rangfolge Unsicherheit pro Teilnehmer",
+                    h2_uncertainty_ranks,
+                    (
+                        "Rang 1 entspricht innerhalb derselben Person der Methode, "
+                        "unter der die Region mit der geringsten Unsicherheit gewählt wurde."
+                    ),
+                ),
+                (
+                    "3. Zusammenfassung Rangfolge Unsicherheit",
+                    h2_uncertainty_rank_summary,
+                    (
+                        "Über alle Teilnehmer zusammengefasste Rangordnung der gewählten Unsicherheit."
+                    ),
+                ),
+                (
+                    "4. Rangfolge Zielabweichung pro Teilnehmer",
+                    h2_deviation_ranks,
+                    (
+                        "Rang 1 entspricht der Methode mit der kleinsten Abweichung "
+                        "der gewählten Region vom Zielwert -12 °C."
+                    ),
+                ),
+                (
+                    "5. Zusammenfassung Rangfolge Zielabweichung",
+                    h2_deviation_rank_summary,
+                    (
+                        "Über alle Teilnehmer zusammengefasste Rangordnung der Zielabweichung."
+                    ),
+                ),
+                (
+                    "6. Rangfolge Antwortzeit pro Teilnehmer",
+                    h2_time_ranks,
+                    (
+                        "Rang 1 entspricht der schnellsten Regionsentscheidung innerhalb "
+                        "derselben Person; dadurch werden Unterschiede zwischen den "
+                        "Hardware-/Systemgeschwindigkeiten weniger relevant."
+                    ),
+                ),
+                (
+                    "7. Zusammenfassung Rangfolge Antwortzeit",
+                    h2_time_rank_summary,
+                    (
+                        "Über alle Teilnehmer zusammengefasste Zeit-Rangordnung der H2-Aufgabe."
+                    ),
+                ),
+            ],
+            description=(
+                "Absolute H2-Ergebnisse und direkt anschließend ergänzende "
+                "Within-Participant-Rangfolgen für Unsicherheit, Zielabweichung und Antwortzeit."
+            ),
+        ),
 
         "H2 Regionsauswahl": excel_sheet(
             region_excel,
@@ -1982,6 +2294,7 @@ def main():
             feedback_df,
             description=(
                 "Nur das freie Textfeld aus dem Abschlussfeedback. "
+                "Die H2-Begründungen stehen ausschließlich in 'H2 Regionsauswahl'."
             ),
         ),
     }

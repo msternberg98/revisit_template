@@ -1,0 +1,7 @@
+﻿visualization;n_participants;mean_rank;median_rank;n_best_or_tied_best;best_rate;metric;final_rank_order
+ScaledGlyph;3;1.6666666666666667;2.0;1;0.3333333333333333;Genauigkeit;1.0
+IsoGlyph;3;2.0;2.0;1;0.3333333333333333;Genauigkeit;2.0
+VSUP;3;2.3333333333333335;3.0;1;0.3333333333333333;Genauigkeit;3.0
+VSUP;3;1.6666666666666667;1.0;2;0.6666666666666666;Antwortzeit;1.0
+ScaledGlyph;3;2.0;2.0;1;0.3333333333333333;Antwortzeit;2.0
+IsoGlyph;3;2.3333333333333335;2.0;0;0.0;Antwortzeit;3.0

@@ -1,0 +1,28 @@
+﻿participantId;visualization;value;metric;rank;best_or_tied_best
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;VSUP;3.135608284;Unsicherheit der gewählten Region;3.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;ScaledGlyph;3.080212368;Unsicherheit der gewählten Region;2.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;IsoGlyph;1.424277884;Unsicherheit der gewählten Region;1.0;True
+69febfea-93f2-4aee-8411-6778d021f078;VSUP;5.4355829;Unsicherheit der gewählten Region;3.0;False
+69febfea-93f2-4aee-8411-6778d021f078;ScaledGlyph;5.06290306;Unsicherheit der gewählten Region;2.0;False
+69febfea-93f2-4aee-8411-6778d021f078;IsoGlyph;3.129501516;Unsicherheit der gewählten Region;1.0;True
+ee65e316-170a-44d6-9f78-450e8ec54ccf;VSUP;1.429650956;Unsicherheit der gewählten Region;2.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;ScaledGlyph;1.455844682;Unsicherheit der gewählten Region;3.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;IsoGlyph;0.6421452136;Unsicherheit der gewählten Region;1.0;True
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;VSUP;10.76092652592;Abweichung vom Zielwert -12 °C;2.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;ScaledGlyph;11.0990278568;Abweichung vom Zielwert -12 °C;3.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;IsoGlyph;8.395103608;Abweichung vom Zielwert -12 °C;1.0;True
+69febfea-93f2-4aee-8411-6778d021f078;VSUP;1.1901063;Abweichung vom Zielwert -12 °C;1.0;True
+69febfea-93f2-4aee-8411-6778d021f078;ScaledGlyph;1.324312746;Abweichung vom Zielwert -12 °C;2.0;False
+69febfea-93f2-4aee-8411-6778d021f078;IsoGlyph;11.05134908984;Abweichung vom Zielwert -12 °C;3.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;VSUP;8.09617172;Abweichung vom Zielwert -12 °C;2.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;ScaledGlyph;7.99693754;Abweichung vom Zielwert -12 °C;1.0;True
+ee65e316-170a-44d6-9f78-450e8ec54ccf;IsoGlyph;14.78459602;Abweichung vom Zielwert -12 °C;3.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;VSUP;55819.0;Antwortzeit;2.0;False
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;ScaledGlyph;45428.0;Antwortzeit;1.0;True
+4d19396b-7d8d-4d99-8da7-ded7bf2ae5ef;IsoGlyph;66632.0;Antwortzeit;3.0;False
+69febfea-93f2-4aee-8411-6778d021f078;VSUP;28302.0;Antwortzeit;1.0;True
+69febfea-93f2-4aee-8411-6778d021f078;ScaledGlyph;49140.0;Antwortzeit;3.0;False
+69febfea-93f2-4aee-8411-6778d021f078;IsoGlyph;36300.0;Antwortzeit;2.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;VSUP;71881.0;Antwortzeit;3.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;ScaledGlyph;52013.0;Antwortzeit;2.0;False
+ee65e316-170a-44d6-9f78-450e8ec54ccf;IsoGlyph;43866.0;Antwortzeit;1.0;True
