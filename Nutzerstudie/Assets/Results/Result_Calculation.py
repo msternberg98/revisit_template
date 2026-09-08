@@ -304,6 +304,16 @@ def apply_automatic_exact_tolerance(h1: pd.DataFrame) -> pd.DataFrame:
     exact = exact.mask(invalid_exact, pd.NA)
     out["exact"] = exact
 
+    # Normalisierte absolute Abweichung:
+    # absolute Abweichung relativ zur Wertspanne der jeweiligen Variable.
+    out["normalized_abs_error"] = out["abs_error"] / out["value_range"]
+    out.loc[
+        out["abs_error"].isna()
+        | out["value_range"].isna()
+        | (out["value_range"] <= 0),
+        "normalized_abs_error"
+    ] = np.nan
+
     return out
 
 
@@ -432,6 +442,8 @@ def participant_method_aggregate(paired_h1: pd.DataFrame) -> pd.DataFrame:
         .agg(
             mean_abs_error=("abs_error", "mean"),
             median_abs_error=("abs_error", "median"),
+            mean_normalized_abs_error=("normalized_abs_error", "mean"),
+            median_normalized_abs_error=("normalized_abs_error", "median"),
             mean_duration_ms=("duration_ms", "mean"),
             n_tasks=("task", "nunique"),
         )
@@ -585,6 +597,8 @@ def h1_summary(h1: pd.DataFrame) -> pd.DataFrame:
             n_answered=("answered", "sum"),
             mean_abs_error=("abs_error", "mean"),
             median_abs_error=("abs_error", "median"),
+            mean_normalized_abs_error=("normalized_abs_error", "mean"),
+            median_normalized_abs_error=("normalized_abs_error", "median"),
             mean_duration_ms=("duration_ms", "mean"),
             median_duration_ms=("duration_ms", "median"),
         )
@@ -1229,6 +1243,7 @@ GERMAN_COLUMN_NAMES = {
     "answer": "Antwort",
     "correctAnswer": "Korrekte Antwort",
     "abs_error": "Absolute Abweichung",
+    "normalized_abs_error": "Normalisierte absolute Abweichung",
     "answered": "Beantwortet",
     "exact_tolerance": "Exaktheits-Toleranz",
     "exact": "Exakt",
@@ -1245,6 +1260,8 @@ GERMAN_COLUMN_NAMES = {
     "n_answered": "Anzahl beantwortet",
     "mean_abs_error": "Mittlere absolute Abweichung",
     "median_abs_error": "Mediane absolute Abweichung",
+    "mean_normalized_abs_error": "Mittlere normalisierte absolute Abweichung",
+    "median_normalized_abs_error": "Mediane normalisierte absolute Abweichung",
     "mean_duration_ms": "Mittlere Antwortzeit (ms)",
     "median_duration_ms": "Mediane Antwortzeit (ms)",
     "answer_rate": "Beantwortungsquote",
@@ -1562,7 +1579,11 @@ def export_results_xlsx(
                     )
 
                     fmt = text_format if is_text else None
-                    if "Anteil" in col or "Quote" in col:
+                    if (
+                        "Anteil" in col
+                        or "Quote" in col
+                        or "normalisierte absolute Abweichung" in col.lower()
+                    ):
                         fmt = percent_format
 
                     worksheet.set_column(col_num, col_num, width, fmt)
@@ -1784,8 +1805,8 @@ def main():
     # Genauigkeit: kleinere mittlere absolute Abweichung = besser.
     h1_accuracy_ranks, h1_accuracy_rank_summary = build_method_ranks(
         pma,
-        "mean_abs_error",
-        "Genauigkeit",
+        "mean_normalized_abs_error",
+        "Genauigkeit (normalisierte absolute Abweichung)",
         lower_is_better=True,
     )
 
@@ -1829,7 +1850,7 @@ def main():
         normality, omnibus, posthoc = (
             omnibus_and_posthoc(
                 pma,
-                "mean_abs_error"
+                "mean_normalized_abs_error"
             )
         )
         h1_result = (normality, omnibus, posthoc)
@@ -2028,6 +2049,9 @@ def main():
             h1_sum,
             description=(
                 "Deskriptive Zusammenfassung aller H1-Einzelantworten je Visualisierung. "
+                "Zusätzlich zur absoluten Abweichung wird die normalisierte absolute Abweichung "
+                "(Abweichung geteilt durch die Wertspanne der jeweiligen Variable) ausgewiesen, "
+                "damit Luftdruck und Niederschlag trotz unterschiedlicher Skalen vergleichbar sind. "
                 "Hier werden auch Antworten aus unvollständigen Dreiergruppen berücksichtigt, "
                 "solange die jeweilige Einzelaufgabe beantwortet wurde. "
                 "Die inferenzstatistischen Methodenvergleiche basieren dagegen ausschließlich "
@@ -2100,7 +2124,7 @@ def main():
                     h1_accuracy_ranks,
                     (
                         "Ergänzende Rangbetrachtung innerhalb derselben Person: "
-                        "Rang 1 entspricht der Methode mit der kleinsten mittleren absoluten Abweichung. "
+                        "Rang 1 entspricht der Methode mit der kleinsten mittleren normalisierten absoluten Abweichung. "
                         "Bei Gleichständen werden durchschnittliche Ränge vergeben."
                     ),
                 ),
@@ -2160,7 +2184,7 @@ def main():
                     ),
                 ),
             ],
-            description="Statistischer Entscheidungsweg für die H1-Genauigkeit.",
+            description=("Statistischer Entscheidungsweg für die H1-Genauigkeit auf Basis der ""normalisierten absoluten Abweichung, damit Luftdruck und Niederschlag gleichgewichtet vergleichbar sind."),
         ),
 
         "H1 Zeit Statistik": excel_sections(
@@ -2180,14 +2204,44 @@ def main():
             description="Sekundäre H1-Auswertung der Antwortzeit.",
         ),
 
-        "H2 Übersicht": excel_sections(
+        "H2 Übersicht": excel_sheet(
+            summary,
+            description=(
+                "Deskriptive Zusammenfassung der H2-Regionsentscheidungen je Visualisierung. "
+                "Die ergänzenden Within-Participant-Rangfolgen stehen analog zu H1 im Blatt "
+                "'H2 Teilnehmer Methoden'."
+            ),
+        ),
+
+        "H2 Regionsauswahl": excel_sheet(
+            region_excel,
+            description=(
+                "Einzelentscheidungen der Regionsaufgabe inklusive ausgewählter Region, "
+                "zugehöriger Werte, subjektiver Sicherheit, Antwortzeit und Begründung."
+            ),
+            blank_between="participantId",
+        ),
+
+        "H2 Auswahlhäufigkeit": excel_sheet(freq),
+
+        "H2 Teilnehmer Methoden": excel_sections(
             [
                 (
-                    "1. Absolute/deskriptive Werte nach Methode",
-                    summary,
+                    "1. Absolute Werte pro Teilnehmer und Methode",
+                    region[
+                        [
+                            "participantId",
+                            "visualization",
+                            "region",
+                            "chosen_uncertainty",
+                            "deviation_from_target",
+                            "confidence",
+                            "duration_ms",
+                        ]
+                    ],
                     (
-                        "Zusammenfassung der tatsächlich gewählten Regionen und ihrer "
-                        "Unsicherheit, Zielabweichung, subjektiven Sicherheit und Antwortzeit."
+                        "Direkte H2-Werte je Teilnehmer und Visualisierung. "
+                        "Diese Werte bilden die Grundlage der H2-Methodenvergleiche."
                     ),
                 ),
                 (
@@ -2201,9 +2255,7 @@ def main():
                 (
                     "3. Zusammenfassung Rangfolge Unsicherheit",
                     h2_uncertainty_rank_summary,
-                    (
-                        "Über alle Teilnehmer zusammengefasste Rangordnung der gewählten Unsicherheit."
-                    ),
+                    "Über alle Teilnehmer zusammengefasste Rangordnung der gewählten Unsicherheit.",
                 ),
                 (
                     "4. Rangfolge Zielabweichung pro Teilnehmer",
@@ -2216,42 +2268,27 @@ def main():
                 (
                     "5. Zusammenfassung Rangfolge Zielabweichung",
                     h2_deviation_rank_summary,
-                    (
-                        "Über alle Teilnehmer zusammengefasste Rangordnung der Zielabweichung."
-                    ),
+                    "Über alle Teilnehmer zusammengefasste Rangordnung der Zielabweichung.",
                 ),
                 (
                     "6. Rangfolge Antwortzeit pro Teilnehmer",
                     h2_time_ranks,
                     (
-                        "Rang 1 entspricht der schnellsten Regionsentscheidung innerhalb "
-                        "derselben Person; dadurch werden Unterschiede zwischen den "
-                        "Hardware-/Systemgeschwindigkeiten weniger relevant."
+                        "Rang 1 entspricht der schnellsten Regionsentscheidung innerhalb derselben Person; "
+                        "dadurch werden Unterschiede zwischen Hardware-/Systemgeschwindigkeiten weniger relevant."
                     ),
                 ),
                 (
                     "7. Zusammenfassung Rangfolge Antwortzeit",
                     h2_time_rank_summary,
-                    (
-                        "Über alle Teilnehmer zusammengefasste Zeit-Rangordnung der H2-Aufgabe."
-                    ),
+                    "Über alle Teilnehmer zusammengefasste Zeit-Rangordnung der H2-Aufgabe.",
                 ),
             ],
             description=(
-                "Absolute H2-Ergebnisse und direkt anschließend ergänzende "
-                "Within-Participant-Rangfolgen für Unsicherheit, Zielabweichung und Antwortzeit."
+                "Analog zu 'H1 Teilnehmer Methoden': zuerst die absoluten Werte je Teilnehmer "
+                "und Methode, danach die ergänzenden Within-Participant-Rangfolgen."
             ),
         ),
-
-        "H2 Regionsauswahl": excel_sheet(
-            region_excel,
-            description=(
-                "Einzelentscheidungen der Regionsaufgabe inklusive ausgewählter Region, "
-                "zugehöriger Werte, subjektiver Sicherheit, Antwortzeit und Begründung."
-            ),
-        ),
-
-        "H2 Auswahlhäufigkeit": excel_sheet(freq),
 
         "H2 Unsicherheit Statistik": excel_sections(
             [

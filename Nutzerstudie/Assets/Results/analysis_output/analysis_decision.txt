@@ -9,10 +9,10 @@ H1 – Genauigkeit / absolute Abweichung
 Verwendeter Gesamtvergleich: Repeated Measures ANOVA
 Normalitätsannahme der paarweisen Differenzen erfüllt: Ja
 Shapiro-Wilk-Prüfungen der paarweisen Differenzen:
-  VSUP - ScaledGlyph: p = 0.211406
-  VSUP - IsoGlyph: p = 0.977089
-  ScaledGlyph - IsoGlyph: p = 0.702615
-Omnibus-p-Wert: 0.609223
+  VSUP - ScaledGlyph: p = 0.247002
+  VSUP - IsoGlyph: p = 0.22541
+  ScaledGlyph - IsoGlyph: p = 0.593776
+Omnibus-p-Wert: 0.187261
 Omnibustest signifikant (alpha=0,05): Nein
 Vorgesehener Post-hoc-Test bei Signifikanz: gepaarter t-Test
 Bonferroni-korrigiertes Alpha bei 3 Paarvergleichen: 0,0167
