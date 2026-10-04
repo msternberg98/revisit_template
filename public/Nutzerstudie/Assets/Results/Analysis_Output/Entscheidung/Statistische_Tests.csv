@@ -1,0 +1,5 @@
+﻿Vergleich;Test;n;Statistik;p;Kendall_W;p_Holm;Ergebnis;Hinweis
+Gewählte Unsicherheit;Friedman;13;1,450980392156874;0,48408721313116976;0,05580693815987977;;Nicht signifikant;Gepaarte Daten
+Abweichung von -12 °C;Friedman;13;1,6862745098039282;0,4303582597802257;0,0648567119155357;;Nicht signifikant;Gepaarte Daten
+Subjektive Entscheidungssicherheit;Friedman;13;0,054054054054066346;0,9733349348192467;0,002079002079002552;;Nicht signifikant;Gepaarte Daten
+Bearbeitungszeit;Friedman;13;2,0;0,36787944117144245;0,07692307692307693;;Nicht signifikant;Gepaarte Daten

@@ -1,0 +1,13 @@
+﻿Begriff;Erklärung
+Absoluter Fehler;"Betrag der Differenz zwischen abgegebener Antwort und Sollwert; in der Originaleinheit der Aufgabe."
+Normalisierter Fehler (%);"100 × absoluter Fehler / (Maximum - Minimum der jeweiligen Variable); macht unterschiedliche Variablen vergleichbar."
+Persönlicher mittlerer Fehler;"Durchschnitt der vier normalisierten Aufgabenfehler einer Person für eine Methode; nur bei vollständigen zwölf gültigen Antworten."
+Gesamt_Fehler;Kennzahlen über die persönlichen Mittelwerte, nicht über alle Einzelantworten direkt.
+Rang;Reihenfolge der Methoden innerhalb derselben Person: 1 = kleinster Fehler, 3 = größter Fehler.
+Mittelrang;"Bei gleichen Fehlern teilen sich Methoden die betroffenen Rangplätze; z. B. 1,5 und 1,5."
+An Gleichständen beteiligt;"Anzahl der Personen, bei denen die jeweilige Methode mit mindestens einer weiteren Methode exakt denselben Fehler hat; auch dreifache Gleichstände zählen."
+Gewichteter Erstplatz;"Bei zwei gleich guten Erstplatzierten erhält jede 0,5; bei drei jede 1/3 Erstplatz."
+Standardabweichung (SD);"Streuung der beobachteten Werte um ihren Mittelwert; im Gesamt_Fehler Streuung der persönlichen Durchschnittsfehler."
+Q1 / Q3 / IQR;25-%-Quantil / 75-%-Quantil / Differenz Q3 - Q1.
+Unterschiedliche n;"Aufgabenvergleich: alle gültigen Antworten je Kombination; Gesamtvergleich: nur Personen mit allen zwölf gültigen Antworten."
+Statistische Tests;"Friedman prüft Unterschiede zwischen drei verbundenen Methoden; Holm-korrigierte Wilcoxon-Tests nur nach signifikantem Friedman-Test."

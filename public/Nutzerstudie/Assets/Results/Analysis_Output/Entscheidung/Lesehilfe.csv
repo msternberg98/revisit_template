@@ -1,0 +1,11 @@
+﻿Hinweise
+Deskriptive Daten verwenden alle jeweils vorhandenen gültigen Antworten.
+Friedman-Tests verwenden je Zielgröße nur vollständige Personen mit Antworten für alle drei Methoden.
+Temperaturabweichung ist der absolute Abstand vom Zielwert -12 °C.
+R1 ist jeweils dem Zielwert am nächsten, R5 weist jeweils die geringste Unsicherheit auf.
+Es gibt keine objektiv beste Region ohne festgelegte Gewichtung zwischen Temperatur und Unsicherheit.
+Die Temperaturen der Region R4 unterscheiden sich zwischen IsoGlyph und den anderen Methoden im Vorzeichen der Abweichung.
+"Likert-Mittelwerte sind ergänzend deskriptiv; ordinale Antworten zusätzlich über Median und Verteilung beurteilen."
+"Schriftliche Begründungen sind unverändert in Einzelentscheidungen enthalten; eine qualitative Bewertung erfolgt außerhalb dieses Skripts."
+Die Einheit der Unsicherheit ist vor der Veröffentlichung anhand der Studiendefinition zu verifizieren.
+"Prüfen, ob Probedurchläufe im CSV enthalten sind; sie werden nicht automatisch erkannt."
