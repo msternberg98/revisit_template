@@ -1,0 +1,5 @@
+﻿Vergleich;Test;n;Statistik;p;Kendall_W;Signifikanz (p < 0.05);Hinweis;p_Holm
+Gesamt: Zeit (s);Friedman;12;6,5;0,03877420783172202;0,2708333333333333;Signifikant;;
+Gesamt: Zeit (s);Wilcoxon: VSUP / ScaledGlyph;12;15,0;0,06396484375;;;"Explorativ; paarweise";0,1279296875
+Gesamt: Zeit (s);Wilcoxon: VSUP / IsoGlyph;12;11,0;0,02685546875;;;"Explorativ; paarweise";0,08056640625
+Gesamt: Zeit (s);Wilcoxon: ScaledGlyph / IsoGlyph;12;35,0;0,791015625;;;"Explorativ; paarweise";0,791015625
