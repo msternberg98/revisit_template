@@ -25,18 +25,23 @@ export function vsupColor ({
 }: VSUPColorOptions): string {
 
     const uncertaintyLevel = uncertaintyScale (uncertainty);
-
-    const availableBins = Math.max (2, valueSteps - Math.round (uncertaintyLevel));
-
     const normalized = (value - valueExtent [0]) / (valueExtent [1] - valueExtent [0]);
 
-    const quantized = useDiscrete
-        ? Math.floor (normalized * availableBins) / (availableBins - 1)
-        : normalized;
+    if (useDiscrete) {
 
-    const base = d3.interpolateViridis (quantized);
+        const availableBins = Math.max (2, valueSteps - Math.round (uncertaintyLevel));
+        const quantized = Math.floor (normalized * availableBins) / (availableBins - 1);
+        const base = d3.interpolateViridis (quantized);
+        const blend = uncertaintyLevel / (uncertaintySteps - 1);
 
-    const blend = uncertaintyLevel / (uncertaintySteps - 1);
+        return d3.interpolateRgb (base, "#d9d9d9") (blend * 0.9);
 
-    return d3.interpolateRgb (base, "#d9d9d9") (blend * 0.9);
+    } else {
+
+        const uncertainty_normalized = uncertaintyLevel / (uncertaintySteps - 1);
+        const compressedValue = 0.5 + (normalized - 0.5) * (1 - uncertainty_normalized);
+        const base = d3.interpolateViridis (compressedValue);
+
+        return d3.interpolateRgb (base, "#d9d9d9")(uncertainty_normalized);
+    }
 }
