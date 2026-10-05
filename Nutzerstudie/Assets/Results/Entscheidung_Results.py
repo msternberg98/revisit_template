@@ -65,7 +65,7 @@ def main():
        completed=('status',lambda s:s.eq('completed').any()),
        progress=('status',lambda s:s.eq('in progress').any()),
        rejected=('status',lambda s:s.eq('rejected').any()))
-  keep=info.index[~info.rejected & (info.completed | (info.progress & info.max_pc.ge(100)))]
+  keep=info.index[~info.rejected & info.completed]
   raw=raw[raw.participantId.isin(keep)].copy()
  region_rows=[]
  for method,values in REGIONS.items():

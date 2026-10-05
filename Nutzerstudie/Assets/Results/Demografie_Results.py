@@ -121,10 +121,7 @@ def main ():
         # In progress nur bei 100 % berücksichtigen.
         keep = participant_info.index [
             ~participant_info ["has_rejected"]
-            & (
-                participant_info ["has_completed"]
-                | (participant_info ["max_pc"] >= 100)
-            )
+            & participant_info ["has_completed"]
         ]
 
         df = df [df ["participantId"].isin (keep)].copy ()
