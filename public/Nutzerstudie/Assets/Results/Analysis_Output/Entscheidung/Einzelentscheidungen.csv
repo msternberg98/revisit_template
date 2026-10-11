@@ -21,9 +21,6 @@
 97d6c4cc-40ac-442f-b283-2f1d22c2cbcd;IsoGlyph;3;verlässliche Temperaturprognose;R2;157,969;-0,94865091016;11,05134908984;3,129501516;False;False
 97d6c4cc-40ac-442f-b283-2f1d22c2cbcd;ScaledGlyph;3;keine zu stark erwartenden Temperaturschwankungen;R1;125,227;-13,324312746;1,3243127460000004;5,06290306;False;True
 97d6c4cc-40ac-442f-b283-2f1d22c2cbcd;VSUP;3;überwiegende Temperaturprognose für gewünschte Temperatur;R3;150,653;0,4606507216;12,4606507216;1,4988802804;False;False
-9bd7378d-a24e-481b-89d2-562509889c3e;IsoGlyph;4;Geringste Unsicherheit bei der gewünschten, prognostizierten Temperatur.;R4;140,709;-3,604896392;8,395103608;1,424277884;False;False
-9bd7378d-a24e-481b-89d2-562509889c3e;ScaledGlyph;5;Dort sind die meisten Bereiche mit der gewünschten Temperatur bei relativ geringer Unsicherheit.;R4;410,116;-19,99693754;7,996937540000001;1,455844682;False;False
-9bd7378d-a24e-481b-89d2-562509889c3e;VSUP;7;Hohe Farbsättigung, daher geringe Unsicherheit. Die Farbe passt von allen Bereichen am besten zu der entsprechenden Temperatur laut Legende.;R5;203,124;2,704020264;14,704020264;0,6453833008;True;False
 9edd5d78-5949-4094-818b-ed11035f0353;IsoGlyph;4;Temperatur ok und niedrige unsicherheit;R4;116,534;-3,604896392;8,395103608;1,424277884;False;False
 9edd5d78-5949-4094-818b-ed11035f0353;ScaledGlyph;5;scheint mir am ausgeglichensten.;R4;127,857;-19,99693754;7,996937540000001;1,455844682;False;False
 9edd5d78-5949-4094-818b-ed11035f0353;VSUP;5;gute temperatur und niedrige unsicherheit;R5;95,107;2,704020264;14,704020264;0,6453833008;True;False
@@ -36,6 +33,12 @@ be55e91e-6926-4ccb-a615-4366dd10f191;VSUP;6;R4 scheint sehr konstant zu liegen u
 cf01aea4-edcc-4a98-a81b-253e2f3bfac3;IsoGlyph;7;Kaum Abweichung und richtige Temperatur;R4;57,038;-3,604896392;8,395103608;1,424277884;False;False
 cf01aea4-edcc-4a98-a81b-253e2f3bfac3;ScaledGlyph;5;Geringe Abweichung und im Süden die richtige Temperatur;R5;168,142;2,77247876;14,77247876;0,650520978;True;False
 cf01aea4-edcc-4a98-a81b-253e2f3bfac3;VSUP;5;Relativ gesättigt und richtiger Farbton;R5;47,864;2,704020264;14,704020264;0,6453833008;True;False
+d299244f-cda7-4a50-8153-71c7d48e9787;IsoGlyph;4;für mich sinnvollster Bereich;R5;189,749;2,78459602;14,78459602;0,6421452136;True;False
+d299244f-cda7-4a50-8153-71c7d48e9787;ScaledGlyph;5;für mich sinnvollster Bereich;R5;22,845;2,77247876;14,77247876;0,650520978;True;False
+d299244f-cda7-4a50-8153-71c7d48e9787;VSUP;5;für mich sinnvollster Bereich;R5;70,777;2,704020264;14,704020264;0,6453833008;True;False
+e243988d-c3f7-4ea9-a86d-55f84c20923a;IsoGlyph;5;Region hat gebiete mit ca -12 Grad undgeringer unsicherheit, ansder regionen haben ywar teilweise weniger unsicherheit, aber dann passt di tempaeratur nicht;R4;270,875;-3,604896392;8,395103608;1,424277884;False;False
+e243988d-c3f7-4ea9-a86d-55f84c20923a;ScaledGlyph;5;Kombination unsicherheit und gewünschte temperatur erscheint mir dort am passensten, bei gereingere unsicherheit andere regionen passt die temperatur nicht mehr;R4;119,011;-19,99693754;7,996937540000001;1,455844682;False;False
+e243988d-c3f7-4ea9-a86d-55f84c20923a;VSUP;5;Die anderen regionen haben keine -12 grad oder sind sehr unsicher;R4;99,048;-20,09617172;8,096171720000001;1,429650956;False;False
 e4bec96d-b98b-4a55-baeb-44d6ab1532b3;IsoGlyph;5;die Temperatur liegt ungefähr bei 12 °C ;R4;264,661;-3,604896392;8,395103608;1,424277884;False;False
 e4bec96d-b98b-4a55-baeb-44d6ab1532b3;ScaledGlyph;4;die Temperatur dort  ist ungefäghr −12 °C und die Vorhersage  ist relativ sicher;R1;111,417;-13,324312746;1,3243127460000004;5,06290306;False;True
 e4bec96d-b98b-4a55-baeb-44d6ab1532b3;VSUP;5;Ich wähle R1, weil die Temperatur dort ungefähr −12 °C ist und die Vorhersage ziemlich sicher ist und die Unsicherheit gering ist.;R1;73,567;-13,1901063;1,1901063;5,4355829;False;True
