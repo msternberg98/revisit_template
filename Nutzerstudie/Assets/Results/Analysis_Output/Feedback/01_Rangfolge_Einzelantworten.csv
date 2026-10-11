@@ -1,14 +1,15 @@
-﻿participantId;VSUP;Scaled Glyph;IsoGlyph;Status
-08e4cf92-36c9-4904-af75-845c4216238d;3;2,0;1;Vollständig
-29f255aa-1285-4664-9c07-0f88b583bd3b;1;;2;Unvollständig
-4514dbd4-54fe-40d2-96d6-27bbb7accc29;2;1,0;3;Vollständig
-500e39fd-101a-4580-a6be-ae82ef7f18b1;3;1,0;2;Vollständig
-5ec895f4-c4a9-4096-8048-bf78c36aeb0e;2;1,0;3;Vollständig
-86e7d467-4933-49c3-a11a-6e322d55f191;3;1,0;2;Vollständig
-97d6c4cc-40ac-442f-b283-2f1d22c2cbcd;2;3,0;1;Vollständig
-9bd7378d-a24e-481b-89d2-562509889c3e;2;3,0;1;Vollständig
-9edd5d78-5949-4094-818b-ed11035f0353;3;1,0;2;Vollständig
-a3cd1afe-76aa-432c-b637-52f2cb23dbb1;1;2,0;3;Vollständig
-be55e91e-6926-4ccb-a615-4366dd10f191;2;3,0;1;Vollständig
-cf01aea4-edcc-4a98-a81b-253e2f3bfac3;3;2,0;1;Vollständig
-e4bec96d-b98b-4a55-baeb-44d6ab1532b3;1;2,0;3;Vollständig
+﻿participantId;Subjektiv_Rang_VSUP;Subjektiv_Rang_ScaledGlyph;Subjektiv_Rang_IsoGlyph;Status;Objektiv_Rang_VSUP;Fehler_Mittel_VSUP_Prozent;Objektiv_Rang_ScaledGlyph;Fehler_Mittel_ScaledGlyph_Prozent;Objektiv_Rang_IsoGlyph;Fehler_Mittel_IsoGlyph_Prozent;Rangdifferenz_Sub_minus_Obj_VSUP;Rang_uebereinstimmend_VSUP;Rangdifferenz_Sub_minus_Obj_ScaledGlyph;Rang_uebereinstimmend_ScaledGlyph;Rangdifferenz_Sub_minus_Obj_IsoGlyph;Rang_uebereinstimmend_IsoGlyph;Vergleich_Status;Anzahl_exakt_uebereinstimmend;Subjektiver_Erstplatz_objektiv_am_besten
+08e4cf92-36c9-4904-af75-845c4216238d;3;2,0;1;Vollständig;2,0;42,384858176167434;1,0;31,529368267919605;3,0;60,34033321758997;1,0;False;1,0;False;-2,0;False;Vergleichbar;0;False
+29f255aa-1285-4664-9c07-0f88b583bd3b;1;;2;Unvollständig;2,0;45,53571296536033;3,0;64,4976938651715;1,0;41,81999831857323;-1,0;False;;;1,0;False;Subjektive Rangfolge unvollständig/ungültig;;
+4514dbd4-54fe-40d2-96d6-27bbb7accc29;2;1,0;3;Vollständig;1,0;10,290366729079178;3,0;11,98323531419184;2,0;11,831432381024992;1,0;False;-2,0;False;1,0;False;Vergleichbar;0;False
+500e39fd-101a-4580-a6be-ae82ef7f18b1;3;1,0;2;Vollständig;;;;;;;;;;;;;Keine 12 gültigen Identifikationsantworten;;
+5ec895f4-c4a9-4096-8048-bf78c36aeb0e;2;1,0;3;Vollständig;3,0;46,346949605071586;2,0;42,91459715690205;1,0;34,002008860192724;-1,0;False;-1,0;False;2,0;False;Vergleichbar;0;False
+86e7d467-4933-49c3-a11a-6e322d55f191;3;1,0;2;Vollständig;1,0;1,3295434823671999;2,0;1,844350504602159;3,0;5,0631510983953465;2,0;False;-1,0;False;-1,0;False;Vergleichbar;0;False
+97d6c4cc-40ac-442f-b283-2f1d22c2cbcd;2;3,0;1;Vollständig;2,0;34,36466488040803;1,0;20,732141478747426;3,0;34,982804395462814;0,0;True;2,0;False;-2,0;False;Vergleichbar;1;False
+9edd5d78-5949-4094-818b-ed11035f0353;3;1,0;2;Vollständig;2,0;36,05242019431911;1,0;19,898259871899516;3,0;43,17217895670172;1,0;False;0,0;True;-1,0;False;Vergleichbar;1;True
+a3cd1afe-76aa-432c-b637-52f2cb23dbb1;1;2,0;3;Vollständig;3,0;7,038609725383625;1,0;0,8643181058856393;2,0;5,386747404976763;-2,0;False;1,0;False;1,0;False;Vergleichbar;0;False
+be55e91e-6926-4ccb-a615-4366dd10f191;2;3,0;1;Vollständig;2,0;16,49148270993312;3,0;34,899150192645074;1,0;10,828046704914522;0,0;True;0,0;True;0,0;True;Vergleichbar;3;True
+cf01aea4-edcc-4a98-a81b-253e2f3bfac3;3;2,0;1;Vollständig;3,0;13,35894261388807;1,0;0,07125293051291598;2,0;1,6835267641803435;0,0;True;1,0;False;-1,0;False;Vergleichbar;1;False
+d299244f-cda7-4a50-8153-71c7d48e9787;3;1,0;2;Vollständig;3,0;26,183578403098966;1,0;22,506121861774226;2,0;24,72618732288619;0,0;True;0,0;True;0,0;True;Vergleichbar;3;True
+e243988d-c3f7-4ea9-a86d-55f84c20923a;2;1,0;3;Vollständig;3,0;49,11114998014564;1,0;1,8333578392862648;2,0;14,660998198226922;-1,0;False;0,0;True;1,0;False;Vergleichbar;1;True
+e4bec96d-b98b-4a55-baeb-44d6ab1532b3;1;2,0;3;Vollständig;1,0;12,149243938173203;2,0;21,740936641146178;3,0;29,50535602420561;0,0;True;0,0;True;0,0;True;Vergleichbar;3;True
