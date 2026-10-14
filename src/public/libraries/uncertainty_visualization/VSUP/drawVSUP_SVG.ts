@@ -53,10 +53,10 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     // Unsicherheitsskala
     const uncertaintyScale = useDiscrete
         ? d3.scaleQuantize <number> ()
-            .domain (uncertaintyExtent)
+            .domain ([0, uncertaintyExtent[1]])
             .range (d3.range(uncertaintySteps))
         : d3.scaleLinear ()
-            .domain (uncertaintyExtent)
+            .domain ([0, uncertaintyExtent [1]])
             .range ([0, uncertaintySteps - 1]);
 
     // Größen
@@ -238,7 +238,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
             const t = padding + tRaw * (1 - 2 * padding);
             const y = topMargin + usableHeight - t * usableHeight;
 
-            const uncertaintyValue = uncertaintyExtent [0] + tRaw * (uncertaintyExtent [1] - uncertaintyExtent [0]);
+            const uncertaintyValue = tRaw * uncertaintyExtent [1];
 
             svg.append ("text")
                 .attr ("x", 60)
@@ -272,8 +272,8 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
     // VSUP Legende
     const vsupLegend = (() => {
 
-        const size = 280;
-        const margin = 50;
+        const size = 310;
+        const margin = 65;
 
         const centerX = margin;
         const centerY = size - margin;
@@ -335,7 +335,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                     const endAngle = ((a + 1) / angleSteps) * Math.PI * 0.5;
 
                     const value = valueExtent [0] + (a / (angleSteps - 1)) * (valueExtent [1] - valueExtent [0]);
-                    const uncertainty = uncertaintyExtent [1] - (r / (ringCount - 1)) * (uncertaintyExtent [1] - uncertaintyExtent [0]);
+                    const uncertainty = uncertaintyExtent [1] * (1 - r / (ringCount - 1));
 
                     const color = vsupColor ({
 
@@ -376,7 +376,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
             const t = i / (uncertaintyTicks - 1);
             const y = centerY - t * maxRadius;
-            const uncertaintyValue = uncertaintyExtent [1] - t * (uncertaintyExtent [1] - uncertaintyExtent [0]);
+            const uncertaintyValue = uncertaintyExtent [1] * (1 - t);
 
             svg.append ("line")
                 .attr ("x1", centerX - 2)
@@ -387,7 +387,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
 
 
             svg.append ("text")
-                .attr ("x", centerX - 14)
+                .attr ("x", centerX - 16)
                 .attr ("y", y + 4)
                 .attr ("font-size", 12)
                 .attr ("text-anchor", "end")
@@ -395,7 +395,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
         }
 
         svg.append ("text")
-            .attr ("transform",`translate (${centerX - 40},${centerY - maxRadius / 2}) rotate (-90)`)
+            .attr ("transform",`translate (${centerX - 45},${centerY - maxRadius / 2}) rotate (-90)`)
             .attr ("text-anchor", "middle")
             .attr ("font-size", 16)
             .text (config.uncertaintyLabel);
@@ -737,7 +737,7 @@ export async function drawVSUP (container: HTMLDivElement, options: VSUPOptions 
                         [`${datasetName}_Uncertainty_Plot`, uncertaintyPlot, 1200, 600],
                         [`${datasetName}_Uncertainty_Legende`, uncertaintyLegend, 150, 380],
                         [`${datasetName}_VSUP_Plot`, vsupPlot, 1200, 600],
-                        [`${datasetName}_VSUP_Legende`, vsupLegend, 280, 280],
+                        [`${datasetName}_VSUP_Legende`, vsupLegend, 310, 310],
                         [`${datasetName}_VSUP_Regions`, vsupPlotRegions, 1200, 600]
                     ],
                 )

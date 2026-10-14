@@ -42,7 +42,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
 
     // Unsicherheitsskala
     const uncertaintyScale = d3.scaleLinear ()
-            .domain (uncertaintyExtent)
+            .domain ([0, uncertaintyExtent [1]])
             .range ([0, uncertaintySteps - 1]);
 
     // Größen
@@ -135,8 +135,8 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     // VSUP Legende
     const vsupLegend = (() => {
 
-        const size = 280;
-        const margin = 50;
+        const size = 310;
+        const margin = 65;
 
         const centerX = margin;
         const centerY = size - margin;
@@ -162,7 +162,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
                 const endAngle = ((a + 1) / angleSteps) * Math.PI * 0.5;
 
                 const value = valueExtent [0] + (a / (angleSteps - 1)) * (valueExtent [1] - valueExtent [0]);
-                const uncertainty = uncertaintyExtent [1] - (r / (ringCount - 1)) * (uncertaintyExtent [1] - uncertaintyExtent [0]);
+                const uncertainty = uncertaintyExtent [1] * (1 - r / (ringCount - 1));
 
                 const color = vsupColor ({
                     value,
@@ -205,7 +205,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             const t = i / (uncertaintyTicks - 1);
             const y = centerY - t * maxRadius;
 
-            const uncertaintyValue = uncertaintyExtent [1] - t * (uncertaintyExtent [1] - uncertaintyExtent [0]);
+            const uncertaintyValue = uncertaintyExtent[1] * (1 - t);
 
             svg.append ("line")
                 .attr ("x1", centerX - 2)
@@ -215,7 +215,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
                 .attr ("stroke", "black");
 
             svg.append ("text")
-                .attr ("x", centerX - 14)
+                .attr ("x", centerX - 16)
                 .attr ("y", y + 4)
                 .attr ("font-size", 12)
                 .attr ("text-anchor", "end")
@@ -224,7 +224,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         }
 
         svg.append ("text")
-            .attr ("transform", `translate (${centerX - 40},${centerY - maxRadius / 2}) rotate (-90)`)
+            .attr ("transform", `translate (${centerX - 45},${centerY - maxRadius / 2}) rotate (-90)`)
             .attr ("text-anchor", "middle")
             .attr ("font-size", 16)
             .text (config.uncertaintyLabel);
@@ -408,7 +408,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             container.appendChild (createExportAllPlots (
                     [
                         [`${datasetName}_VSUPTest_Plot`, vsupPlot, width, height],
-                        [`${datasetName}_VSUPTest_Legende`, vsupLegend, 280, 280],
+                        [`${datasetName}_VSUPTest_Legende`, vsupLegend, 310, 310],
                     ],
                 )
             );
