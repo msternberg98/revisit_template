@@ -339,6 +339,58 @@ def task_comparisons(valid):
             lambda p: 'Nicht berechenbar' if pd.isna(p) else ('Signifikant' if p < 0.05 else 'Nicht signifikant')
         )
     return tests, pd.DataFrame(individual)
+def spearman_correlations(valid):
+    """Je Aufgabe/Methode drei paarweise Spearman-Korrelationen; Holm je 12 Tests."""
+    variable_pairs = [
+        ('Fehler_%', 'Zeit_s', 'Fehler_vs_Zeit'),
+        ('Fehler_%', 'Likert_Response', 'Fehler_vs_Sicherheit'),
+        ('Zeit_s', 'Likert_Response', 'Zeit_vs_Sicherheit'),
+    ]
+    rows = []
+    for task in TASKS:
+        for method in METHODS:
+            group = valid.loc[(valid['Aufgabe'] == task) & (valid['Methode'] == method)]
+            for x, y, pair_name in variable_pairs:
+                pair = group[[x, y]].replace([np.inf, -np.inf], np.nan).dropna()
+                n = len(pair)
+                note = ''
+                rho, pvalue = np.nan, np.nan
+                if n < 3:
+                    note = 'Weniger als drei gültige Wertepaare'
+                elif pair[x].nunique() < 2 or pair[y].nunique() < 2:
+                    note = 'Mindestens eine Variable ist konstant'
+                else:
+                    result = stats.spearmanr(pair[x], pair[y], alternative='two-sided')
+                    rho, pvalue = float(result.statistic), float(result.pvalue)
+                rows.append({'Aufgabe': TASK_LABELS[task], 'Methode': METHOD_LABELS[method],
+                             'Variablenpaar': pair_name, 'n': n, 'Spearman_rho': rho,
+                             'p': pvalue, 'Hinweis': note})
+    result = pd.DataFrame(rows)
+    result['p_Holm_12'] = np.nan
+    for _, indices in result.groupby('Variablenpaar', sort=False).groups.items():
+        result.loc[indices, 'p_Holm_12'] = holm_adjust(result.loc[indices, 'p'].tolist())
+    result['Signifikanz_Holm'] = result['p_Holm_12'].map(
+        lambda p: 'Nicht bestimmbar' if pd.isna(p) else ('Signifikant' if p < .05 else 'Nicht signifikant'))
+    return result[['Aufgabe', 'Methode', 'Variablenpaar', 'n', 'Spearman_rho',
+                   'p', 'p_Holm_12', 'Signifikanz_Holm', 'Hinweis']]
+
+
+def likert_method_comparison(valid):
+    """Likert-Gesamtvergleich: Deskription aller Einzelwerte, personenbezogene Mittel, Friedman."""
+    ratings = valid.dropna(subset=['Likert_Response']).copy()
+    raw_desc = pd.DataFrame([{'Methode': METHOD_LABELS[m], **describe(
+        ratings.loc[ratings.Methode.eq(m), 'Likert_Response'])} for m in METHODS])
+    # Nur Personen mit vier vorhandenen Sicherheitsantworten je Methode.
+    counts = ratings.groupby(['Teilnehmer', 'Methode'])['Aufgabe'].nunique().unstack().reindex(columns=METHODS)
+    eligible = counts.index[counts.eq(len(TASKS)).all(axis=1)]
+    personal = (ratings[ratings.Teilnehmer.isin(eligible)]
+                .groupby(['Teilnehmer', 'Methode'])['Likert_Response']
+                .mean().unstack().reindex(columns=METHODS).dropna())
+    person_desc = pd.DataFrame([{'Methode': METHOD_LABELS[m], **describe(personal[m])} for m in METHODS])
+    tests = combined_tests(personal, 'Gesamt: subjektive Sicherheit (Likert)')
+    return raw_desc, personal.reset_index(), person_desc, tests
+
+
 def grouped_plot(table, value, ylabel, folder, filename, scientific=False):
     """Vier Aufgabentypen, jeweils drei Methoden nebeneinander; Legende fest rechts."""
     fig, ax = plt.subplots(figsize=(10, 5.5)); shown = [t for t in TASKS if t in table.Aufgabe.values]
@@ -580,13 +632,16 @@ def main():
             d1 = describe(g.Fehler_absolut_skaliert)
             d2 = describe(g['Fehler_%'])
             dt = describe(g.Zeit_s)
+            dl = describe(g.Likert_Response)
             rows.append({'Methode': method, 'n gültig': len(g), 'n ungültig': len(part[part.Methode.eq(method)])-len(g),
                          'Exakt': int(g.Exakt.sum()), 'Innerhalb 1 %': int(g['Innerhalb_1%'].sum()),
                          'Fehler skaliert Mittel': d1['Mittelwert'], 'Fehler skaliert Median': d1['Median'],
                          'Fehler skaliert SD': d1['Standardabweichung'], 'Fehler % Mittel': d2['Mittelwert'],
                          'Fehler % Median': d2['Median'], 'Fehler % SD': d2['Standardabweichung'],
                          'Fehler % Q1': d2['Q1'], 'Fehler % Q3': d2['Q3'], 'Fehler % IQR': d2['IQR'],
-                         'Zeit s Mittel': dt['Mittelwert'], 'Zeit s Median': dt['Median']})
+                         'Zeit s Mittel': dt['Mittelwert'], 'Zeit s Median': dt['Median'],
+                          'Likert Mittel': dl['Mittelwert'], 'Likert Median': dl['Median'],
+                          'Likert n': dl['n']})
         desc = pd.DataFrame(rows)
         w = triples.xs(task, level='Aufgabe') if task in triples.index.get_level_values('Aufgabe') else pd.DataFrame(columns=METHODS)
         ranks, person_ranks, _ = rank_table(w) if len(w) else (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
@@ -682,6 +737,9 @@ def main():
             ['ANOVA: Einordnung', 'Die Spalte Signifikanz (p < 0.05) nutzt bei ANOVA den Greenhouse-Geisser-korrigierten p_GG (Kennzeichnung GG). Bei Friedman basiert sie auf dem unbereinigten p; für die vier primären Aufgaben gilt ausschließlich Primär_Friedman_signifikant anhand p_Holm_4_primäre_Friedman. ANOVA bleibt explorativ.'] ,
             ['Likert_Response', 'Sicherheitsbewertung (1–7) aus der separaten Likert_Response-Zeile derselben Person und Aufgabe/Methode. Fehlende Werte bleiben leer; die statistische Fehleranalyse wird dadurch nicht gefiltert.'],
             ['Likert in persönlichen Rängen', 'Neben jedem Methodenrang steht die Sicherheitsbewertung der Einzelaufgabe; im Gesamtvergleich der Mittelwert der bis zu vier Likert-Antworten je Person und Methode.'],
+            ['Likert-Methodenvergleich', 'Subjektive_Sicherheit: Median/Mittelwert aller gültigen Sicherheitsantworten; personenbezogene Mittel über vier Aufgaben (nur vollständige Likert-Tripel aller vier Aufgaben), Friedman und ergänzende ANOVA.'],
+            ['Spearman-Korrelationen', 'Je Aufgabe/Methode Spearman rho und zweiseitiger p-Wert für Fehler–Zeit, Fehler–Likert, Zeit–Likert; nur gültige Wertepaare, n je Paar ausgewiesen.'],
+            ['Spearman: Holm', 'Die jeweils zwölf p-Werte pro Variablenpaar werden gemeinsam nach Holm korrigiert (drei separate Familien). Maßgeblich ist p_Holm_12 < 0,05. Explorativ.'],
             ['IQR auffällig', 'Ein Einzelwert ist auffällig, wenn sein absoluter Fehler > Q3 + 1,5 × (Q3 − Q1) innerhalb derselben Aufgabe/Methode liegt. Nur für n ≥ 4 und IQR > 0; kein Ausschluss und kein Beweis für einen Messfehler.'],
             ['Erstplatz_gewichtet', 'Summe anteiliger Erstplätze: alleiniger erster Platz = 1; zwei gleich gute erste Plätze = je 0,5; drei = je 1/3. Anteil_Erstplatz_% = 100 × Summe / n.'],
             ['Boxplots', 'Standard-Boxplot: Box Q1 bis Q3 (50 %), Medianlinie, Whisker bis zum äußersten Wert innerhalb von Q1−1,5×IQR bzw. Q3+1,5×IQR; nur Werte außerhalb als Punkte. Kein Mittelwert. Alle gültigen Werte fließen in die Berechnung ein.'],
@@ -722,6 +780,26 @@ def main():
             ('A. Persönliche mittlere Zeiten (s)', tdata.reset_index(), 'Nur Personen mit gültigen Zeitwerten in allen vier Methodentripeln.'),
             ('B. Deskriptive Kennzahlen', pd.DataFrame([{'Methode':m, **describe(tdata[m])} for m in METHODS]), 'Kennzahlen über persönliche Mittelzeiten.'),
             ('C. Statistische Tests', combined_tests(tdata, 'Zeit (s)'), TEST_EXPLANATION_TIME)], 'Sekundärer Zeitvergleich')
+        likert_raw_desc, likert_personal, likert_person_desc, likert_tests = likert_method_comparison(valid)
+        write_section(writer, 'Subjektive_Sicherheit', [
+            ('A. Deskription aller gültigen Sicherheitsantworten', likert_raw_desc,
+             'Alle vorhandenen Sicherheitsbewertungen zu gültigen Identifikationsantworten (1–7); n zählt Bewertungen.'),
+            ('B. Persönliche Durchschnittswerte', likert_personal,
+             'Je Person/Methode arithmetisches Mittel aus vier Likert-Antworten; nur vollständige 12 Sicherheitsbewertungen.'),
+            ('C. Deskription der persönlichen Mittelwerte', likert_person_desc,
+             'Mittelwert und Median über personenbezogene Mittelwerte; Datenbasis der Methodentests.'),
+            ('D. Statistischer Methodenvergleich', likert_tests,
+             'Ergänzender Friedman-Test über persönliche Likert-Mittelwerte; ANOVA explorativ, GG-korrigierter p-Wert.'),
+        ], 'Subjektive Sicherheit bei den Identifikationsaufgaben (Likert 1 bis 7)')
+        corr = spearman_correlations(valid)
+        write_section(writer, 'Spearman_Korrelationen', [
+            ('A. Zusammenhänge je Aufgabe und Methode', corr,
+             'Drei Variablenpaare je vier Aufgaben und drei Methoden = 36 Spearman-Tests. '
+             'Je Variablenpaar zwölf p-Werte mit Holm korrigiert; paarweiser Ausschluss fehlender Werte. '
+             'Fehler_%: größere Werte = ungenauer; Likert: größere Werte = sicherer. '
+             'Negatives rho bei Fehler_vs_Sicherheit bedeutet höhere Sicherheit bei geringeren Fehlern. '
+             'Explorative Analyse, keine Kausalitätsaussage.'),
+        ], 'Explorative Spearman-Rangkorrelationen mit Holm-Korrektur')
     # 02: Mittelwert (Min/Max) und Unsicherheit (Min/Max), je Prozent und Zeit.
     # 03: Alle vier Aufgaben, ebenfalls je Prozent und Zeit.
     # Die Zusammenfassungen nutzen vollständige gepaarte Daten pro Metrik.

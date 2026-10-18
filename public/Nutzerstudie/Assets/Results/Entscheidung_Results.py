@@ -10,7 +10,8 @@ from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from openpyxl.styles import Font, Alignment
+from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
 
 CSV_FILENAME = 'Nutzerstudie_all_tidy.csv'
 OUTPUT_FOLDER = Path('Analysis_Output') / 'Entscheidung'
@@ -97,6 +98,7 @@ def main():
  answers['Sicherste_Region']=answers.apply(lambda r:r.Region==min_unc[r.Methode] if pd.notna(r.Region) else pd.NA,axis=1)
  answers['Temperatur_nächste_Region']=answers.apply(lambda r:r.Region==min_dev[r.Methode] if pd.notna(r.Region) else pd.NA,axis=1)
  answers['Begründung']=answers.Begründung.replace(r'^\s*$',np.nan,regex=True)
+ answers['Wortanzahl']=answers['Begründung'].map(lambda v: len(str(v).split()) if pd.notna(v) else np.nan)
  answers=answers.sort_values(['Teilnehmer','Methode'])
  choices=[]
  for method in METHODS:
@@ -122,6 +124,39 @@ def main():
  likert=pd.DataFrame([{'Methode':m,**describe(answers.loc[answers.Methode==m,'Likert_Sicherheit'])} for m in METHODS])
  likert_dist=pd.DataFrame([{'Methode':m,'Antwort':val,'Anzahl':int(((answers.Methode==m)&(answers.Likert_Sicherheit==val)).sum())}
   for m in METHODS for val in sorted(answers.Likert_Sicherheit.dropna().unique())])
+ # Deskriptive Bearbeitungszeiten pro Visualisierungsmethode.
+ time_desc=pd.DataFrame([{'Methode':m,**describe(answers.loc[answers.Methode==m,'Zeit_s'])}
+                         for m in METHODS])
+ # Individuelle Regionswahlen und paarweise Übereinstimmung.
+ region_wide=answers.pivot(index='Teilnehmer',columns='Methode',values='Region').reindex(columns=METHODS)
+ individual=region_wide.reset_index().copy()
+ for a,b in [('VSUP','ScaledGlyph'),('VSUP','IsoGlyph'),('ScaledGlyph','IsoGlyph')]:
+  individual[f'Gleich_{a}_{b}']=region_wide.apply(
+   lambda r: bool(r[a]==r[b]) if pd.notna(r[a]) and pd.notna(r[b]) else pd.NA,axis=1).values
+ individual['Anzahl_unterschiedlicher_Regionen']=region_wide.nunique(axis=1).values
+ individual.loc[region_wide.isna().any(axis=1).values,'Anzahl_unterschiedlicher_Regionen']=np.nan
+ agreement=[]
+ for a,b in [('VSUP','ScaledGlyph'),('VSUP','IsoGlyph'),('ScaledGlyph','IsoGlyph')]:
+  pair=region_wide[[a,b]].dropna()
+  count=int(pair[a].eq(pair[b]).sum())
+  agreement.append({'Vergleich':f'{a} / {b}','n_vollständige_Paare':len(pair),
+                    'n_übereinstimmend':count,'Anteil_übereinstimmend_%':100*count/len(pair) if len(pair) else np.nan})
+ agreement_df=pd.DataFrame(agreement)
+ pattern_counts=(individual['Anzahl_unterschiedlicher_Regionen'].value_counts().reindex([1,2,3],fill_value=0))
+ patterns=pd.DataFrame({'Anzahl_unterschiedlicher_Regionen':[1,2,3],
+                        'n_Teilnehmende':[int(pattern_counts.loc[i]) for i in [1,2,3]]})
+ # Explorative, gepoolte Spearman-Rangkorrelationen: 45 Entscheidungen stammen
+ # von 15 Personen; wegen Messwiederholungen keine unabhängigen Beobachtungen.
+ correlations=[]
+ for a,b in [('Wortanzahl','Zeit_s'),('Wortanzahl','Likert_Sicherheit'),
+             ('Zeit_s','Likert_Sicherheit')]:
+  pair=answers[[a,b]].apply(pd.to_numeric,errors='coerce').dropna()
+  if len(pair)>=3 and pair[a].nunique()>1 and pair[b].nunique()>1:
+   rho=float(stats.spearmanr(pair[a],pair[b]).statistic)
+  else:rho=np.nan
+  correlations.append({'Variable_1':a,'Variable_2':b,'n_Entscheidungen':len(pair),
+                       'Spearman_rho':rho,'Hinweis':'Explorativ; Beobachtungen derselben Personen nicht unabhängig; kein p-Test'})
+ corr_df=pd.DataFrame(correlations)
  tests=[]
  for col,label in [('Unsicherheit','Gewählte Unsicherheit'),('Temperaturabweichung_C','Abweichung von -12 °C'),
                    ('Likert_Sicherheit','Subjektive Entscheidungssicherheit'),('Zeit_s','Bearbeitungszeit')]:
@@ -136,24 +171,118 @@ def main():
   'Es gibt keine objektiv beste Region ohne festgelegte Gewichtung zwischen Temperatur und Unsicherheit.',
   'Die Temperaturen der Region R4 unterscheiden sich zwischen IsoGlyph und den anderen Methoden im Vorzeichen der Abweichung.',
   'Likert-Mittelwerte sind ergänzend deskriptiv; ordinale Antworten zusätzlich über Median und Verteilung beurteilen.',
-  'Schriftliche Begründungen sind unverändert in Einzelentscheidungen enthalten; eine qualitative Bewertung erfolgt außerhalb dieses Skripts.',
+  'Schriftliche Begründungen bleiben unverändert; qualitative Kategorien werden weiterhin manuell ausgewertet.',
   'Die Einheit der Unsicherheit ist vor der Veröffentlichung anhand der Studiendefinition zu verifizieren.',
   'Prüfen, ob Probedurchläufe im CSV enthalten sind; sie werden nicht automatisch erkannt.',
  ]})
+ # Regionswahl: Einzelwahlen, paarweise Übereinstimmungen und Muster in einem Blatt.
+ # Die drei separaten CSV-Dateien bleiben für bestehende Auswertungen erhalten.
  tables=[('Einzelentscheidungen',answers),('Regionswerte',region_df),('Auswahlhäufigkeiten',choice_df),
          ('Methodenvergleich',methods_df),('Likert_Auswertung',likert),('Likert_Verteilung',likert_dist),
-         ('Statistische_Tests',pd.DataFrame(tests)),('Lesehilfe',notes)]
+         ('Statistische_Tests',pd.DataFrame(tests)),('Bearbeitungszeit_Deskriptiv',time_desc),
+         ('Spearman_Korrelationen',corr_df)]
  out=folder/OUTPUT_FOLDER;out.mkdir(parents=True,exist_ok=True)
+ def excel_value(v):
+  if pd.isna(v):return None
+  if isinstance(v,np.generic):return v.item()
+  return v
+ def write_section(ws,heading,table,description,row):
+  ncols=max(2,len(table.columns))
+  for j in range(1,ncols+1):ws.cell(row,j).fill=PatternFill('solid',fgColor='3676B6')
+  ws.merge_cells(start_row=row,start_column=1,end_row=row,end_column=ncols)
+  cell=ws.cell(row,1,heading);cell.font=Font(bold=True,color='FFFFFF',size=11)
+  cell.alignment=Alignment(vertical='center',wrap_text=True)
+  ws.row_dimensions[row].height=29;row+=1
+  if description:
+   for j in range(1,ncols+1):ws.cell(row,j).fill=PatternFill('solid',fgColor='EAF0F6')
+   ws.merge_cells(start_row=row,start_column=1,end_row=row,end_column=ncols)
+   cell=ws.cell(row,1,description);cell.font=Font(color='20354A')
+   cell.alignment=Alignment(vertical='center',wrap_text=True)
+   ws.row_dimensions[row].height=44 if len(description)>110 else 31
+   row+=1
+  for j,name in enumerate(table.columns,1):
+   cell=ws.cell(row,j,str(name));cell.font=Font(bold=True,color='20354A')
+   cell.fill=PatternFill('solid',fgColor='D7E5F1')
+   cell.alignment=Alignment(vertical='center',wrap_text=True)
+  ws.row_dimensions[row].height=max(32,min(120,16*max(1,max((len(str(name))//max(10,int(ws.column_dimensions[get_column_letter(j)].width)-3)+1) for j,name in enumerate(table.columns,1)))+8));row+=1
+  for values in table.itertuples(index=False,name=None):
+   for j,value in enumerate(values,1):
+    value=excel_value(value)
+    cell=ws.cell(row,j,value)
+    cell.alignment=Alignment(vertical='center',horizontal='center' if isinstance(value,(int,float)) and not isinstance(value,bool) else 'left',wrap_text=True)
+    if isinstance(value,float):cell.number_format='#,##0.0000;[Red]-#,##0.0000'
+    if isinstance(value,int):cell.number_format='0'
+   # Excel passt Zeilenhöhen bei umbrochenem Text nicht zuverlässig selbst an.
+   line_counts=[]
+   for j,value in enumerate(values,1):
+    if value is None:continue
+    width=max(8,int(ws.column_dimensions[get_column_letter(j)].width)-4)
+    line_counts.append(sum(max(1,(len(line)+width-1)//width) for line in str(value).split('\n')))
+   ws.row_dimensions[row].height=max(23,min(420,16*max(line_counts,default=1)+7))
+   row+=1
+  return row+2
+ def make_sheet(wb,name,sections,note):
+  ws=wb.create_sheet(name)
+  ws.sheet_view.showGridLines=False
+  ncols=max([2]+[len(t.columns) for _,t,_ in sections])
+  widths=[21.0]*ncols
+  for _,table,_ in sections:
+   for j,col in enumerate(table.columns):
+    samples=[str(col)]+[str(v) for v in table.iloc[:100,j] if pd.notna(v)]
+    longest=max((len(x) for x in samples),default=12)
+    widths[j]=max(widths[j],min(48.,longest+3))
+  # Textspalten kompakt halten und über die Zeilenhöhe vollständig darstellen.
+  if name == '00_Lesehilfe':
+   widths[0]=max(widths[0],32.)
+   widths[1]=max(widths[1],85.)
+  for j,w in enumerate(widths,1):ws.column_dimensions[get_column_letter(j)].width=w
+  for j in range(1,ncols+1):ws.cell(1,j).fill=PatternFill('solid',fgColor='23415C')
+  ws.merge_cells(start_row=1,start_column=1,end_row=1,end_column=ncols)
+  top=ws.cell(1,1,note);top.font=Font(color='FFFFFF',bold=True,size=11)
+  top.alignment=Alignment(wrap_text=True,vertical='center');ws.row_dimensions[1].height=40
+  row=3
+  for heading,table,description in sections:row=write_section(ws,heading,table,description,row)
+  return ws
  with pd.ExcelWriter(out/'00_Entscheidungsaufgabe_Auswertung.xlsx',engine='openpyxl') as writer:
+  wb=writer.book
+  guide=pd.DataFrame([
+   ('Datenbasis','Nur abgeschlossene und nicht abgelehnte Teilnahmen; deskriptiv alle jeweils gültigen Werte.'),
+   ('Einzelentscheidungen','Regionswahl, regionale Temperatur und Unsicherheit, Begründung, Likert-Sicherheit, bereinigte Zeit und Wortanzahl.'),
+   ('Bearbeitungszeit','cleanedDuration in Millisekunden / 1000; umfasst Regionswahl, Begründung und Sicherheitseinschätzung; Tabwechselzeiten sind bereinigt.'),
+   ('Mittelwert und Median','Arithmetischer Mittelwert bzw. 50. Perzentil; keine Entfernung von Ausreißern.'),
+   ('Standardabweichung','Stichprobenstandardabweichung mit ddof=1.'),
+   ('Friedman-Test','Vergleich der drei Methoden innerhalb derselben Person; nur vollständige Methodentripel.'),
+   ('Kendall W','Friedman-Chi-Quadrat geteilt durch n × (3 − 1).'),
+   ('Wilcoxon','Paarweise Folgetests nur nach signifikantem Friedman-Test; Holm-Korrektur der drei Paarvergleiche.'),
+   ('Regionswahl-Übereinstimmung','Gleiche Regionsnummer bei zwei Methoden; individuelle Wahlen, Paarvergleiche und Muster gemeinsam dargestellt.'),
+   ('Spearman','Rangkorrelation der Wortanzahl, Bearbeitungszeit und subjektiven Sicherheit; explorativ über alle Entscheidungen, keine p-Tests wegen wiederholter Messungen.'),
+   ('Wortanzahl','Anzahl durch Leerzeichen getrennter Wörter der schriftlichen Begründung.'),
+   ('Qualitative Kategorien','Werden manuell außerhalb dieses Skripts ausgewertet.')
+  ],columns=['Begriff','Berechnung / Bedeutung'])
+  make_sheet(wb,'00_Lesehilfe',[('Berechnungsgrundlagen',guide,'')],'Hinweise zur Auswertung der Entscheidungsaufgaben')
+  section_info={
+   'Einzelentscheidungen':('A. Einzelentscheidungen','Je Person und Methode: Auswahl, Kennwerte, Begründung, Zeit und Sicherheit.'),
+   'Regionswerte':('A. Regionale Kennwerte','Mittelwerte der 25 Zellen je Region; Temperaturabweichung zum Zielwert −12 °C.'),
+   'Auswahlhäufigkeiten':('A. Häufigkeiten der Regionswahlen','Absolute Häufigkeiten und relative Anteile pro Methode und Region.'),
+   'Methodenvergleich':('A. Deskriptiver Methodenvergleich','Kennzahlen der jeweils ausgewählten Regionen.'),
+   'Likert_Auswertung':('A. Subjektive Entscheidungssicherheit','Skala 1 bis 7; deskriptive Kennzahlen pro Methode.'),
+   'Likert_Verteilung':('A. Likert-Antwortverteilung','Absolute Häufigkeit je Antwortstufe und Methode.'),
+   'Statistische_Tests':('A. Friedman-Tests und gegebenenfalls Wilcoxon-Folgetests','Gepaarte Methodenvergleiche für Unsicherheit, Temperaturabweichung, Sicherheit und Zeit.'),
+   'Bearbeitungszeit_Deskriptiv':('A. Bearbeitungszeiten pro Methode','Bereinigte Dauer des gesamten Entscheidungsblocks in Sekunden.'),
+   'Spearman_Korrelationen':('A. Explorative Spearman-Korrelationen','Alle Entscheidungen gemeinsam; wiederholte Messungen pro Person, deshalb keine inferenzstatistischen p-Werte.')}
   for name,table in tables:
-   table.to_excel(writer,sheet_name=name,index=False)
-   ws=writer.sheets[name];ws.auto_filter.ref=ws.dimensions
-   ws.freeze_panes='C2' if name == 'Einzelentscheidungen' else None
-   for cell in ws[1]:cell.font=Font(bold=True)
-   for col in ws.columns:
-    ws.column_dimensions[col[0].column_letter].width=min(55,max(14,max(len(str(c.value or '')) for c in list(col)[:100])+2))
-  for name,table in tables:
+   heading,description=section_info[name]
+   make_sheet(wb,name,[(heading,table,description)],f'Entscheidungsaufgaben | {name.replace("_"," ")}')
+  make_sheet(wb,'Regionswahl_Vergleich',[
+   ('A. Individuelle Regionswahlen',individual,'Gleiche Regionsnummer bei zwei Methoden = Übereinstimmung; fehlende Wahlen werden nicht als Übereinstimmung gewertet.'),
+   ('B. Paarweise Übereinstimmung',agreement_df,'Je Methodenpaar: Anzahl vollständiger Paare, identische Wahlen und prozentualer Anteil.'),
+   ('C. Muster der Regionswahlen',patterns,'Anzahl verschiedener gewählter Regionen je Person über alle drei Methoden; nur vollständige Wahlen.')
+  ],'Vergleich der Regionswahlen | Individuell, paarweise und zusammengefasst')
+  # CSV-Ausgaben bleiben rückwärtskompatibel; keine bisherigen Dateien löschen.
+  for name,table in tables+[('Individuelle_Regionswahl',individual),
+                            ('Regionswahl_Uebereinstimmung',agreement_df),('Regionswahl_Muster',patterns)]:
    table.to_csv(out/f'{name}.csv',sep=';',decimal=',',index=False,encoding='utf-8-sig')
+  notes.to_csv(out/'Lesehilfe.csv',sep=';',decimal=',',index=False,encoding='utf-8-sig')
  # Regionswahl: drei eigenständige Grafiken mit identischer Skalierung.
  palette={'VSUP':'#3676b6','ScaledGlyph':'#e5a343','IsoGlyph':'#779b7b'}
  max_count=int(choice_df['n_gewählt'].max()) if len(choice_df) else 0
@@ -214,6 +343,35 @@ def main():
   fig.savefig(out/'03_Likert_Nebeneinander.png',dpi=300,bbox_inches='tight')
   fig.savefig(out/'03_Likert_Nebeneinander.pdf',bbox_inches='tight')
   plt.close(fig)
+ # Boxplot Bearbeitungszeit, analog zu Identifikation_Results.py.
+ fig,ax=plt.subplots(figsize=(7.5,5.2))
+ labels={'VSUP':'VSUP','ScaledGlyph':'Scaled Glyph','IsoGlyph':'IsoGlyph'}
+ counts={}
+ for i,method in enumerate(METHODS,1):
+  values=answers.loc[answers.Methode.eq(method),'Zeit_s'].dropna().to_numpy(dtype=float)
+  counts[method]=len(values)
+  if not len(values):continue
+  bp=ax.boxplot([values],positions=[i],widths=.52,patch_artist=True,
+                whis=1.5,showmeans=False,showfliers=True,
+                flierprops={'marker':'o','markerfacecolor':palette[method],
+                            'markeredgecolor':'white','markersize':5,'alpha':.85})
+  bp['boxes'][0].set(facecolor=palette[method],alpha=.3,edgecolor=palette[method])
+  for item in bp['medians']:
+   item.set(color=palette[method],linewidth=2)
+ if len(set(counts.values()))==1:
+  n_label=f'n = {next(iter(counts.values()))}'
+ else:
+  n_label='n: '+', '.join(f'{labels[m]} {counts[m]}' for m in METHODS)
+ ax.text(0.0,-0.17,n_label,transform=ax.transAxes,ha='left',va='top',
+         fontsize=7.5,color='#555555',clip_on=False)
+ ax.set_xticks(range(1,4),[labels[m] for m in METHODS])
+ ax.set_ylabel('Bearbeitungszeit (s)')
+ ax.set_title('Entscheidungsaufgaben')
+ ax.spines[['top','right']].set_visible(False)
+ fig.tight_layout()
+ fig.savefig(out/'04_Entscheidung_Bearbeitungszeit.png',dpi=300,bbox_inches='tight')
+ fig.savefig(out/'04_Entscheidung_Bearbeitungszeit.pdf',bbox_inches='tight')
+ plt.close(fig)
  print('Teilnehmende:',raw.participantId.nunique(),'Entscheidungen:',len(answers))
  print('Gültige Wahlen:',answers.groupby('Methode').Region.count().to_dict())
  print('Ausgabe:',out)
