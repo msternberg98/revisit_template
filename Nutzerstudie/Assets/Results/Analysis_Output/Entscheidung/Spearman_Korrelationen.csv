@@ -1,0 +1,4 @@
+﻿Variable_1;Variable_2;n_Entscheidungen;Spearman_rho;Hinweis
+Wortanzahl;Zeit_s;51;0,27830640579869287;"Explorativ; Beobachtungen derselben Personen nicht unabhängig; kein p-Test"
+Wortanzahl;Likert_Sicherheit;51;0,046549415247191195;"Explorativ; Beobachtungen derselben Personen nicht unabhängig; kein p-Test"
+Zeit_s;Likert_Sicherheit;51;-0,27262941502711585;"Explorativ; Beobachtungen derselben Personen nicht unabhängig; kein p-Test"

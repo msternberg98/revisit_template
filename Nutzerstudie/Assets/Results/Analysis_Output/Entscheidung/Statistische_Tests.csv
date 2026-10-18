@@ -1,5 +1,5 @@
 ﻿Vergleich;Test;n;Statistik;p;Kendall_W;p_Holm;Ergebnis;Hinweis
-Gewählte Unsicherheit;Friedman;15;1,4576271186440717;0,4824810858308426;0,04858757062146905;;Nicht signifikant;Gepaarte Daten
-Abweichung von -12 °C;Friedman;15;2,1355932203389774;0,34376513215025944;0,07118644067796591;;Nicht signifikant;Gepaarte Daten
-Subjektive Entscheidungssicherheit;Friedman;15;0,6153846153846241;0,7351414805916813;0,020512820512820804;;Nicht signifikant;Gepaarte Daten
-Bearbeitungszeit;Friedman;15;1,73333333333332;0,42035038450868467;0,05777777777777734;;Nicht signifikant;Gepaarte Daten
+Gewählte Unsicherheit;Friedman;17;1,7014925373134429;0,42709608456929915;0,05004389815627773;;Nicht signifikant;Gepaarte Daten
+Abweichung von -12 °C;Friedman;17;1,8805970149253646;0,3905112474365832;0,05531167690956955;;Nicht signifikant;Gepaarte Daten
+Subjektive Entscheidungssicherheit;Friedman;17;0,5333333333333207;0,7659283383646536;0,01568627450980355;;Nicht signifikant;Gepaarte Daten
+Bearbeitungszeit;Friedman;17;3,176470588235304;0,204285798178897;0,09342560553633247;;Nicht signifikant;Gepaarte Daten

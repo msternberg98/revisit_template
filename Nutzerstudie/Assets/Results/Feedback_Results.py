@@ -227,6 +227,59 @@ def compare_subjective_objective(rank_df, df):
     return result
 
 
+
+def compare_preference_by_task(rank_df, df):
+    """Vergleicht die subjektive Lieblingsmethode mit dem kleinsten Fehler je Einzelaufgabe.
+
+    Nur Personen mit vollständiger subjektiver Rangfolge und zwölf gültigen
+    Identifikationsantworten; Gleichstände beim kleinsten Fehler zählen als Treffer.
+    """
+    objective = personal_identification_ranks(df)
+    valid_ids = set(objective["participantId"])
+    complete = rank_df.loc[rank_df["Status"].eq("Vollständig") & rank_df["participantId"].isin(valid_ids)]
+    rows = []
+    for r in df.to_dict("records"):
+        match = IDENT_PATTERN.fullmatch(str(r.get("trialId", "")))
+        if not match or str(r.get("participantId")) not in valid_ids:
+            continue
+        task, method = match.groups()
+        correct = pd.to_numeric(r.get("correctAnswer"), errors="coerce")
+        answer = pd.to_numeric(r.get("answer"), errors="coerce")
+        if pd.isna(correct) or pd.isna(answer) or not np.isfinite(answer) or answer == -999:
+            continue
+        rows.append({"participantId": str(r["participantId"]), "Aufgabe": task,
+                     "Methode": method, "Sollwert": float(correct), "Antwort": float(answer)})
+    if not rows:
+        return pd.DataFrame(), pd.DataFrame()
+    trials = pd.DataFrame(rows)
+    spans = trials.assign(Variable=trials["Aufgabe"].str.replace(r"_(?:Maxima|Minima)$", "", regex=True))
+    spans = spans.groupby("Variable")["Sollwert"].agg(lambda x: x.max() - x.min())
+    trials["Variable"] = trials["Aufgabe"].str.replace(r"_(?:Maxima|Minima)$", "", regex=True)
+    trials["Fehler_%"] = 100 * (trials["Antwort"] - trials["Sollwert"]).abs() / trials["Variable"].map(spans)
+    wide = trials.pivot(index=["participantId", "Aufgabe"], columns="Methode", values="Fehler_%")
+    details = []
+    for _, row in complete.iterrows():
+        pid = row["participantId"]
+        chosen = next(m for m in IDENT_METHODS if row[{"ScaledGlyph": "Scaled Glyph"}.get(m, m)] == 1)
+        for task in IDENT_TASKS:
+            errors = wide.loc[(pid, task)].reindex(IDENT_METHODS)
+            minimum = errors.min()
+            best = [m for m in IDENT_METHODS if np.isclose(errors[m], minimum, atol=1e-10, rtol=0)]
+            details.append({"Teilnehmer": pid, "Aufgabe": task,
+                            "Subjektiv_bevorzugt": chosen,
+                            **{f"Fehler_{m}_Prozent": errors[m] for m in IDENT_METHODS},
+                            "Objektiv_genaueste_Methode": ", ".join(best),
+                            "Erstplatz_ist_genaueste": chosen in best})
+    detail = pd.DataFrame(details)
+    summary = pd.DataFrame([{"Aufgabe": task,
+                             "n_vergleichbar": len(part),
+                             "n_Uebereinstimmung": int(part["Erstplatz_ist_genaueste"].sum()),
+                             "Anteil_Uebereinstimmung_%": 100 * part["Erstplatz_ist_genaueste"].mean() if len(part) else np.nan}
+                            for task in IDENT_TASKS
+                            for part in [detail.loc[detail["Aufgabe"].eq(task)]]])
+    return summary, detail
+
+
 def write_feedback_sheet(writer, sheetname, sections, note):
     """Lesbare Abschnittsblöcke im Stil der Identifikationsauswertung."""
     ws = writer.book.create_sheet(sheetname)
@@ -250,7 +303,9 @@ def write_feedback_sheet(writer, sheetname, sections, note):
         cell = ws.cell(row, 1, value)
         cell.font = Font(bold=(fg == "FFFFFF"), color=fg, size=11)
         cell.alignment = Alignment(wrap_text=True, vertical="center")
-        ws.row_dimensions[row].height = 40 if len(value) > 125 else 30
+        import math
+        usable = max(40, sum(widths) - 12)
+        ws.row_dimensions[row].height = max(30, min(180, 16 * math.ceil(len(value) / usable) + 14))
     banner(1, note, "23415C")
     row = 3
     for title, frame, desc in sections:
@@ -265,7 +320,7 @@ def write_feedback_sheet(writer, sheetname, sections, note):
                 cell.font = Font(bold=True, color="20354A")
                 cell.fill = PatternFill("solid", fgColor="D7E5F1")
                 cell.alignment = Alignment(wrap_text=True, vertical="center")
-            ws.row_dimensions[row].height = 42
+            ws.row_dimensions[row].height = max(36, min(120, 15 * max(1, max(__import__("math").ceil(len(str(name)) / max(10, widths[j-1] - 4)) for j, name in enumerate(frame.columns, 1))) + 15))
             row += 1
             for values in frame.itertuples(index=False, name=None):
                 for j, val in enumerate(values, 1):
@@ -286,7 +341,10 @@ def write_feedback_sheet(writer, sheetname, sections, note):
                             cell.number_format = '0'
                         else:
                             cell.number_format = '#,##0.0000;[Red]-#,##0.0000' 
-                ws.row_dimensions[row].height = 28
+                # Excel passt Zeilenhöhen für umgebrochenen Text nicht zuverlässig selbst an.
+                import math
+                lines = max(1, max(math.ceil(len(str(val)) / max(10, widths[j-1] - 4)) if pd.notna(val) else 1 for j, val in enumerate(values, 1)))
+                ws.row_dimensions[row].height = max(28, min(420, 15 * lines + 10))
                 row += 1
         row += 2
 
@@ -602,6 +660,9 @@ def main ():
     rank_combined.to_csv (out / "01_Rangfolge_Haeufigkeiten.csv", sep = ";", decimal = ",", encoding = "utf-8-sig", index = False)
 
     rank_compare = compare_subjective_objective(rank_df, df)
+    task_summary, task_details = compare_preference_by_task(rank_df, df)
+    task_summary.to_csv(out / "01_Praeferenz_je_Aufgabe_Zusammenfassung.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
+    task_details.to_csv(out / "01_Praeferenz_je_Aufgabe_Einzelvergleich.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
     rank_compare.to_csv (out / "01_Rangfolge_Einzelantworten.csv", sep = ";", decimal = ",", encoding = "utf-8-sig", index = False)
 
     rank_plots (counts, out)
@@ -750,6 +811,7 @@ def main ():
             ("Vollständigkeit", "Objektive Ränge nur bei 12 gültigen Antworten (4 Aufgaben × 3 Methoden). Subjektive Vergleiche nur bei vollständiger Feedback-Rangfolge."),
             ("Rangdifferenz", "Subjektiver Rang minus objektiver Rang. Null = identisch; positive Werte = subjektiv schlechter platziert als anhand des Fehlers; negative = subjektiv besser platziert."),
             ("Exakte Übereinstimmung", "Zählt die Methoden, deren subjektiver Rang exakt dem objektiven Rang entspricht (0 bis 3). Objektive Mittelränge bei Gleichstand können eine exakte Übereinstimmung verhindern."),
+            ("Erstplatz je Einzelaufgabe", "Vergleich der subjektiv bevorzugten Methode mit der Methode mit dem geringsten normalisierten absoluten Fehler je Identifikationsaufgabe; nur vollständige Fälle. Objektive Gleichstände zählen als Übereinstimmung."),
             ("Erstplatz-Übereinstimmung", "Ja, wenn die subjektiv auf Platz 1 gesetzte Methode den kleinsten persönlichen Durchschnittsfehler hat; objektive Gleichstände auf Platz 1 zählen ebenfalls."),
             ("Ablesbarkeit und Anstrengung", "Je Methode 7-stufige Antworten: Anzahl, Anteil gültiger Antworten und deskriptive Kennzahlen. Keine Änderung der bisherigen Berechnungen."),
             ("Friedman und Wilcoxon", "Friedman prüft Unterschiede zwischen den drei verbundenen Feedbackbewertungen; bei p < 0,05 folgen paarweise Wilcoxon-Tests mit Holm-Korrektur innerhalb des Merkmals."),
@@ -771,6 +833,12 @@ def main ():
             ("C. Subjektiv-objektiver Abgleich", rank_compare.reindex(columns=comparison_cols),
              "Rangdifferenz = subjektiver Rang minus objektiver Rang. Exakte Rangübereinstimmung pro Methode; Erstplatz stimmt überein, wenn die subjektive Lieblingsmethode objektiv den geringsten Durchschnittsfehler erzielt (einschließlich Gleichstand).")
         ], "Persönlicher Vergleich von Präferenz und Identifikationsgenauigkeit")
+        write_feedback_sheet(writer, "Praeferenz_je_Aufgabe", [
+            ("A. Übereinstimmung nach Identifikationsaufgabe", task_summary,
+             "Anzahl und Anteil der Personen, deren subjektiv bevorzugte Methode je Aufgabe den kleinsten normalisierten Fehler erzielt."),
+            ("B. Individueller Vergleich je Aufgabe", task_details,
+             "Nur vollständige subjektive Rangfolgen und zwölf gültige Identifikationsantworten; bei gleichem minimalem Fehler gelten mehrere Methoden als objektiv genaueste.")
+        ], "Subjektive Erstplatzierung und Genauigkeit je Einzelaufgabe")
         for name, table in likert_tables.items():
             write_feedback_sheet(writer, name, [("Antwortverteilung und Kennzahlen", table,
                 "Stufe 1–7: Anzahl und prozentualer Anteil; Median, Quartile, IQR, Mittelwert und Standardabweichung basieren auf gültigen Antworten.")], f"Feedback: {name}")
