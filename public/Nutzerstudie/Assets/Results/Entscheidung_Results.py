@@ -163,20 +163,7 @@ def main():
   w=answers.pivot(index='Teilnehmer',columns='Methode',values=col)
   tests.extend(friedman(w,label))
  # Keine inferenzstatistische Auswertung binärer Erst-/Bestwahl ohne gesonderten Testplan.
- notes=pd.DataFrame({'Hinweise':[
-  'Deskriptive Daten verwenden alle jeweils vorhandenen gültigen Antworten.',
-  'Friedman-Tests verwenden je Zielgröße nur vollständige Personen mit Antworten für alle drei Methoden.',
-  'Temperaturabweichung ist der absolute Abstand vom Zielwert -12 °C.',
-  'R1 ist jeweils dem Zielwert am nächsten, R5 weist jeweils die geringste Unsicherheit auf.',
-  'Es gibt keine objektiv beste Region ohne festgelegte Gewichtung zwischen Temperatur und Unsicherheit.',
-  'Die Temperaturen der Region R4 unterscheiden sich zwischen IsoGlyph und den anderen Methoden im Vorzeichen der Abweichung.',
-  'Likert-Mittelwerte sind ergänzend deskriptiv; ordinale Antworten zusätzlich über Median und Verteilung beurteilen.',
-  'Schriftliche Begründungen bleiben unverändert; qualitative Kategorien werden weiterhin manuell ausgewertet.',
-  'Die Einheit der Unsicherheit ist vor der Veröffentlichung anhand der Studiendefinition zu verifizieren.',
-  'Prüfen, ob Probedurchläufe im CSV enthalten sind; sie werden nicht automatisch erkannt.',
- ]})
  # Regionswahl: Einzelwahlen, paarweise Übereinstimmungen und Muster in einem Blatt.
- # Die drei separaten CSV-Dateien bleiben für bestehende Auswertungen erhalten.
  tables=[('Einzelentscheidungen',answers),('Regionswerte',region_df),('Auswahlhäufigkeiten',choice_df),
          ('Methodenvergleich',methods_df),('Likert_Auswertung',likert),('Likert_Verteilung',likert_dist),
          ('Statistische_Tests',pd.DataFrame(tests)),('Bearbeitungszeit_Deskriptiv',time_desc),
@@ -247,6 +234,7 @@ def main():
   wb=writer.book
   guide=pd.DataFrame([
    ('Datenbasis','Nur abgeschlossene und nicht abgelehnte Teilnahmen; deskriptiv alle jeweils gültigen Werte.'),
+    ('Stichprobe','Zusammenfassung der gültigen Antworten je Methode und der vollständigen Methodentripel für die vier Friedman-Tests.'),
    ('Einzelentscheidungen','Regionswahl, regionale Temperatur und Unsicherheit, Begründung, Likert-Sicherheit, bereinigte Zeit und Wortanzahl.'),
    ('Bearbeitungszeit','cleanedDuration in Millisekunden / 1000; umfasst Regionswahl, Begründung und Sicherheitseinschätzung; Tabwechselzeiten sind bereinigt.'),
    ('Mittelwert und Median','Arithmetischer Mittelwert bzw. 50. Perzentil; keine Entfernung von Ausreißern.'),
@@ -260,6 +248,29 @@ def main():
    ('Qualitative Kategorien','Werden manuell außerhalb dieses Skripts ausgewertet.')
   ],columns=['Begriff','Berechnung / Bedeutung'])
   make_sheet(wb,'00_Lesehilfe',[('Berechnungsgrundlagen',guide,'')],'Hinweise zur Auswertung der Entscheidungsaufgaben')
+  # Transparente Stichprobengrößen für Deskription und gepaarte Tests.
+  sample_counts=pd.DataFrame([{
+    'Methode':m,
+    'Gültige Regionswahlen':int(answers.loc[answers.Methode.eq(m),'Region'].notna().sum()),
+    'Gültige Sicherheitswerte':int(answers.loc[answers.Methode.eq(m),'Likert_Sicherheit'].between(1,7).sum()),
+    'Gültige Zeitwerte':int(answers.loc[answers.Methode.eq(m),'Zeit_s'].notna().sum()),
+    'Vorhandene Begründungen':int(answers.loc[answers.Methode.eq(m),'Begründung'].notna().sum())
+   } for m in METHODS])
+  paired_counts=pd.DataFrame([{
+    'Vergleich':label,
+    'n vollständige Methodentripel':len(answers.pivot(index='Teilnehmer',columns='Methode',values=col).reindex(columns=METHODS).dropna())
+   } for col,label in [('Unsicherheit','Gewählte Unsicherheit'),('Temperaturabweichung_C','Temperaturabweichung'),
+                        ('Likert_Sicherheit','Subjektive Sicherheit'),('Zeit_s','Bearbeitungszeit')]])
+  make_sheet(wb,'Stichprobe',[
+    ('A. Gesamt',pd.DataFrame([{'Abgeschlossene Teilnahmen':raw.participantId.nunique(),
+                               'Erfasste Entscheidungsaufgaben':len(answers),
+                               'Gültige Regionswahlen':int(answers.Region.notna().sum())}]),
+     'Nur abgeschlossene, nicht abgelehnte Teilnahmen.'),
+    ('B. Gültige Antworten je Methode',sample_counts,
+     'Deskriptive Kennzahlen beruhen auf den jeweils vorhandenen gültigen Antworten.'),
+    ('C. Gepaarte Datenbasis der Friedman-Tests',paired_counts,
+     'Je Vergleich nur Personen mit gültigen Angaben zu allen drei Methoden.')
+   ],'Stichprobengrößen und verwendete Datenbasis')
   section_info={
    'Einzelentscheidungen':('A. Einzelentscheidungen','Je Person und Methode: Auswahl, Kennwerte, Begründung, Zeit und Sicherheit.'),
    'Regionswerte':('A. Regionale Kennwerte','Mittelwerte der 25 Zellen je Region; Temperaturabweichung zum Zielwert −12 °C.'),
@@ -278,11 +289,6 @@ def main():
    ('B. Paarweise Übereinstimmung',agreement_df,'Je Methodenpaar: Anzahl vollständiger Paare, identische Wahlen und prozentualer Anteil.'),
    ('C. Muster der Regionswahlen',patterns,'Anzahl verschiedener gewählter Regionen je Person über alle drei Methoden; nur vollständige Wahlen.')
   ],'Vergleich der Regionswahlen | Individuell, paarweise und zusammengefasst')
-  # CSV-Ausgaben bleiben rückwärtskompatibel; keine bisherigen Dateien löschen.
-  for name,table in tables+[('Individuelle_Regionswahl',individual),
-                            ('Regionswahl_Uebereinstimmung',agreement_df),('Regionswahl_Muster',patterns)]:
-   table.to_csv(out/f'{name}.csv',sep=';',decimal=',',index=False,encoding='utf-8-sig')
-  notes.to_csv(out/'Lesehilfe.csv',sep=';',decimal=',',index=False,encoding='utf-8-sig')
  # Regionswahl: drei eigenständige Grafiken mit identischer Skalierung.
  palette={'VSUP':'#3676b6','ScaledGlyph':'#e5a343','IsoGlyph':'#779b7b'}
  max_count=int(choice_df['n_gewählt'].max()) if len(choice_df) else 0
@@ -359,16 +365,16 @@ def main():
   for item in bp['medians']:
    item.set(color=palette[method],linewidth=2)
  if len(set(counts.values()))==1:
-  n_label=f'n = {next(iter(counts.values()))}'
+  n_label=f'Gültige Antworten: n = {next(iter(counts.values()))}'
  else:
-  n_label='n: '+', '.join(f'{labels[m]} {counts[m]}' for m in METHODS)
- ax.text(0.0,-0.17,n_label,transform=ax.transAxes,ha='left',va='top',
-         fontsize=7.5,color='#555555',clip_on=False)
+  n_label='Gültige Antworten: '+ '  |  '.join(f'{labels[m]}: n = {counts[m]}' for m in METHODS)
+ # Eigener Fußbereich unterhalb der Achse, ohne Überlappung der x-Beschriftungen.
+ fig.text(0.12,0.045,n_label,ha='left',va='bottom',fontsize=10,color='#263746',fontweight='medium')
  ax.set_xticks(range(1,4),[labels[m] for m in METHODS])
  ax.set_ylabel('Bearbeitungszeit (s)')
  ax.set_title('Entscheidungsaufgaben')
  ax.spines[['top','right']].set_visible(False)
- fig.tight_layout()
+ fig.tight_layout(rect=(0,0.17,1,1))
  fig.savefig(out/'04_Entscheidung_Bearbeitungszeit.png',dpi=300,bbox_inches='tight')
  fig.savefig(out/'04_Entscheidung_Bearbeitungszeit.pdf',bbox_inches='tight')
  plt.close(fig)
