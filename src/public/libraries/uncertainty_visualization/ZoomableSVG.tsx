@@ -8,7 +8,7 @@ type ZoomableSVGProps = {
   children: React.ReactNode;
 };
 
-export default function ZoomableSVG({
+export default function ZoomableSVG ({
 
   width,
   height,

@@ -2,8 +2,8 @@ import * as d3 from "d3";
 import { ClimateData } from "./types";
 
 export function shiftedLongitude (lon: number): number {
+    
     let shifted = lon - 30;
-
     if (shifted > 180) shifted -= 360;
 
     return shifted;
@@ -12,13 +12,10 @@ export function shiftedLongitude (lon: number): number {
 export function unshiftedLongitude (shiftedLon: number): number {
 
     let lon = shiftedLon + 30;
-
     if (lon < 0) lon += 360;
-
     if (lon >= 360) lon -= 360;
 
     return lon;
-
 }
 
 export function createScales (

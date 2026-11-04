@@ -1,7 +1,4 @@
-"""Minima-/Maxima-Aufgaben: absolute und normalisierte Fehler, Rangvergleiche, Diagnostik.
-Datei neben Nutzerstudie_all_tidy.csv ablegen; Ausgabe: Analysis_Output/Identifikation.
-Benötigt: pandas, numpy, matplotlib, openpyxl, scipy.
-"""
+# Minima-/Maxima-Aufgaben: absolute und normalisierte Fehler, Rangvergleiche, Diagnostik.
 from pathlib import Path
 import re
 import numpy as np
@@ -10,505 +7,592 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+
 # 1. Konfiguration
 CSV_FILENAME = "Nutzerstudie_all_tidy.csv"  # Zum Testen: "Nutzerstudie_all_tidy_latin_square.csv"
 # CSV_FILENAME = "Nutzerstudie_all_tidy_Test.csv"
-INCLUDE_INCOMPLETE = False  # Wird nicht verwendet: nur completed, niemals in progress
-OUTPUT_FOLDER = Path("Analysis_Output") / "Identifikation"
+OUTPUT_FOLDER = Path ("Analysis_Output") / "Identifikation"
 SHOW_PLOTS = False
 TOLERANCE_PERCENT = 1.0  # Nur deskriptiv: Fehler <= 1 % der Variablenspanne.
+
 METHODS = ["VSUP", "ScaledGlyph", "IsoGlyph"]
 METHOD_LABELS = {"VSUP": "VSUP", "ScaledGlyph": "Scaled Glyph", "IsoGlyph": "IsoGlyph"}
 COLORS = {"VSUP": "#3676b6", "ScaledGlyph": "#e5a343", "IsoGlyph": "#779b7b"}
+
+# Aufgaben in der gewünschten Reihenfolge und Namen für Excel/Diagramme
 TASKS = ["Niederschlag_Uncertainty_Maxima", "Niederschlag_Uncertainty_Minima",
          "Luftdruck_Value_Maxima", "Luftdruck_Value_Minima"]
 TASK_LABELS = {"Niederschlag_Uncertainty_Maxima": "Unsicherheit: Maximum",
                "Niederschlag_Uncertainty_Minima": "Unsicherheit: Minimum",
                "Luftdruck_Value_Maxima": "Mittelwert: Maximum",
                "Luftdruck_Value_Minima": "Mittelwert: Minimum"}
-TRIAL_PATTERN = re.compile(r"^(Niederschlag_Uncertainty_(?:Maxima|Minima)|Luftdruck_Value_(?:Maxima|Minima))_(VSUP|ScaledGlyph|IsoGlyph)$")
-def save_plot(fig, folder, name, legend=False, footer=False):
-    """PNG und PDF speichern; Legende gegebenenfalls fest rechts außerhalb."""
-    fig.tight_layout(rect=(0, 0.17, .82, 1) if legend and footer else
+# Nur Identifikationsaufgaben erkennen
+TRIAL_PATTERN = re.compile (r"^(Niederschlag_Uncertainty_(?:Maxima|Minima)|Luftdruck_Value_(?:Maxima|Minima))_(VSUP|ScaledGlyph|IsoGlyph)$")
+
+# Diagramme als PNG und PDF speichern; bei Bedarf Platz für Legende und n-Angabe lassen
+def save_plot (fig, folder, name, legend = False, footer = False):
+    fig.tight_layout (rect = (0, 0.17, .82, 1) if legend and footer else
                           (0, 0.17, 1, 1) if footer else
                           (0, 0, .82, 1) if legend else (0, 0, 1, 1))
-    fig.savefig(folder / f"{name}.png", dpi=300, bbox_inches="tight")
-    fig.savefig(folder / f"{name}.pdf", bbox_inches="tight")
+    fig.savefig (folder / f"{name}.png", dpi = 300, bbox_inches = "tight")
+    fig.savefig (folder / f"{name}.pdf", bbox_inches = "tight")
     if SHOW_PLOTS:
-        plt.show()
-    plt.close(fig)
-def describe(values):
-    """Deskriptive Kennzahlen ohne automatische Entfernung statistischer Ausreißer."""
-    s = pd.Series(values).dropna().astype(float)
+        plt.show ()
+    plt.close (fig)
+
+# Deskriptive Kennzahlen aus allen gültigen Werten berechnen
+def describe (values):
+    s = pd.Series (values).dropna ().astype (float)
     if s.empty:
         return {"n": 0, "Mittelwert": np.nan, "Median": np.nan, "Standardabweichung": np.nan,
                 "Q1": np.nan, "Q3": np.nan, "IQR": np.nan}
-    q1, q3 = s.quantile([.25, .75])
-    return {"n": len(s), "Mittelwert": s.mean(), "Median": s.median(),
-            "Standardabweichung": s.std(ddof=1) if len(s) > 1 else np.nan,
+    q1, q3 = s.quantile ([.25, .75])
+    return {"n": len (s), "Mittelwert": s.mean (), "Median": s.median (),
+            "Standardabweichung": s.std (ddof = 1) if len (s) > 1 else np.nan,
             "Q1": q1, "Q3": q3, "IQR": q3-q1}
-def parse_trials(df):
-    """Numerische Klickantworten plus zugeordnete separate Sicherheits-Likerts."""
-    # Likert-Antworten liegen als separate responseId-Zeilen derselben Trial-ID vor.
-    likert_rows = df[df['responseId'].astype(str).str.endswith('_Likert_Response', na=False)].copy()
-    likert_rows = likert_rows[likert_rows['trialId'].astype(str).str.fullmatch(TRIAL_PATTERN.pattern, na=False)]
-    likert_rows['Likert_Response'] = pd.to_numeric(likert_rows['answer'], errors='coerce')
-    # Zulässiger Wertebereich der Sicherheitsfrage: 1 bis 7.
-    likert_rows.loc[~likert_rows['Likert_Response'].between(1, 7) |
-                    (likert_rows['Likert_Response'] % 1 != 0), 'Likert_Response'] = np.nan
-    likert_rows = likert_rows.dropna(subset=['Likert_Response'])
-    if likert_rows.duplicated(['participantId', 'trialId']).any():
-        raise ValueError('Mehrere Likert-Antworten je Person und Aufgabe/Methode gefunden.')
-    likert_lookup = likert_rows.set_index(['participantId', 'trialId'])['Likert_Response'].to_dict()
-    rows = []
 
-    for r in df.to_dict("records"):
-        match = TRIAL_PATTERN.fullmatch (str(r.get ("trialId", "")))
+def parse_trials (df):
+    # Sicherheitsbewertungen aus den separaten Likert-Zeilen auslesen
+    likert_rows = df [df ['responseId'].astype (str).str.endswith ('_Likert_Response', na = False)].copy ()
+    likert_rows = likert_rows [likert_rows ['trialId'].astype (str).str.fullmatch (TRIAL_PATTERN.pattern, na = False)]
+    likert_rows ['Likert_Response'] = pd.to_numeric (likert_rows ['answer'], errors = 'coerce')
+    # Zulässiger Wertebereich der Sicherheitsfrage: 1 bis 7
+    likert_rows.loc [~likert_rows ['Likert_Response'].between (1, 7) |
+                    (likert_rows ['Likert_Response'] % 1 != 0), 'Likert_Response'] = np.nan
+    likert_rows = likert_rows.dropna (subset = ['Likert_Response'])
+    if likert_rows.duplicated (['participantId', 'trialId']).any ():
+        raise ValueError ('Mehrere Likert-Antworten je Person und Aufgabe/Methode gefunden.')
+    
+    likert_lookup = likert_rows.set_index (['participantId', 'trialId']) ['Likert_Response'].to_dict ()
+    # Gültige Identifikationsantworten erkennen und Bearbeitungszeiten übernehmen
+    rows = []
+    for r in df.to_dict ("records"):
+        match = TRIAL_PATTERN.fullmatch (str (r.get ("trialId", "")))
         if not match:
             continue
-        task, method = match.groups()
-        correct = pd.to_numeric(r.get("correctAnswer"), errors="coerce")
-        if pd.isna(correct):
+        task, method = match.groups ()
+        correct = pd.to_numeric (r.get ("correctAnswer"), errors = "coerce")
+        if pd.isna (correct):
             continue  # Die weiteren Trial-Zeilen sind keine Identifikationsantworten.
-        raw = pd.to_numeric(r.get("answer"), errors="coerce")
-        valid = pd.notna(raw) and np.isfinite(raw) and raw != -999
-        duration = pd.to_numeric(r.get("cleanedDuration"), errors="coerce")
-        if pd.isna(duration):
-            duration = pd.to_numeric(r.get("duration"), errors="coerce")
-        rows.append({"Teilnehmer": str(r["participantId"]), "Aufgabe": task,
-                     "Methode": method, "Antwort": float(raw) if valid else np.nan,
-                     "Sollwert": float(correct), "Likert_Response": likert_lookup.get((r["participantId"], r["trialId"]), np.nan), "Gültig": bool(valid),
+
+        raw = pd.to_numeric (r.get ("answer"), errors = "coerce")
+        valid = pd.notna (raw) and np.isfinite (raw) and raw != -999
+        duration = pd.to_numeric (r.get ("cleanedDuration"), errors = "coerce")
+        if pd.isna (duration):
+            duration = pd.to_numeric (r.get ("duration"), errors = "coerce")
+
+        rows.append ({"Teilnehmer": str (r["participantId"]), "Aufgabe": task,
+                     "Methode": method, "Antwort": float (raw) if valid else np.nan,
+                     "Sollwert": float (correct), "Likert_Response": likert_lookup.get ((r["participantId"], r["trialId"]), np.nan), "Gültig": bool (valid),
                      "Ungültigkeitsgrund": "" if valid else ("-999 (keine Antwort)" if raw == -999 else "Fehlend/nicht numerisch"),
-                     "Zeit_s": float(duration)/1000 if pd.notna(duration) and duration >= 0 else np.nan,
-                     "trialOrder": r.get("trialOrder")})
-    out = pd.DataFrame(rows)
+                     "Zeit_s": float (duration)/1000 if pd.notna (duration) and duration >= 0 else np.nan,
+                     "trialOrder": r.get ("trialOrder")})
+    out = pd.DataFrame (rows)
     if out.empty:
-        raise ValueError("Keine Identifikationsaufgaben gefunden. trialId und correctAnswer prüfen.")
-    duplicates = out.duplicated(["Teilnehmer", "Aufgabe", "Methode"], keep=False)
-    if duplicates.any():
-        raise ValueError("Doppelte Identifikationsantworten gefunden; Rohdaten prüfen:\n" +
-                         out.loc[duplicates, ["Teilnehmer", "Aufgabe", "Methode"]].to_string(index=False))
+        raise ValueError ("Keine Identifikationsaufgaben gefunden. trialId und correctAnswer prüfen.")
+    
+    duplicates = out.duplicated (["Teilnehmer", "Aufgabe", "Methode"], keep = False)
+    if duplicates.any ():
+        raise ValueError ("Doppelte Identifikationsantworten gefunden; Rohdaten prüfen:\n" +
+                         out.loc [duplicates, ["Teilnehmer", "Aufgabe", "Methode"]].to_string (index = False))
+    
     # Referenzspanne stammt aus den beiden tatsächlichen Extrema der jeweiligen Variable.
-    out["Variable"] = out["Aufgabe"].str.replace(r"_(?:Maxima|Minima)$", "", regex=True)
-    reference = out.groupby(["Variable", "Aufgabe"])["Sollwert"].agg(["min", "max"])
-    if (reference["max"]-reference["min"] > 1e-9).any():
-        raise ValueError("Widersprüchliche Sollwerte für dieselbe Aufgabe: Rohdaten prüfen.")
-    spans = out.groupby("Variable")["Sollwert"].agg(["min", "max"])
-    spans["Spanne"] = spans["max"]-spans["min"]
-    if spans["Spanne"].isna().any() or (spans["Spanne"] <= 0).any():
-        raise ValueError("Wertspanne fehlt/ist null. Für jede Variable müssen Min und Max vorliegen.")
-    out["Wertspanne"] = out["Variable"].map(spans["Spanne"])
-    out["Fehler_absolut"] = (out["Antwort"]-out["Sollwert"]).abs()
-    out["Fehler_%"] = 100*out["Fehler_absolut"]/out["Wertspanne"]
-    out["Exakt"] = out["Gültig"] & np.isclose(out["Antwort"], out["Sollwert"], rtol=0, atol=1e-10)
-    out["Innerhalb_1%"] = out["Gültig"] & (out["Fehler_%"] <= TOLERANCE_PERCENT + 1e-10)
-    out["Exakt"] = out["Exakt"].astype("boolean")
-    out["Innerhalb_1%"] = out["Innerhalb_1%"].astype("boolean")
-    out.loc[~out["Gültig"], ["Exakt", "Innerhalb_1%"]] = pd.NA
-    # Auffällige Fehler pro Aufgabe und Methode markieren; NIEMALS automatisch entfernen.
-    out["IQR_auffällig"] = False
+    out ["Variable"] = out ["Aufgabe"].str.replace (r"_(?:Maxima|Minima)$", "", regex = True)
+    reference = out.groupby (["Variable", "Aufgabe"]) ["Sollwert"].agg (["min", "max"])
+    if (reference ["max"]-reference ["min"] > 1e-9).any ():
+        raise ValueError ("Widersprüchliche Sollwerte für dieselbe Aufgabe: Rohdaten prüfen.")
+    
+    spans = out.groupby ("Variable") ["Sollwert"].agg (["min", "max"])
+    spans ["Spanne"] = spans ["max"]-spans ["min"]
+    if spans ["Spanne"].isna ().any () or (spans ["Spanne"] <= 0).any ():
+        raise ValueError ("Wertspanne fehlt/ist null. Für jede Variable müssen Min und Max vorliegen.")
+
+    # Absolute Abweichung vom Sollwert berechnen und anhand der variablenspezifischen Spannweite zwischen Minimum und Maximum normalisieren
+    out ["Wertspanne"] = out ["Variable"].map (spans ["Spanne"])
+    out ["Fehler_absolut"] = (out ["Antwort"]-out ["Sollwert"]).abs ()
+    out ["Fehler_%"] = 100*out ["Fehler_absolut"]/out ["Wertspanne"]
+    out ["Exakt"] = out ["Gültig"] & np.isclose (out ["Antwort"], out ["Sollwert"], rtol = 0, atol = 1e-10)
+    out ["Innerhalb_1%"] = out ["Gültig"] & (out ["Fehler_%"] <= TOLERANCE_PERCENT + 1e-10)
+    out ["Exakt"] = out ["Exakt"].astype ("boolean")
+    out ["Innerhalb_1%"] = out ["Innerhalb_1%"].astype ("boolean")
+    out.loc [~out ["Gültig"], ["Exakt", "Innerhalb_1%"]] = pd.NA
+    # Auffällige Fehler anhand der IQR-Regel markieren, ohne Werte auszuschließen
+    out ["IQR_auffällig"] = False
     thresholds = []
-    for (task, method), grp in out[out["Gültig"]].groupby(["Aufgabe", "Methode"]):
-        q1, q3 = grp["Fehler_absolut"].quantile([.25, .75]); iqr = q3-q1
+    for (task, method), grp in out [out ["Gültig"]].groupby (["Aufgabe", "Methode"]):
+        q1, q3 = grp ["Fehler_absolut"].quantile ([.25, .75]); iqr = q3-q1
         upper = q3 + 1.5*iqr
-        # Bei IQR=0 ist die Markierung wenig aussagekräftig: nur dokumentieren.
-        applicable = len(grp) >= 4 and iqr > 0
-        out.loc[grp.index, "IQR_auffällig"] = applicable & (grp["Fehler_absolut"] > upper)
-        thresholds.append({"Aufgabe": task, "Methode": method, "n": len(grp), "Q1": q1,
+        # Bei IQR = 0 ist die Markierung wenig aussagekräftig: nur dokumentieren
+        applicable = len (grp) >= 4 and iqr > 0
+        out.loc [grp.index, "IQR_auffällig"] = applicable & (grp ["Fehler_absolut"] > upper)
+        thresholds.append ({"Aufgabe": task, "Methode": method, "n": len (grp), "Q1": q1,
                            "Q3": q3, "IQR": iqr, "Obere_Grenze": upper,
                            "IQR_anwendbar": applicable,
-                           "Auffällige": int(out.loc[grp.index, "IQR_auffällig"].sum())})
-    return out, pd.DataFrame(thresholds), spans.reset_index()
-def rank_table(wide):
-    """Gleichstände mit Mittelrängen; Erstplätze bei Gleichstand anteilig vergeben."""
-    ranks = wide.rank(axis=1, method="average", ascending=True)
-    wins = wide.eq(wide.min(axis=1), axis=0).div(wide.eq(wide.min(axis=1), axis=0).sum(axis=1), axis=0)
-    ties = wide.apply(lambda row: row.map(row.value_counts()).gt(1), axis=1)
+                           "Auffällige": int (out.loc [grp.index, "IQR_auffällig"].sum ())})
+        
+    return out, pd.DataFrame (thresholds), spans.reset_index ()
+
+def rank_table (wide):
+    # Persönliche Methodenränge anhand der Fehler bestimmen
+    ranks = wide.rank (axis = 1, method = "average", ascending = True)
+    # Erstplatz bei mehreren gleich guten Methoden anteilig aufteilen
+    wins = wide.eq (wide.min (axis = 1), axis = 0).div (wide.eq (wide.min (axis = 1), axis = 0).sum (axis = 1), axis = 0)
+    # Auch Gleichstände außerhalb des ersten Platzes erfassen
+    ties = wide.apply (lambda row: row.map (row.value_counts ()).gt (1), axis = 1)
+    # Rangkennzahlen für jede Visualisierungsmethode zusammenfassen
     rows = []
     for method in METHODS:
-        vals = ranks[method]
-        rows.append({"Methode": method, "n": len(wide), "Mittlerer_Rang": vals.mean(),
-                     "Anteil_Erstplatz_%": wins[method].mean()*100,
-                     "Erstplatz_gewichtet": wins[method].sum(),
-                     "Rang_1": int((vals == 1).sum()), "Rang_2": int((vals == 2).sum()),
-                     "Rang_3": int((vals == 3).sum()), "An Gleichständen beteiligt": int(ties[method].sum())})
-    return pd.DataFrame(rows), ranks, wins
-def repeated_anova(wide, title):
-    """Einfaktorielle RM-ANOVA inkl. Mauchly, GG und HF (explorativ).
-    Vollständige Methodentripel; Korrekturen ändern nur die F-Freiheitsgrade.
-    Mauchly wird bei singulärer Kontrast-Kovarianz nicht ausgewertet.
-    """
-    complete = wide.reindex(columns=METHODS).dropna()
+        vals = ranks [method]
+        rows.append ({"Methode": method, "n": len (wide), "Mittlerer_Rang": vals.mean (),
+                     "Anteil_Erstplatz_%": wins [method].mean ()*100,
+                     "Erstplatz_gewichtet": wins [method].sum (),
+                     "Rang_1": int ((vals == 1).sum ()), "Rang_2": int ((vals == 2).sum ()),
+                     "Rang_3": int ((vals == 3).sum ()), "An Gleichständen beteiligt": int (ties [method].sum ())})
+    return pd.DataFrame (rows), ranks, wins
+
+def repeated_anova (wide, title):
+    # Einfaktorielle ANOVA mit Messwiederholung; nur vollständige Methodentripel
+    complete = wide.reindex (columns = METHODS).dropna ()
     n, k = complete.shape
     result = {"Vergleich": title, "Test": "ANOVA (Messwiederholung)", "n": n,
               "Hinweis": "Explorativ; GG-korrigiertes p bevorzugen. Mauchly bei kleinem n wenig trennscharf."}
     if n < 3:
-        result["Hinweis"] = "Zu wenige vollständige Personen"
+        result ["Hinweis"] = "Zu wenige vollständige Personen"
         return result
-    x = complete.to_numpy(dtype=float)
-    grand = x.mean()
-    ss_method = float(n * np.square(x.mean(axis=0) - grand).sum())
-    ss_person = float(k * np.square(x.mean(axis=1) - grand).sum())
-    ss_total = float(np.square(x - grand).sum())
-    ss_error = max(0., ss_total - ss_method - ss_person)
+    
+    x = complete.to_numpy (dtype = float)
+    grand = x.mean ()
+    # Gesamtstreuung in Methoden-, Personen- und Residualanteil zerlegen
+    ss_method = float (n * np.square (x.mean (axis = 0) - grand).sum ())
+    ss_person = float (k * np.square (x.mean (axis = 1) - grand).sum ())
+    ss_total = float (np.square (x - grand).sum ())
+    ss_error = max (0., ss_total - ss_method - ss_person)
     df_method, df_error = k - 1, (n - 1) * (k - 1)
     ms_method = ss_method / df_method
     ms_error = ss_error / df_error
-    result.update({"SS_Methode": ss_method, "SS_Person": ss_person,
+    result.update ({"SS_Methode": ss_method, "SS_Person": ss_person,
                    "SS_Residual": ss_error, "SS_Gesamt": ss_total,
                    "MS_Methode": ms_method, "MS_Residual": ms_error,
                    "df1": df_method, "df2": df_error})
     if ms_error <= 1e-12:
-        result["Hinweis"] = "Residualvarianz null; F-Test nicht bestimmbar"
+        result ["Hinweis"] = "Residualvarianz null; F-Test nicht bestimmbar"
         return result
+    
     f = ms_method / ms_error
-    result.update({"Statistik": float(f), "p": float(stats.f.sf(f, df_method, df_error)),
-                   "Eta2_partiell": float(ss_method / (ss_method + ss_error))})
-    # Orthogonale Kontraste entfernen die personenspezifische Niveauverschiebung.
-    # Helmert-Kontraste, für k=3 äquivalent zu einer beliebigen orthonormalen
-    # Basis des Unterraums mit Kontrastsummen null.
+    result.update ({"Statistik": float (f), "p": float(stats.f.sf (f, df_method, df_error)),
+                   "Eta2_partiell": float (ss_method / (ss_method + ss_error))})
+    # Kontrastkovarianz zur Prüfung der Sphärizität bestimmen
     from scipy.linalg import helmert
-    contrast = helmert(k, full=False)
-    covariance = np.cov(x @ contrast.T, rowvar=False, ddof=1)
-    eigenvalues = np.linalg.eigvalsh(np.atleast_2d(covariance))
+    contrast = helmert (k, full = False)
+    covariance = np.cov (x @ contrast.T, rowvar = False, ddof = 1)
+    eigenvalues = np.linalg.eigvalsh (np.atleast_2d (covariance))
+    # Greenhouse-Geisser-Korrektur der Freiheitsgrade und des p-Werts
     d = k - 1
-    trace = float(eigenvalues.sum())
-    trace_sq = float(np.square(eigenvalues).sum())
+    trace = float (eigenvalues.sum())
+    trace_sq = float (np.square (eigenvalues).sum ())
     if trace <= 1e-12 or trace_sq <= 1e-24:
-        result["Hinweis"] = "Kontrastkovarianz degeneriert; Korrekturen nicht bestimmbar"
+        result ["Hinweis"] = "Kontrastkovarianz degeneriert; Korrekturen nicht bestimmbar"
         return result
-    eps_gg = float(np.clip(trace**2 / (d * trace_sq), 1.0 / d, 1.0))
+    eps_gg = float (np.clip (trace**2 / (d * trace_sq), 1.0 / d, 1.0))
     df1_gg, df2_gg = df_method * eps_gg, df_error * eps_gg
-    result.update({"Epsilon_GG": eps_gg, "df1_GG": df1_gg, "df2_GG": df2_gg,
-                   "p_GG": float(stats.f.sf(f, df1_gg, df2_gg))})
-    # Huynh-Feldt-Schätzer; auf [1/(k-1), 1] begrenzt.
+    result.update ({"Epsilon_GG": eps_gg, "df1_GG": df1_gg, "df2_GG": df2_gg,
+                   "p_GG": float(stats.f.sf (f, df1_gg, df2_gg))})
+    # Alternative Huynh-Feldt-Korrektur der Freiheitsgrade berechnen
     denom = d * (n - 1 - d * eps_gg)
     if denom > 0:
-        eps_hf = float(np.clip((n * d * eps_gg - 2) / denom, 1.0 / d, 1.0))
-        result.update({"Epsilon_HF": eps_hf, "df1_HF": df_method * eps_hf,
+        eps_hf = float (np.clip ((n * d * eps_gg - 2) / denom, 1.0 / d, 1.0))
+        result.update ({"Epsilon_HF": eps_hf, "df1_HF": df_method * eps_hf,
                        "df2_HF": df_error * eps_hf,
-                       "p_HF": float(stats.f.sf(f, df_method * eps_hf, df_error * eps_hf))})
-    # Mauchlys W: geometrisches / arithmetisches Mittel der Eigenwerte
-    # (als Potenz d); Bartlett-Chi-Quadrat-Approximation.
-    if np.min(eigenvalues) > 1e-12:
-        mauchly_w = float(np.prod(eigenvalues) / (trace / d)**d)
-        mauchly_w = float(np.clip(mauchly_w, np.finfo(float).tiny, 1.0))
+                       "p_HF": float (stats.f.sf (f, df_method * eps_hf, df_error * eps_hf))})
+    # Mauchly-Test zur Prüfung der Sphärizität anhand der Kontrastkovarianz
+    if np.min (eigenvalues) > 1e-12:
+        mauchly_w = float (np.prod (eigenvalues) / (trace / d)**d)
+        mauchly_w = float (np.clip (mauchly_w, np.finfo (float).tiny, 1.0))
         mauchly_df = d * (d + 1) / 2 - 1
         correction = 1 - (2 * d*d + d + 2) / (6 * d * (n - 1))
         if correction > 0:
-            mauchly_chi2 = float(-(n - 1) * correction * np.log(mauchly_w))
-            result.update({"Mauchly_W": mauchly_w, "Mauchly_Chi2": mauchly_chi2,
+            mauchly_chi2 = float (-(n - 1) * correction * np.log (mauchly_w))
+            result.update ({"Mauchly_W": mauchly_w, "Mauchly_Chi2": mauchly_chi2,
                            "Mauchly_df": mauchly_df,
-                           "Mauchly_p": float(stats.chi2.sf(mauchly_chi2, mauchly_df))})
+                           "Mauchly_p": float (stats.chi2.sf (mauchly_chi2, mauchly_df))})
     else:
-        result["Hinweis"] += " Mauchly nicht bestimmbar (singuläre Kovarianz)."
+        result ["Hinweis"] += " Mauchly nicht bestimmbar (singuläre Kovarianz)."
     return result
-def order_test_columns(frame):
-    """Friedman-Entscheidung direkt hinter Signifikanz; ANOVA-Kennzahlen danach."""
+
+# Statistische Kennzahlen für Excel einheitlich anordnen
+def order_test_columns (frame):
     preferred = ['Vergleich', 'Test', 'n', 'Statistik', 'p', 'Kendall_W',
                  'Signifikanz (p < 0.05)', 'p_Holm_4_primäre_Friedman',
                  'Primär_Friedman_signifikant', 'Hinweis']
-    return frame.reindex(columns=[c for c in preferred if c in frame.columns] +
+    return frame.reindex (columns = [c for c in preferred if c in frame.columns] +
                          [c for c in frame.columns if c not in preferred])
-def combined_tests(wide, title):
-    """Friedman (ggf. Wilcoxon/Holm), direkt darunter Messwiederholungs-ANOVA."""
-    frame = pd.DataFrame([*friedman_comparison(wide, title), repeated_anova(wide, title)])
-    # ANOVA: primär den GG-korrigierten p-Wert beurteilen, nicht das unkorrigierte p.
-    mask = frame['Test'].eq('ANOVA (Messwiederholung)')
-    for idx in frame.index[mask]:
-        p_gg = frame.at[idx, 'p_GG'] if 'p_GG' in frame.columns else np.nan
-        frame.at[idx, 'Signifikanz (p < 0.05)'] = (
-            'Signifikant (GG)' if pd.notna(p_gg) and p_gg < .05 else
-            'Nicht signifikant (GG)' if pd.notna(p_gg) else
+
+# Friedman-Test, mögliche Wilcoxon-Folgetests und ANOVA zusammenfassen
+def combined_tests (wide, title):
+    frame = pd.DataFrame ([*friedman_comparison (wide, title), repeated_anova (wide, title)])
+    # ANOVA anhand des Greenhouse-Geisser-korrigierten p-Werts beurteilen
+    mask = frame ['Test'].eq ('ANOVA (Messwiederholung)')
+    for idx in frame.index [mask]:
+        p_gg = frame.at [idx, 'p_GG'] if 'p_GG' in frame.columns else np.nan
+        frame.at [idx, 'Signifikanz (p < 0.05)'] = (
+            'Signifikant (GG)' if pd.notna (p_gg) and p_gg < .05 else
+            'Nicht signifikant (GG)' if pd.notna (p_gg) else
             'Nicht bestimmbar (GG)')
-    return order_test_columns(frame)
-def friedman_comparison(wide, title):
-    """Gepaarter Friedman-Test; paarweise Wilcoxon nur bei p<.05, Holm-Korrektur."""
-    if len(wide) < 3:
-        return [{"Vergleich": title, "Test": "Friedman", "n": len(wide), "Hinweis": "Zu wenige vollständige Personen"}]
-    if (wide.nunique(axis=1) == 1).all():
-        return [{"Vergleich": title, "Test": "Friedman", "n": len(wide), "Hinweis": "Alle Methoden identisch"}]
-    stat, p = stats.friedmanchisquare(*(wide[m] for m in METHODS))
-    result = [{"Vergleich": title, "Test": "Friedman", "n": len(wide), "Statistik": stat, "p": p,
-               "Kendall_W": stat/(len(wide)*(len(METHODS)-1)), "Signifikanz (p < 0.05)": "Signifikant" if p < 0.05 else "Nicht signifikant", "Hinweis": ""}]
+        
+    return order_test_columns (frame)
+
+# Friedman-Test zum Vergleich der drei Methoden
+def friedman_comparison (wide, title):
+    if len (wide) < 3:
+        return [{"Vergleich": title, "Test": "Friedman", "n": len (wide), "Hinweis": "Zu wenige vollständige Personen"}]
+    
+    if (wide.nunique (axis = 1) == 1).all ():
+        return [{"Vergleich": title, "Test": "Friedman", "n": len (wide), "Hinweis": "Alle Methoden identisch"}]
+
+    # Friedman-Prüfgröße, p-Wert und Kendall W berechnen
+    stat, p = stats.friedmanchisquare (*(wide [m] for m in METHODS))
+    result = [{"Vergleich": title, "Test": "Friedman", "n": len (wide), "Statistik": stat, "p": p,
+               "Kendall_W": stat/ (len (wide) * (len (METHODS)-1)), "Signifikanz (p < 0.05)": "Signifikant" if p < 0.05 else "Nicht signifikant", "Hinweis": ""}]
     if p < .05:
-        pairs = [(METHODS[0], METHODS[1]), (METHODS[0], METHODS[2]), (METHODS[1], METHODS[2])]
+        pairs = [(METHODS [0], METHODS [1]), (METHODS [0], METHODS [2]), (METHODS [1], METHODS [2])]
         tests = []
         for a, b in pairs:
-            diff = wide[a]-wide[b]
-            if np.allclose(diff, 0):
-                tests.append((a, b, 0., 1.))
+            diff = wide [a] - wide [b]
+            if np.allclose (diff, 0):
+                tests.append ((a, b, 0., 1.))
+
             else:
-                w, wp = stats.wilcoxon(wide[a], wide[b], zero_method="wilcox", alternative="two-sided")
-                tests.append((a, b, w, wp))
-        # Holm: sortierte p-Werte schrittweise adjustieren, monoton halten.
-        ordered = sorted(range(3), key=lambda i: tests[i][3]); adj = [None]*3; previous = 0.
-        for k, idx in enumerate(ordered):
-            previous = max(previous, min(1., tests[idx][3]*(3-k)))
-            adj[idx] = previous
-        for (a,b,w,wp), ap in zip(tests, adj):
-            result.append({"Vergleich": title, "Test": f"Wilcoxon: {a} / {b}", "n": len(wide),
-                           "Statistik": w, "p": wp, "p_Holm": ap, **paired_effects(wide[a], wide[b]), "Hinweis": "Paarweise, Holm innerhalb der Aufgabe"})
+                w, wp = stats.wilcoxon (wide [a], wide [b], zero_method = "wilcox", alternative = "two-sided")
+                tests.append ((a, b, w, wp))
+
+        # Holm-Korrektur über die drei Methodenpaare
+        ordered = sorted (range (3), key = lambda i: tests [i] [3]); adj = [None]*3; previous = 0.
+        for k, idx in enumerate (ordered):
+            previous = max (previous, min (1., tests [idx] [3] * (3-k)))
+            adj [idx] = previous
+
+        # Paarvergleiche einschließlich Effektstärken ergänzen
+        for (a,b,w,wp), ap in zip (tests, adj):
+            result.append ({"Vergleich": title, "Test": f"Wilcoxon: {a} / {b}", "n": len (wide),
+                           "Statistik": w, "p": wp, "p_Holm": ap, **paired_effects (wide [a], wide [b]), "Hinweis": "Paarweise, Holm innerhalb der Aufgabe"})
+            
     return result
 
-def holm_adjust(pvalues):
-    """Holm-adjustierte p-Werte; fehlende Tests bleiben NaN."""
-    result = [np.nan] * len(pvalues)
-    indices = sorted((i for i, p in enumerate(pvalues) if pd.notna(p)), key=lambda i: pvalues[i])
+# Holm-Korrektur zur Berücksichtigung mehrfacher statistischer Tests
+def holm_adjust (pvalues):
+    result = [np.nan] * len (pvalues)
+    indices = sorted ((i for i, p in enumerate (pvalues) if pd.notna (p)), key = lambda i: pvalues [i])
     previous = 0.0
-    for rank, i in enumerate(indices):
-        previous = max(previous, min(1.0, float(pvalues[i]) * (len(indices) - rank)))
-        result[i] = previous
+    for rank, i in enumerate (indices):
+        previous = max (previous, min (1.0, float (pvalues [i]) * (len (indices) - rank)))
+        result [i] = previous
+
     return result
-def paired_effects(a, b):
-    """Differenz A-B; rank-biseriale Korrelation auf nichtnull Differenzen."""
-    d = (pd.Series(a).reset_index(drop=True) - pd.Series(b).reset_index(drop=True)).dropna()
-    nonzero = d[~np.isclose(d, 0, atol=1e-12)]
+
+# Ergänzende Kennzahlen für zwei verbundene Methoden berechnen
+def paired_effects (a, b):
+    # Persönliche Differenzen der beiden Methoden bestimmen
+    d = (pd.Series (a).reset_index (drop = True) - pd.Series (b).reset_index (drop = True)).dropna ()
+    # Nulldifferenzen für die rangbiseriale Korrelation ausschließen
+    nonzero = d [~np.isclose (d, 0, atol = 1e-12)]
     if nonzero.empty:
-        rbc = 0.0 if len(d) else np.nan
+        rbc = 0.0 if len (d) else np.nan
+
+    # Absolute Differenzen rangieren und positive sowie negative Rangsummen bestimmen
     else:
-        ranks = stats.rankdata(abs(nonzero.to_numpy(float)))
-        plus = ranks[nonzero.to_numpy(float) > 0].sum()
-        minus = ranks[nonzero.to_numpy(float) < 0].sum()
-        rbc = float((plus - minus) / (plus + minus))
-    return {'Median_Differenz_A_minus_B': float(d.median()) if len(d) else np.nan,
-            'Mittel_Differenz_A_minus_B': float(d.mean()) if len(d) else np.nan,
-            'Rangbiserial_r': rbc, 'n_Nichtnull_Differenzen': len(nonzero)}
-def task_comparisons(valid):
-    """Sekundär: gepaarte Max/Min-Tests und explorative Differenz-der-Differenzen."""
+        ranks = stats.rankdata (abs (nonzero.to_numpy (float)))
+        plus = ranks [nonzero.to_numpy (float) > 0].sum ()
+        minus = ranks [nonzero.to_numpy (float) < 0].sum ()
+        rbc = float ((plus - minus) / (plus + minus))
+
+    return {'Median_Differenz_A_minus_B': float (d.median ()) if len (d) else np.nan,
+            'Mittel_Differenz_A_minus_B': float (d.mean ()) if len (d) else np.nan,
+            'Rangbiserial_r': rbc, 'n_Nichtnull_Differenzen': len (nonzero)}
+
+# Sekundäre Vergleiche zwischen Maximum- und Minimum-Aufgaben
+def task_comparisons (valid):
     rows, individual = [], []
     for label, maximum, minimum in [
         ('Unsicherheit', 'Niederschlag_Uncertainty_Maxima', 'Niederschlag_Uncertainty_Minima'),
         ('Mittelwert', 'Luftdruck_Value_Maxima', 'Luftdruck_Value_Minima')]:
-        part = valid[valid.Aufgabe.isin([maximum, minimum])]
-        wide = part.pivot(index='Teilnehmer', columns=['Aufgabe', 'Methode'], values='Fehler_%')
-        changes = pd.DataFrame(index=wide.index)
+        part = valid [valid.Aufgabe.isin ([maximum, minimum])]
+        wide = part.pivot (index = 'Teilnehmer', columns = ['Aufgabe', 'Methode'], values = 'Fehler_%')
+        changes = pd.DataFrame (index = wide.index)
         for method in METHODS:
             if (maximum, method) not in wide.columns or (minimum, method) not in wide.columns:
                 continue
-            pair = wide[[(maximum, method), (minimum, method)]].dropna()
+
+            pair = wide [[(maximum, method), (minimum, method)]].dropna ()
             if pair.empty:
                 continue
-            a, b = pair.iloc[:, 0], pair.iloc[:, 1]
-            changes.loc[pair.index, method] = a - b
-            if len(pair) >= 2 and not np.allclose(a, b):
-                statistic, pvalue = stats.wilcoxon(a, b, zero_method='wilcox', alternative='two-sided')
-            elif len(pair) >= 2:
+
+            a, b = pair.iloc [:, 0], pair.iloc [:, 1]
+            # Persönliche Differenz zwischen Maximum- und Minimum-Fehler berechnen
+            changes.loc [pair.index, method] = a - b
+            # Gepaarter Wilcoxon-Test für Maximum gegen Minimum
+            if len (pair) >= 2 and not np.allclose (a, b):
+                statistic, pvalue = stats.wilcoxon (a, b, zero_method = 'wilcox', alternative = 'two-sided')
+
+            elif len (pair) >= 2:
                 statistic, pvalue = 0.0, 1.0
+
             else:
                 statistic, pvalue = np.nan, np.nan
-            rows.append({'Bereich': label, 'Test': 'Max gegen Min (Wilcoxon)', 'Methode': method,
-                         'n': len(pair), 'Statistik': statistic, 'p': pvalue,
-                         **paired_effects(a, b)})
-        complete = changes.reindex(columns=METHODS).dropna()
-        if len(complete) >= 3 and not (complete.nunique(axis=1) == 1).all():
-            stat, pval = stats.friedmanchisquare(*(complete[m] for m in METHODS))
-            w = stat / (len(complete) * (len(METHODS) - 1))
-        elif len(complete) >= 3:
+            rows.append ({'Bereich': label, 'Test': 'Max gegen Min (Wilcoxon)', 'Methode': method,
+                         'n': len (pair), 'Statistik': statistic, 'p': pvalue,
+                         **paired_effects (a, b)})
+        complete = changes.reindex (columns = METHODS).dropna ()
+        # Friedman-Test zum Vergleich der Max-Min-Differenzen zwischen den Methoden
+        if len (complete) >= 3 and not (complete.nunique (axis = 1) == 1).all ():
+            stat, pval = stats.friedmanchisquare (*(complete[m] for m in METHODS))
+            w = stat / (len (complete) * (len (METHODS) - 1))
+
+        elif len (complete) >= 3:
             stat, pval, w = 0.0, 1.0, 0.0
+
         else:
             stat, pval, w = np.nan, np.nan, np.nan
-        rows.append({'Bereich': label, 'Test': 'Methodenvergleich der Max-Min-Differenzen (Friedman)',
-                     'Methode': 'alle drei', 'n': len(complete), 'Statistik': stat,
+        rows.append ({'Bereich': label, 'Test': 'Methodenvergleich der Max-Min-Differenzen (Friedman)',
+                     'Methode': 'alle drei', 'n': len (complete), 'Statistik': stat,
                      'p': pval, 'Kendall_W': w,
                      'Hinweis': 'Explorativer Rangvergleich der Differenzen; kein vollständiger faktorieller Interaktionstest'})
-        for participant, vals in changes.iterrows():
+        for participant, vals in changes.iterrows ():
             for method in METHODS:
-                if pd.notna(vals.get(method, np.nan)):
-                    individual.append({'Bereich': label, 'Teilnehmer': participant, 'Methode': method,
-                                       'Fehler_Max_minus_Min_Prozentpunkte': vals[method]})
-    tests = pd.DataFrame(rows)
+                if pd.notna (vals.get (method, np.nan)):
+                    individual.append ({'Bereich': label, 'Teilnehmer': participant, 'Methode': method,
+                                       'Fehler_Max_minus_Min_Prozentpunkte': vals [method]})
+                    
+    tests = pd.DataFrame (rows)
     if not tests.empty:
-        tests['p_Holm_6_Wilcoxon'] = np.nan
-        mask = tests.Test.eq('Max gegen Min (Wilcoxon)')
-        tests.loc[mask, 'p_Holm_6_Wilcoxon'] = holm_adjust(tests.loc[mask, 'p'].tolist())
-        tests['p_Holm_2_Friedman'] = np.nan
-        mask = tests.Test.str.startswith('Methodenvergleich')
-        tests.loc[mask, 'p_Holm_2_Friedman'] = holm_adjust(tests.loc[mask, 'p'].tolist())
-        wilcoxon = tests.Test.eq('Max gegen Min (Wilcoxon)')
-        def richtung(median):
-            if pd.isna(median):
+        # Holm-Korrektur über die sechs Max-Min-Wilcoxon-Tests
+        tests ['p_Holm_6_Wilcoxon'] = np.nan
+        mask = tests.Test.eq ('Max gegen Min (Wilcoxon)')
+        tests.loc [mask, 'p_Holm_6_Wilcoxon'] = holm_adjust (tests.loc [mask, 'p'].tolist ())
+        # Holm-Korrektur über die zwei explorativen Friedman-Tests
+        tests ['p_Holm_2_Friedman'] = np.nan
+        mask = tests.Test.str.startswith ('Methodenvergleich')
+        tests.loc [mask, 'p_Holm_2_Friedman'] = holm_adjust (tests.loc[mask, 'p'].tolist ())
+        wilcoxon = tests.Test.eq ('Max gegen Min (Wilcoxon)')
+
+        def richtung (median):
+            if pd.isna (median):
                 return 'Nicht bestimmbar'
+            
             if median > 0:
                 return 'Maximum ungenauer'
+            
             if median < 0:
                 return 'Minimum ungenauer'
+            
             return 'Kein Unterschied im Median'
-        tests.loc[wilcoxon, 'Richtung_der_Differenz'] = (
-            tests.loc[wilcoxon, 'Median_Differenz_A_minus_B'].map(richtung)
+        tests.loc [wilcoxon, 'Richtung_der_Differenz'] = (
+            tests.loc [wilcoxon, 'Median_Differenz_A_minus_B'].map (richtung)
         )
-        tests.loc[wilcoxon, 'Statistisches_Ergebnis'] = tests.loc[wilcoxon, 'p_Holm_6_Wilcoxon'].map(
-            lambda p: 'Nicht berechenbar' if pd.isna(p) else ('Signifikant' if p < 0.05 else 'Nicht signifikant')
+        # Signifikanz der Wilcoxon-Tests anhand korrigierter p-Werte bestimmen
+        tests.loc [wilcoxon, 'Statistisches_Ergebnis'] = tests.loc [wilcoxon, 'p_Holm_6_Wilcoxon'].map (
+            lambda p: 'Nicht berechenbar' if pd.isna (p) else ('Signifikant' if p < 0.05 else 'Nicht signifikant')
         )
-    return tests, pd.DataFrame(individual)
-def grouped_plot(table, value, ylabel, folder, filename, scientific=False):
-    """Vier Aufgabentypen, jeweils drei Methoden nebeneinander; Legende fest rechts."""
-    fig, ax = plt.subplots(figsize=(10, 5.5)); shown = [t for t in TASKS if t in table.Aufgabe.values]
-    x = np.arange(len(shown)); width = .25
-    for i, method in enumerate(METHODS):
-        vals = [table.loc[(table.Aufgabe == t)&(table.Methode == method), value].iloc[0]
-                if ((table.Aufgabe == t)&(table.Methode == method)).any() else np.nan for t in shown]
-        ax.bar(x+(i-1)*width, vals, width, color=COLORS[method], label=METHOD_LABELS[method])
-    ax.set_xticks(x, [TASK_LABELS[t] for t in shown], rotation=15, ha="right")
-    ax.set_ylabel(ylabel); ax.set_ylim(bottom=0)
+    return tests, pd.DataFrame (individual)
+
+# Gruppierte Säulendiagramme für die vier Aufgaben und drei Methoden
+def grouped_plot (table, value, ylabel, folder, filename, scientific = False):
+    fig, ax = plt.subplots (figsize = (10, 5.5)); shown = [t for t in TASKS if t in table.Aufgabe.values]
+    x = np.arange (len (shown)); width = .25
+    # Methodenwerte je Aufgabe auslesen und nebeneinander darstellen
+    for i, method in enumerate (METHODS):
+        vals = [table.loc [(table.Aufgabe == t) & (table.Methode == method), value].iloc [0]
+                if ((table.Aufgabe == t) & (table.Methode == method)).any () else np.nan for t in shown]
+        ax.bar (x + (i-1) * width, vals, width, color = COLORS [method], label = METHOD_LABELS [method])
+
+    ax.set_xticks (x, [TASK_LABELS [t] for t in shown], rotation = 15, ha = "right")
+    ax.set_ylabel (ylabel); ax.set_ylim (bottom = 0)
     if scientific:
-        # Wissenschaftliche Notation als ×10ⁿ statt der Schreibweise 1e-n.
-        ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0), useMathText=True)
-    ax.legend(loc="center left", bbox_to_anchor=(1.02,.5), borderaxespad=0)
-    ax.spines[["top","right"]].set_visible(False)
-    save_plot(fig, folder, filename, legend=True)
-def no_flag_summary(noflag, original_people):
-    """Explorative Sensitivität: gleiche ursprüngliche Personengruppe, markierte Werte entfernt.
-    Personen mit danach unvollständigen Aufgaben werden nicht mit wechselnden Aufgabenmitteln vermischt.
-    """
-    w=noflag[noflag.Teilnehmer.isin(original_people)].pivot(index=["Teilnehmer","Aufgabe"],columns="Methode",values="Fehler_%").reindex(columns=METHODS).dropna()
-    n=w.reset_index().groupby("Teilnehmer")["Aufgabe"].nunique() if len(w) else pd.Series(dtype=int)
-    ids=n[n==len(TASKS)].index
-    w=w.loc[w.index.get_level_values("Teilnehmer").isin(ids)]
-    w=w.groupby(level="Teilnehmer").mean() if len(w) else pd.DataFrame(columns=METHODS)
-    return pd.DataFrame([{"Methode":m,"n_Personen_ohne_markierte":len(w),
-                          "Mittelwert_ohne_markierte":w[m].mean() if len(w) else np.nan} for m in METHODS])
+        # Wissenschaftliche Notation als ×10ⁿ statt der Schreibweise 1e-n
+        ax.ticklabel_format (axis = "y", style = "sci", scilimits = (0, 0), useMathText = True)
+
+    # Legende rechts außerhalb des Diagramms platzieren
+    ax.legend (loc = "center left", bbox_to_anchor = (1.02,.5), borderaxespad = 0)
+    ax.spines [["top","right"]].set_visible (False)
+    save_plot (fig, folder, filename, legend = True)
+
+# Explorative Sensitivitätsanalyse nach Ausschluss auffälliger Fehlerwerte
+def no_flag_summary (noflag, original_people):
+    w = noflag[noflag.Teilnehmer.isin (original_people)].pivot (index = ["Teilnehmer","Aufgabe"],columns = "Methode",values = "Fehler_%").reindex (columns = METHODS).dropna ()
+    n = w.reset_index ().groupby ("Teilnehmer") ["Aufgabe"].nunique () if len (w) else pd.Series (dtype = int)
+    # Nur Personen mit weiterhin zwölf vollständigen Antworten berücksichtigen
+    ids = n [n==len (TASKS)].index
+    w = w.loc [w.index.get_level_values ("Teilnehmer").isin (ids)]
+    w = w.groupby (level="Teilnehmer").mean () if len (w) else pd.DataFrame (columns = METHODS)
+    # Verbleibende Stichprobengröße und Methodenmittelwerte zusammenfassen
+    return pd.DataFrame ([{"Methode":m,"n_Personen_ohne_markierte":len (w),
+                          "Mittelwert_ohne_markierte":w [m].mean () if len (w) else np.nan} for m in METHODS])
+
 # Lesbare Skalierung: Niederschlag in 10^-5 mm/Tag, Luftdruck unverändert in Pa.
 SCALE = {'Niederschlag_Uncertainty': (100000., '10⁻⁵ mm/Tag'),
          'Luftdruck_Value': (1., 'Pa')}
-def _excel_text(value):
-    """Konvertiert versehentliche literale Zeilenumbrüche in echte Umbrüche."""
-    if isinstance(value, str):
-        return value.replace('\\n', '\n').replace('/n', '\n')
+
+# Geschriebene Zeilenumbruch-Zeichenfolgen in tatsächliche Umbrüche umwandeln
+def _excel_text (value):
+    if isinstance (value, str):
+        return value.replace ('\\n', '\n').replace ('/n', '\n')
     return value
-def _estimated_lines(value, width):
-    """Schätzt die nötige Zeilenhöhe einschließlich automatischer Umbrüche."""
-    text = str(_excel_text(value) if value is not None else '')
-    usable = max(8, width - 3)
-    return sum(max(1, (len(part) + usable - 1) // usable) for part in text.split('\n'))
-def write_section(writer, sheetname, sections, note):
-    """Vollbreite Abschnittsbalken, lesbare Spalten und variable Zeilenhöhen."""
-    sheet = writer.book.create_sheet(sheetname)
+
+# Benötigte Excel-Zeilenhöhe anhand von Textlänge und Spaltenbreite schätzen
+def _estimated_lines (value, width):
+    text = str (_excel_text (value) if value is not None else '')
+    usable = max (8, width - 3)
+    return sum (max (1, (len (part) + usable - 1) // usable) for part in text.split ('\n'))
+
+# Excel-Blätter mit formatierten Tabellenabschnitten und variablen Zeilenhöhen erstellen
+def write_section (writer, sheetname, sections, note):
+    sheet = writer.book.create_sheet (sheetname)
     sheet.sheet_view.showGridLines = False
-    ncols = max([2] + [len(frame.columns) for _, frame, _ in sections if frame is not None and len(frame.columns)])
-    # Spaltenbreiten anhand von Überschriften und tatsächlichen Zellinhalten bestimmen.
+    ncols = max ([2] + [len (frame.columns) for _, frame, _ in sections if frame is not None and len (frame.columns)])
+    # Spaltenbreiten anhand von Überschriften und tatsächlichen Zellinhalten bestimmen
     widths = [18.0] * ncols
     for _, frame, _ in sections:
-        if frame is None or not len(frame.columns):
+        if frame is None or not len (frame.columns):
             continue
-        for j, column in enumerate(frame.columns):
-            samples = [str(column)] + [str(v) for v in frame.iloc[:200, j] if pd.notna(v)]
-            longest = max((max(map(len, str(_excel_text(v)).split('\n'))) for v in samples), default=16)
-            widths[j] = max(widths[j], min(65.0, longest + 3.0))
-    # J bleibt in den vier Aufgabenblättern kompakt; lange Hinweise umbrechen.
+        for j, column in enumerate (frame.columns):
+            samples = [str (column)] + [str (v) for v in frame.iloc [:200, j] if pd.notna (v)]
+            longest = max ((max (map (len, str (_excel_text (v)).split ('\n'))) for v in samples), default = 16)
+            widths [j] = max (widths [j], min (65.0, longest + 3.0))
+
+    # Spalte J in den vier Aufgabenblättern kompakt halten
     if sheetname in {TASK_LABELS[t].replace(': ', '_')[:31] for t in TASKS} and ncols >= 10:
         widths[9] = 22.0
+
     if sheetname == '00_Lesehilfe':
-        widths[0] = max(widths[0], 31)
-        widths[1] = 92
-    for j, width in enumerate(widths, 1):
-        sheet.column_dimensions[get_column_letter(j)].width = width
-    # Merged-Zellen erhalten über die gesamte tatsächlich verwendete Tabellenbreite Füllung.
-    def banner(row, message, color, font_color='FFFFFF', bold=True):
-        for j in range(1, ncols + 1):
-            sheet.cell(row, j).fill = PatternFill('solid', fgColor=color)
-        sheet.merge_cells(start_row=row, start_column=1, end_row=row, end_column=ncols)
-        cell = sheet.cell(row, 1, _excel_text(message))
-        cell.font = Font(bold=bold, color=font_color, size=11)
-        cell.alignment = Alignment(wrap_text=True, vertical='center')
-        available = sum(widths) * .85
-        sheet.row_dimensions[row].height = max(29, min(150, 17 * _estimated_lines(message, available) + 12))
-    banner(1, note, '23415C')
+        widths [0] = max (widths [0], 31)
+        widths [1] = 92
+
+    for j, width in enumerate (widths, 1):
+        sheet.column_dimensions [get_column_letter (j)].width = width
+
+    # Farbige Überschriften über die gesamte Tabellenbreite erstellen
+    def banner (row, message, color, font_color = 'FFFFFF', bold = True):
+        for j in range (1, ncols + 1):
+            sheet.cell (row, j).fill = PatternFill ('solid', fgColor = color)
+
+        sheet.merge_cells (start_row = row, start_column = 1, end_row = row, end_column = ncols)
+        cell = sheet.cell (row, 1, _excel_text (message))
+        cell.font = Font (bold = bold, color = font_color, size = 11)
+        cell.alignment = Alignment (wrap_text = True, vertical = 'center')
+        available = sum (widths) * .85
+        sheet.row_dimensions [row].height = max (29, min (150, 17 * _estimated_lines (message, available) + 12))
+
+    banner (1, note, '23415C')
     row = 3
     for title, frame, description in sections:
-        banner(row, title, '3676B6')
+        banner (row, title, '3676B6')
         row += 1
         if description:
-            banner(row, description, 'EAF0F6', font_color='20354A', bold=False)
+            banner (row, description, 'EAF0F6', font_color = '20354A', bold = False)
             row += 1
-        if frame is not None and len(frame.columns):
-            for j, name in enumerate(frame.columns, 1):
-                cell = sheet.cell(row, j, _excel_text(str(name)))
-                cell.font = Font(bold=True, color='20354A')
-                cell.fill = PatternFill('solid', fgColor='D7E5F1')
-                cell.alignment = Alignment(wrap_text=True, vertical='center')
-            sheet.row_dimensions[row].height = max(29, min(95, 16 * max(_estimated_lines(name, widths[j]) for j, name in enumerate(frame.columns)) + 8))
+
+        if frame is not None and len (frame.columns):
+            for j, name in enumerate (frame.columns, 1):
+                cell = sheet.cell (row, j, _excel_text (str (name)))
+                cell.font = Font (bold = True, color = '20354A')
+                cell.fill = PatternFill ('solid', fgColor = 'D7E5F1')
+                cell.alignment = Alignment (wrap_text = True, vertical = 'center')
+
+            sheet.row_dimensions [row].height = max (29, min (95, 16 * max (_estimated_lines (name, widths [j]) for j, name in enumerate (frame.columns)) + 8))
             row += 1
-            for values in frame.itertuples(index=False, name=None):
+            for values in frame.itertuples (index = False, name = None):
                 lines = 1
-                for j, value in enumerate(values, 1):
-                    if pd.isna(value): value = None
-                    if isinstance(value, np.generic): value = value.item()
-                    value = _excel_text(value)
-                    cell = sheet.cell(row, j, value)
-                    cell.alignment = Alignment(horizontal='center' if isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_)) else 'left', vertical='top', wrap_text=True)
-                    if isinstance(value, (float, np.floating)):
-                        col_name = str(frame.columns[j-1])
-                        # Einzelne Likert-Antworten sind ganze Skalenwerte; Mittelwerte nicht.
-                        if col_name == 'Likert_Response' or col_name.startswith('Likert_') and not col_name.startswith('Likert_Mittel_'):
+                for j, value in enumerate (values, 1):
+                    if pd.isna (value): value = None
+                    # NumPy-Werte für die Excel-Ausgabe in Python-Datentypen umwandeln
+                    if isinstance (value, np.generic): value = value.item ()
+                    value = _excel_text (value)
+                    cell = sheet.cell (row, j, value)
+                    cell.alignment = Alignment (horizontal='center' if isinstance (value, (int, float, np.integer, np.floating)) and not isinstance (value, (bool, np.bool_)) else 'left', vertical = 'top', wrap_text = True)
+                    if isinstance (value, (float, np.floating)):
+                        col_name = str (frame.columns[j-1])
+                        # Numerische Einzelantworten der Likert-Skala ohne Nachkommastellen darstellen
+                        if col_name == 'Likert_Response' or col_name.startswith ('Likert_') and not col_name.startswith ('Likert_Mittel_'):
                             cell.number_format = '0'
+
                         else:
                             cell.number_format = '#,##0.0000;[Red]-#,##0.0000'
+
                     if value is not None:
-                        lines = max(lines, _estimated_lines(value, widths[j-1]))
-                sheet.row_dimensions[row].height = max(19, min(420, 15 * lines + 5))
+                        lines = max (lines, _estimated_lines (value, widths [j-1]))
+
+                sheet.row_dimensions [row].height = max (19, min (420, 15 * lines + 5))
                 row += 1
+
         row += 2
     sheet.freeze_panes = None
-def boxplot_groups(data, group_tasks, output, name, ylabel, metric='Fehler_%', title=None):
-    """Standard-Boxplots mit Whiskern 1,5 × IQR, nur Ausreißerpunkte und n.
-    n zählt Personen mit einem gültigen Wert pro Methode. Bei unterschiedlichen
-    Stichprobengrößen werden die methodenspezifischen n explizit ausgewiesen.
-    """
-    fig, ax = plt.subplots(figsize=(7.5, 5.2))
-    selected = data[data.Aufgabe.isin(group_tasks)].copy()
-    selected = selected.dropna(subset=[metric])
-    counts = {}
-    for i, method in enumerate(METHODS, 1):
-        rows = selected[selected.Methode.eq(method)].sort_values('Teilnehmer')
-        if rows.Teilnehmer.duplicated().any():
-            raise ValueError(f'Mehrere Werte pro Person/Methode im Boxplot {name}: {method}')
-        values = rows[metric].to_numpy(float)
-        counts[method] = len(values)
-        if not len(values):
-            continue
-        bp = ax.boxplot([values], positions=[i], widths=.52, patch_artist=True,
-                        whis=1.5, showmeans=False, showfliers=True,
-                        flierprops={'marker': 'o', 'markerfacecolor': COLORS[method],
-                                    'markeredgecolor': 'white', 'markersize': 5, 'alpha': .85})
-        bp['boxes'][0].set(facecolor=COLORS[method], alpha=.3, edgecolor=COLORS[method])
-        for item in bp['medians']:
-            item.set(color=COLORS[method], linewidth=2)
 
-    # Die Annotation zählt die gültigen Werte in der Boxplot-Berechnung und nicht
-    # nur die als Ausreißer sichtbaren Punkte.
-    if len(set(counts.values())) == 1:
-        n_label = f'n = {next(iter(counts.values()))}'
+# Standard-Boxplots mit Whiskern 1,5 × IQR, nur Ausreißerpunkte und n
+def boxplot_groups (data, group_tasks, output, name, ylabel, metric = 'Fehler_%', title = None):
+    fig, ax = plt.subplots (figsize = (7.5, 5.2))
+    # Gültige Werte der ausgewählten Aufgaben berücksichtigen
+    selected = data [data.Aufgabe.isin (group_tasks)].copy ()
+    selected = selected.dropna (subset = [metric])
+    counts = {}
+    for i, method in enumerate (METHODS, 1):
+        rows = selected [selected.Methode.eq (method)].sort_values ('Teilnehmer')
+        if rows.Teilnehmer.duplicated ().any ():
+            raise ValueError (f'Mehrere Werte pro Person/Methode im Boxplot {name}: {method}')
+        
+        values = rows [metric].to_numpy (float)
+        counts [method] = len (values)
+        if not len (values):
+            continue
+
+        # Boxplots mit 1,5-IQR-Whiskern und sichtbaren Ausreißerpunkten
+        bp = ax.boxplot ([values], positions = [i], widths = .52, patch_artist = True,
+                        whis = 1.5, showmeans = False, showfliers = True,
+                        flierprops = {'marker': 'o', 'markerfacecolor': COLORS [method],
+                                    'markeredgecolor': 'white', 'markersize': 5, 'alpha': .85})
+        # Farben der Boxen und Medianlinien an die jeweilige Methode anpassen
+        bp ['boxes'] [0].set (facecolor = COLORS [method], alpha = .3, edgecolor = COLORS [method])
+        for item in bp ['medians']:
+            item.set (color = COLORS [method], linewidth = 2)
+
+    # Gemeinsame oder methodenspezifische Stichprobengröße bestimmen
+    if len (set (counts.values ())) == 1:
+        n_label = f'n = {next (iter (counts.values ()))}'
+
     else:
-        n_label = 'n: ' + ', '.join(f'{METHOD_LABELS[m]} {counts[m]}' for m in METHODS)
-    # Größere, kontrastreiche Angabe; bei ungleichen n auf zwei Zeilen aufteilen.
-    if len(set(counts.values())) != 1:
-        n_label = 'Gültige Antworten: ' + '  |  '.join(
+        n_label = 'n: ' + ', '.join (f'{METHOD_LABELS[m]} {counts[m]}' for m in METHODS)
+
+    if len (set (counts.values ())) != 1:
+        n_label = 'Gültige Antworten: ' + '  |  '.join (
             f'{METHOD_LABELS[m]}: n = {counts[m]}' for m in METHODS)
-    fig.text(0.12, 0.045, n_label, ha='left', va='bottom',
-             fontsize=10, color='#263746', fontweight='medium')
-    ax.set_xticks(range(1, 4), [METHOD_LABELS[m] for m in METHODS])
-    ax.set_ylabel(ylabel)
+    # Stichprobengröße unterhalb des Diagramms anzeigen
+    fig.text (0.12, 0.045, n_label, ha = 'left', va = 'bottom',
+             fontsize = 10, color = '#263746', fontweight = 'medium')
+    ax.set_xticks (range (1, 4), [METHOD_LABELS [m] for m in METHODS])
+    ax.set_ylabel (ylabel)
     if title:
-        ax.set_title(title)
-    ax.spines[['top', 'right']].set_visible(False)
-    # Beim finalen tight_layout bleibt ein eigener Fußbereich frei.
-    save_plot(fig, output, name, footer=True)
-def paired_group_means(valid, tasks, metric, label):
-    """Pro Person und Methode mitteln; nur vollständige Tripel aller Aufgaben."""
-    subset = valid[valid.Aufgabe.isin(tasks)].dropna(subset=[metric])
-    wide = subset.pivot(index=['Teilnehmer', 'Aufgabe'], columns='Methode',
-                        values=metric).reindex(columns=METHODS).dropna()
+        ax.set_title (title)
+
+    ax.spines [['top', 'right']].set_visible (False)
+    # Diagramm mit zusätzlichem Platz für die Stichprobenangabe speichern
+    save_plot (fig, output, name, footer = True)
+
+# Persönliche Durchschnittswerte für zusammengefasste Aufgabenvergleiche berechnen
+def paired_group_means (valid, tasks, metric, label):
+    subset = valid [valid.Aufgabe.isin (tasks)].dropna (subset = [metric])
+    wide = subset.pivot (index = ['Teilnehmer', 'Aufgabe'], columns = 'Methode',
+                        values = metric).reindex (columns = METHODS).dropna ()
     if wide.empty:
-        return pd.DataFrame(columns=['Teilnehmer', 'Methode', metric, 'Aufgabe'])
-    counts = wide.reset_index().groupby('Teilnehmer').Aufgabe.nunique()
-    people = counts[counts.eq(len(tasks))].index
-    wide = wide[wide.index.get_level_values('Teilnehmer').isin(people)]
-    mean = wide.groupby(level='Teilnehmer').mean()
-    out = mean.reset_index().melt(id_vars='Teilnehmer', var_name='Methode', value_name=metric)
-    out['Aufgabe'] = label
+        return pd.DataFrame (columns = ['Teilnehmer', 'Methode', metric, 'Aufgabe'])
+
+    # Nur Personen mit vollständigen Antworten für alle betrachteten Aufgaben auswählen
+    counts = wide.reset_index ().groupby ('Teilnehmer').Aufgabe.nunique ()
+    people = counts [counts.eq (len (tasks))].index
+    wide = wide [wide.index.get_level_values ('Teilnehmer').isin (people)]
+    mean = wide.groupby (level = 'Teilnehmer').mean ()
+    out = mean.reset_index ().melt (id_vars = 'Teilnehmer', var_name = 'Methode', value_name = metric)
+    out ['Aufgabe'] = label
     return out
-# Verständliche Kurzbeschreibungen in den jeweiligen Statistikabschnitten.
+
+# Kurzbeschreibungen in den jeweiligen Statistikabschnitten.
 TEST_EXPLANATION_PRIMARY = (
     'Fragestellung: Unterscheiden sich VSUP, ScaledGlyph und IsoGlyph beim normalisierten Fehler dieser Aufgabe? '
     'Friedman vergleicht die drei Methoden anhand der Ränge innerhalb derselben Personen (nur vollständige Methodentripel). '
@@ -530,193 +614,231 @@ TEST_EXPLANATION_TIME = (
     'Bei p < 0,05 folgen paarweise Wilcoxon-Tests mit Holm-Korrektur. Die ANOVA vergleicht ergänzend die mittleren Zeiten '
     'mit Greenhouse-Geisser- und Huynh-Feldt-Korrektur; die Signifikanzspalte nutzt p_GG (explorativ).'
 )
-def order_effects(trials, complete_ids):
-    """Drei aufeinanderfolgende Viererblöcke anhand der protokollierten Reihenfolge.
 
-    Nur die 16 (oder entsprechend viele) Personen mit zwölf gültigen Antworten;
-    jeder Block muss die vier Aufgabentypen genau einmal enthalten.
-    """
-    if 'trialOrder' not in trials or trials['trialOrder'].isna().all():
+# Reihenfolgeeffekte anhand der tatsächlichen Aufgabenpositionen untersuchen
+def order_effects (trials, complete_ids):
+    if 'trialOrder' not in trials or trials ['trialOrder'].isna ().all ():
         return None
-    d = trials[trials.Teilnehmer.isin(complete_ids)].copy()
-    d['trialOrder'] = pd.to_numeric(d['trialOrder'], errors='coerce')
-    if d['trialOrder'].isna().any():
-        raise ValueError('Reihenfolgeanalyse: trialOrder fehlt bei einzelnen Identifikationsantworten.')
-    d = d.sort_values(['Teilnehmer', 'trialOrder'])
-    if d.duplicated(['Teilnehmer', 'trialOrder']).any():
-        raise ValueError('Reihenfolgeanalyse: doppelte trialOrder innerhalb einer Person.')
-    d['Position'] = d.groupby('Teilnehmer').cumcount() + 1
-    d['Block'] = ((d['Position'] - 1) // 4 + 1).astype(int)
-    for person, group in d.groupby('Teilnehmer'):
-        if len(group) != 12 or any(set(b.Aufgabe) != set(TASKS) for _, b in group.groupby('Block')):
-            raise ValueError(f'Reihenfolgeanalyse: unvollständige/abweichende Viererblöcke bei {person}.')
+    
+    d = trials [trials.Teilnehmer.isin (complete_ids)].copy ()
+    d ['trialOrder'] = pd.to_numeric (d ['trialOrder'], errors = 'coerce')
+    if d ['trialOrder'].isna ().any ():
+        raise ValueError ('Reihenfolgeanalyse: trialOrder fehlt bei einzelnen Identifikationsantworten.')
+
+    # Antworten nach Teilnehmer und protokollierter Reihenfolge sortieren
+    d = d.sort_values (['Teilnehmer', 'trialOrder'])
+    if d.duplicated (['Teilnehmer', 'trialOrder']).any ():
+        raise ValueError ('Reihenfolgeanalyse: doppelte trialOrder innerhalb einer Person.')
+    
+    d ['Position'] = d.groupby ('Teilnehmer').cumcount () + 1
+    d ['Block'] = ((d['Position'] - 1) // 4 + 1).astype (int)
+    # Prüfen, ob jeder Block alle vier Aufgabentypen genau einmal enthält
+    for person, group in d.groupby ('Teilnehmer'):
+        if len (group) != 12 or any (set(b.Aufgabe) != set (TASKS) for _, b in group.groupby ('Block')):
+            raise ValueError (f'Reihenfolgeanalyse: unvollständige/abweichende Viererblöcke bei {person}.')
     measures = {'Fehler_%': 'Abweichung (%)', 'Zeit_s': 'Zeit (s)',
-                'Likert_Response': 'Sicherheit (1–7)'}
-    individual = d.groupby(['Teilnehmer', 'Block'], as_index=False)[list(measures)].mean()
+                'Likert_Response': 'Sicherheit (1-7)'}
+    individual = d.groupby (['Teilnehmer', 'Block'], as_index = False) [list (measures)].mean ()
     descriptive, tests = [], []
-    for col, label in measures.items():
+    for col, label in measures.items ():
         for block in (1, 2, 3):
-            vals = individual.loc[individual.Block.eq(block), col].dropna()
-            descriptive.append({'Kennwert': label, 'Block': block, **describe(vals)})
-        wide = individual.pivot(index='Teilnehmer', columns='Block', values=col).reindex(columns=[1, 2, 3]).dropna()
+            vals = individual.loc [individual.Block.eq (block), col].dropna ()
+            descriptive.append ({'Kennwert': label, 'Block': block, **describe (vals)})
+
+        # Friedman-Test zum Vergleich der drei aufeinanderfolgenden Blöcke
+        wide = individual.pivot (index = 'Teilnehmer', columns = 'Block', values = col).reindex (columns = [1, 2, 3]).dropna ()
         if len(wide) >= 3:
-            chi, p = stats.friedmanchisquare(*[wide[b].to_numpy() for b in (1, 2, 3)])
+            chi, p = stats.friedmanchisquare (*[wide [b].to_numpy () for b in (1, 2, 3)])
         else:
             chi, p = np.nan, np.nan
-        tests.append({'Kennwert': label, 'n vollständige Personen': len(wide),
+        tests.append ({'Kennwert': label, 'n vollständige Personen': len (wide),
                       'Friedman_Chi2': chi, 'df': 2, 'p': p})
-    tests = pd.DataFrame(tests)
-    tests['p_Holm_3'] = holm_adjust(tests['p'].tolist())
-    tests['Signifikant_nach_Holm'] = tests['p_Holm_3'].lt(.05)
-    return d[['Teilnehmer','Position','Aufgabe','Methode','trialOrder','Fehler_%','Zeit_s','Likert_Response']], individual, pd.DataFrame(descriptive), tests
+    tests = pd.DataFrame (tests)
+    tests ['p_Holm_3'] = holm_adjust (tests ['p'].tolist ())
+    tests ['Signifikant_nach_Holm'] = tests ['p_Holm_3'].lt (.05)
+    return d [['Teilnehmer','Position','Aufgabe','Methode','trialOrder','Fehler_%','Zeit_s','Likert_Response']], individual, pd.DataFrame (descriptive), tests
 
-
-def confidence_error_cases(valid, error_min=75.0, confidence_min=6):
-    """Deskriptive Prüfung hoher Sicherheit trotz großem normalisierten Fehler."""
+# Große Identifikationsfehler trotz hoher subjektiver Sicherheit untersuchen: Antworten mit mindestens 75 % Fehler und Sicherheitsbewertung ab 6 auswählen
+def confidence_error_cases (valid, error_min = 75.0, confidence_min = 6):
     cols = ['Teilnehmer','Aufgabe','Methode','Antwort_skaliert','Sollwert_skaliert',
             'Fehler_absolut_skaliert','Fehler_%','Likert_Response','Zeit_s']
-    cases = valid.loc[valid['Fehler_%'].ge(error_min) &
-                      valid['Likert_Response'].ge(confidence_min), cols].copy()
-    return cases.sort_values(['Teilnehmer','Aufgabe','Methode'])
+    cases = valid.loc [valid ['Fehler_%'].ge (error_min) &
+                      valid ['Likert_Response'].ge (confidence_min), cols].copy ()
+    return cases.sort_values (['Teilnehmer','Aufgabe','Methode'])
 
-def main():
-    base = Path(__file__).resolve().parent
+def main ():
+    # Eingabedatei prüfen und Ausgabeordner erstellen
+    base = Path (__file__).resolve ().parent
     source = base / CSV_FILENAME
-    if not source.exists(): raise FileNotFoundError(f'CSV nicht gefunden: {source}')
+    if not source.exists (): raise FileNotFoundError (f'CSV nicht gefunden: {source}')
     output = base / OUTPUT_FOLDER
-    output.mkdir(parents=True, exist_ok=True)
-    df = pd.read_csv(source, low_memory=False, dtype={'participantId': str})
+    output.mkdir (parents = True, exist_ok = True)
+    # CSV einlesen und erforderliche Spalten prüfen
+    df = pd.read_csv (source, low_memory = False, dtype = {'participantId': str})
     required = {'participantId', 'status', 'trialId', 'answer', 'correctAnswer', 'duration'}
-    if required - set(df.columns): raise ValueError(f'Fehlende Spalten: {required-set(df.columns)}')
-    info = df.groupby('participantId').status.agg(
-        completed=lambda s: s.eq('completed').any(),
-        rejected=lambda s: s.eq('rejected').any())
-    keep = info.index[info.completed & ~info.rejected]
-    df = df[df.participantId.isin(keep)].copy()
-    trials, thresholds, spans = parse_trials(df)
-    trials['Skalierungsfaktor'] = trials.Variable.map(lambda v: SCALE[v][0])
-    trials['Einheit_skaliert'] = trials.Variable.map(lambda v: SCALE[v][1])
+    if required - set (df.columns): raise ValueError (f'Fehlende Spalten: {required-set (df.columns)}')
+    # Nur abgeschlossene und nicht abgelehnte Teilnahmen berücksichtigen
+    info = df.groupby ('participantId').status.agg (
+        completed = lambda s: s.eq ('completed').any (),
+        rejected = lambda s: s.eq ('rejected').any ())
+    keep = info.index [info.completed & ~info.rejected]
+    df = df [df.participantId.isin (keep)].copy ()
+    # Identifikationsantworten aufbereiten und Fehlerwerte berechnen
+    trials, thresholds, spans = parse_trials (df)
+    # Absolute Werte für die Excel-Ausgabe skalieren
+    trials ['Skalierungsfaktor'] = trials.Variable.map (lambda v: SCALE [v] [0])
+    trials ['Einheit_skaliert'] = trials.Variable.map (lambda v: SCALE [v] [1])
     for source_col, target_col in [('Antwort', 'Antwort_skaliert'),
                                    ('Sollwert', 'Sollwert_skaliert'),
                                    ('Wertspanne', 'Wertspanne_skaliert'),
                                    ('Fehler_absolut', 'Fehler_absolut_skaliert')]:
-        trials[target_col] = trials[source_col] * trials.Skalierungsfaktor
-    valid = trials[trials.Gültig].copy()
-    triples = valid.pivot(index=['Teilnehmer','Aufgabe'], columns='Methode', values='Fehler_%').reindex(columns=METHODS).dropna()
-    counts = triples.reset_index().groupby('Teilnehmer').Aufgabe.nunique()
-    complete_ids = counts[counts.eq(len(TASKS))].index
-    overall_data = valid[valid.Teilnehmer.isin(complete_ids)].copy()
-    overall = overall_data.groupby(['Teilnehmer', 'Methode'])['Fehler_%'].mean().unstack().reindex(columns=METHODS).dropna()
-    overall_ranks, personal_ranks, _ = rank_table(overall) if len(overall) else (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
-    if len(personal_ranks):
-        likert_means = valid[valid.Teilnehmer.isin(overall.index)].groupby(['Teilnehmer', 'Methode'])['Likert_Response'].mean().unstack().reindex(columns=METHODS)
-        enriched = pd.DataFrame(index=personal_ranks.index)
+        trials [target_col] = trials [source_col] * trials.Skalierungsfaktor
+
+    # Gültige Antworten und vollständige Methodentripel bestimmen
+    valid = trials [trials.Gültig].copy ()
+    triples = valid.pivot (index = ['Teilnehmer','Aufgabe'], columns = 'Methode', values = 'Fehler_%').reindex (columns = METHODS).dropna ()
+    # Personen mit zwölf gültigen Identifikationsantworten auswählen
+    counts = triples.reset_index ().groupby ('Teilnehmer').Aufgabe.nunique ()
+    complete_ids = counts [counts.eq (len (TASKS))].index
+    # Persönliche Durchschnittsfehler für den Gesamtvergleich berechnen
+    overall_data = valid [valid.Teilnehmer.isin (complete_ids)].copy ()
+    overall = overall_data.groupby (['Teilnehmer', 'Methode']) ['Fehler_%'].mean ().unstack ().reindex (columns = METHODS).dropna ()
+    # Persönliche Methodenränge und mittlere Sicherheitsbewertungen zusammenführen
+    overall_ranks, personal_ranks, _ = rank_table (overall) if len (overall) else (pd.DataFrame (), pd.DataFrame (), pd.DataFrame ())
+    if len (personal_ranks):
+        likert_means = valid [valid.Teilnehmer.isin (overall.index)].groupby (['Teilnehmer', 'Methode']) ['Likert_Response'].mean ().unstack ().reindex (columns = METHODS)
+        enriched = pd.DataFrame (index = personal_ranks.index)
         for method in METHODS:
-            enriched[method] = personal_ranks[method]
-            enriched[f'Likert_Mittel_{METHOD_LABELS[method]}'] = likert_means.reindex(personal_ranks.index)[method]
+            enriched [method] = personal_ranks [method]
+            enriched [f'Likert_Mittel_{METHOD_LABELS[method]}'] = likert_means.reindex (personal_ranks.index) [method]
+
         personal_ranks = enriched
-    overall_desc = pd.DataFrame([{'Methode': m, **describe(overall[m])} for m in METHODS])
-    tests_total = combined_tests(overall, 'Gesamt: normalisierte Abweichung')
-    task_tests, task_differences = task_comparisons(valid)
+
+    # Deskriptive Kennzahlen und ergänzende Gesamt- sowie Aufgabenvergleiche berechnen
+    overall_desc = pd.DataFrame ([{'Methode': m, **describe (overall [m])} for m in METHODS])
+    tests_total = combined_tests (overall, 'Gesamt: normalisierte Abweichung')
+    task_tests, task_differences = task_comparisons (valid)
+    # Primäre Friedman-Tests für die vier Identifikationsaufgaben durchführen
     primary_p = {}
     for task in TASKS:
-        w_task = triples.xs(task, level='Aufgabe') if task in triples.index.get_level_values('Aufgabe') else pd.DataFrame(columns=METHODS)
-        result = friedman_comparison(w_task, task)
-        primary_p[task] = result[0].get('p', np.nan)
-    primary_adjusted = dict(zip(TASKS, holm_adjust([primary_p[t] for t in TASKS])))
-    # Aufgabenblätter: zuerst alle Antworten, anschließend Deskription, Ränge und Tests.
+        w_task = triples.xs (task, level = 'Aufgabe') if task in triples.index.get_level_values ('Aufgabe') else pd.DataFrame (columns = METHODS)
+        result = friedman_comparison (w_task, task)
+        primary_p [task] = result [0].get ('p', np.nan)
+
+    # Holm-Korrektur über die vier primären Friedman-Tests
+    primary_adjusted = dict (zip (TASKS, holm_adjust ([primary_p [t] for t in TASKS])))
+    # Ergebnisse der vier Identifikationsaufgaben einzeln vorbereiten
     sheets = []
     for task in TASKS:
-        part = trials[trials.Aufgabe.eq(task)].copy()
-        good = part[part.Gültig]
+        part = trials [trials.Aufgabe.eq (task)].copy ()
+        good = part [part.Gültig]
         rows = []
+        # Absolute und normalisierte Fehler sowie Bearbeitungszeiten je Methode beschreiben
         for method in METHODS:
-            g = good[good.Methode.eq(method)]
-            d1 = describe(g.Fehler_absolut_skaliert)
-            d2 = describe(g['Fehler_%'])
-            dt = describe(g.Zeit_s)
-            rows.append({'Methode': method, 'n gültig': len(g), 'n ungültig': len(part[part.Methode.eq(method)])-len(g),
-                         'Exakt': int(g.Exakt.sum()), 'Innerhalb 1 %': int(g['Innerhalb_1%'].sum()),
-                         'Fehler skaliert Mittel': d1['Mittelwert'], 'Fehler skaliert Median': d1['Median'],
-                         'Fehler skaliert SD': d1['Standardabweichung'], 'Fehler % Mittel': d2['Mittelwert'],
-                         'Fehler % Median': d2['Median'], 'Fehler % SD': d2['Standardabweichung'],
-                         'Fehler % Q1': d2['Q1'], 'Fehler % Q3': d2['Q3'], 'Fehler % IQR': d2['IQR'],
-                         'Zeit s Mittel': dt['Mittelwert'], 'Zeit s Median': dt['Median']})
-        desc = pd.DataFrame(rows)
-        w = triples.xs(task, level='Aufgabe') if task in triples.index.get_level_values('Aufgabe') else pd.DataFrame(columns=METHODS)
-        ranks, person_ranks, _ = rank_table(w) if len(w) else (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
-        if len(person_ranks):
-            task_likert = part.pivot(index='Teilnehmer', columns='Methode', values='Likert_Response')
-            enriched = pd.DataFrame(index=person_ranks.index)
+            g = good [good.Methode.eq(method)]
+            d1 = describe (g.Fehler_absolut_skaliert)
+            d2 = describe (g ['Fehler_%'])
+            dt = describe (g.Zeit_s)
+            # Deskriptive Kennzahlen und gültige beziehungsweise ungültige Antworten zusammenfassen
+            rows.append ({'Methode': method, 'n gültig': len (g), 'n ungültig': len (part [part.Methode.eq (method)]) - len (g),
+                         'Exakt': int (g.Exakt.sum ()), 'Innerhalb 1 %': int (g ['Innerhalb_1%'].sum ()),
+                         'Fehler skaliert Mittel': d1 ['Mittelwert'], 'Fehler skaliert Median': d1 ['Median'],
+                         'Fehler skaliert SD': d1 ['Standardabweichung'], 'Fehler % Mittel': d2 ['Mittelwert'],
+                         'Fehler % Median': d2 ['Median'], 'Fehler % SD': d2 ['Standardabweichung'],
+                         'Fehler % Q1': d2 ['Q1'], 'Fehler % Q3': d2 ['Q3'], 'Fehler % IQR': d2 ['IQR'],
+                         'Zeit s Mittel': dt ['Mittelwert'], 'Zeit s Median': dt ['Median']})
+            
+        desc = pd.DataFrame (rows)
+        # Persönliche Methodenränge anhand vollständiger Methodentripel berechnen
+        w = triples.xs (task, level = 'Aufgabe') if task in triples.index.get_level_values ('Aufgabe') else pd.DataFrame (columns = METHODS)
+        ranks, person_ranks, _ = rank_table (w) if len (w) else (pd.DataFrame (), pd.DataFrame (), pd.DataFrame ())
+        # Sicherheitsbewertungen neben den persönlichen Rängen ergänzen
+        if len (person_ranks):
+            task_likert = part.pivot (index = 'Teilnehmer', columns = 'Methode', values = 'Likert_Response')
+            enriched = pd.DataFrame (index = person_ranks.index)
             for method in METHODS:
-                enriched[method] = person_ranks[method]
-                enriched[f'Likert_{METHOD_LABELS[method]}'] = task_likert.reindex(person_ranks.index)[method]
+                enriched [method] = person_ranks [method]
+                enriched [f'Likert_{METHOD_LABELS [method]}'] = task_likert.reindex (person_ranks.index) [method]
+
             person_ranks = enriched
-        stat = combined_tests(w, task)
-        stat['p_Holm_4_primäre_Friedman'] = np.nan
-        stat.loc[stat.Test.eq('Friedman'), 'p_Holm_4_primäre_Friedman'] = primary_adjusted[task]
-        stat['Primär_Friedman_signifikant'] = ''
-        if pd.notna(primary_adjusted[task]):
-            stat.loc[stat.Test.eq('Friedman'), 'Primär_Friedman_signifikant'] = ('Ja' if primary_adjusted[task] < .05 else 'Nein')
-        stat = order_test_columns(stat)
-        # Paarvergleiche nur dann als konfirmatorisch interpretieren, wenn
-        # der über vier Aufgaben korrigierte primäre Friedman-Test signifikant ist.
-        if not (pd.notna(primary_adjusted[task]) and primary_adjusted[task] < .05):
-            stat = stat.loc[~stat.Test.str.startswith('Wilcoxon')].copy()
-        scale = SCALE[part.Variable.iloc[0]]
-        note = f'{TASK_LABELS[task]} | skalierte absolute Fehler in {scale[1]}; normalisierte Fehler in % der vollständigen Variablenspanne.'
+
+        # Friedman-Test und ergänzende ANOVA berechnen
+        stat = combined_tests (w, task)
+        # Holm-korrigierten p-Wert der vier primären Friedman-Tests eintragen
+        stat ['p_Holm_4_primäre_Friedman'] = np.nan
+        stat.loc [stat.Test.eq('Friedman'), 'p_Holm_4_primäre_Friedman'] = primary_adjusted [task]
+        # Signifikanzentscheidung anhand des korrigierten p-Werts treffen
+        stat ['Primär_Friedman_signifikant'] = ''
+        if pd.notna (primary_adjusted [task]):
+            stat.loc [stat.Test.eq ('Friedman'), 'Primär_Friedman_signifikant'] = ('Ja' if primary_adjusted [task] < .05 else 'Nein')
+
+        stat = order_test_columns (stat)
+        # Wilcoxon-Folgetests nur nach signifikantem primärem Friedman-Test ausweisen
+        if not (pd.notna (primary_adjusted [task]) and primary_adjusted [task] < .05):
+            stat = stat.loc [~stat.Test.str.startswith ('Wilcoxon')].copy ()
+
+        scale = SCALE [part.Variable.iloc [0]]
+        note = f'{TASK_LABELS [task]} | skalierte absolute Fehler in {scale [1]}; normalisierte Fehler in % der vollständigen Variablenspanne.'
         answer_columns = ['Teilnehmer','Methode','Antwort_skaliert','Sollwert_skaliert','Wertspanne_skaliert',
                           'Skalierungsfaktor','Einheit_skaliert','Fehler_absolut_skaliert','Fehler_%','Likert_Response','Gültig','Zeit_s','IQR_auffällig']
-        sheets.append((TASK_LABELS[task].replace(': ', '_')[:31], [
-            ('A. Antworten und Einzelberechnungen', part[answer_columns].sort_values(['Teilnehmer','Methode']),
-             f'Absoluter Fehler (skaliert) = |Antwort − Sollwert| × {scale[0]:g} ({scale[1]}); Fehler (%) = 100 × |Antwort − Sollwert| / Wertspanne. Faktor ist in der Tabelle ausgewiesen.'),
-            ('B. Deskriptive Kennzahlen', desc, 'Mittel = Summe / n; Median = mittlerer sortierter Wert; SD = Stichprobenstandardabweichung (ddof=1); Q1/Q3 = 25./75. Perzentil; IQR = Q3 − Q1.'),
-            ('C. Persönliche Ränge', person_ranks.reset_index() if len(person_ranks) else pd.DataFrame(), 'Nur vollständige Methodentripel; kleinster Fehler erhält Rang 1; Gleichstände erhalten Mittelränge. Neben dem Rang steht die Likert-Sicherheit (1–7) je Methode.'),
-            ('D. Zusammenfassung der Ränge', ranks, 'Mittlerer Rang = Summe der persönlichen Mittelränge / n; Erstplatz_gewichtet = Summe(1 / Anzahl geteilter Erstplätze), sofern Methode erstplatziert, sonst 0; Anteil_Erstplatz_% = 100 × Erstplatz_gewichtet / n. Rang_1/2/3 zählen exakte Ränge; Gleichstandsbeteiligung zählt auch geteilte andere Ränge.'),
+        # Einzelantworten, Deskription, Ränge und statistische Tests für Excel
+        sheets.append ((TASK_LABELS[task].replace(': ', '_') [:31], [
+            ('A. Antworten und Einzelberechnungen', part [answer_columns].sort_values (['Teilnehmer','Methode']),
+             f'Absoluter Fehler (skaliert) = |Antwort - Sollwert| x {scale [0]:g} ({scale [1]}); Fehler (%) = 100 x |Antwort - Sollwert| / Wertspanne. Faktor ist in der Tabelle ausgewiesen.'),
+            ('B. Deskriptive Kennzahlen', desc, 'Mittel = Summe / n; Median = mittlerer sortierter Wert; SD = Stichprobenstandardabweichung (ddof = 1); Q1/Q3 = 25./75. Perzentil; IQR = Q3 - Q1.'),
+            ('C. Persönliche Ränge', person_ranks.reset_index () if len (person_ranks) else pd.DataFrame (), 'Nur vollständige Methodentripel; kleinster Fehler erhält Rang 1; Gleichstände erhalten Mittelränge. Neben dem Rang steht die Likert-Sicherheit (1-7) je Methode.'),
+            ('D. Zusammenfassung der Ränge', ranks, 'Mittlerer Rang = Summe der persönlichen Mittelränge / n; Erstplatz_gewichtet = Summe (1 / Anzahl geteilter Erstplätze), sofern Methode erstplatziert, sonst 0; Anteil_Erstplatz_% = 100 x Erstplatz_gewichtet / n. Rang_1/2/3 zählen exakte Ränge; Gleichstandsbeteiligung zählt auch geteilte andere Ränge.'),
             ('E. Statistische Tests', stat, TEST_EXPLANATION_PRIMARY)], note))
-        # 01: Je Teilaufgabe normalisierte Fehler und Zeiten.
+        # Je Aufgabe einen Boxplot für normalisierte Fehler und Bearbeitungszeiten erstellen
         for suffix, metric, ylabel in [
             ('Prozent', 'Fehler_%', 'Normalisierte Abweichung (%)'),
             ('Zeit', 'Zeit_s', 'Bearbeitungszeit (s)'),
         ]:
-            boxplot_groups(good, [task], output,
-                           f'01_{TASK_LABELS[task].replace(": ", "_")}_{suffix}',
-                           ylabel, metric=metric, title=TASK_LABELS[task])
-    # Einzelantworten: getrennte Datei, originale + skalierte Werte.
-    with pd.ExcelWriter(output / '00_Identifikation_Einzelantworten.xlsx', engine='openpyxl') as writer:
-        trials.to_excel(writer, sheet_name='Einzelantworten', index=False)
-        sh = writer.sheets['Einzelantworten']
+            boxplot_groups (good, [task], output,
+                           f'01_{TASK_LABELS [task].replace(": ", "_")}_{suffix}',
+                           ylabel, metric = metric, title = TASK_LABELS [task])
+            
+    # Sämtliche Identifikationsantworten mit originalen und berechneten Werten exportieren
+    with pd.ExcelWriter (output / '00_Identifikation_Einzelantworten.xlsx', engine = 'openpyxl') as writer:
+        trials.to_excel (writer, sheet_name = 'Einzelantworten', index = False)
+        sh = writer.sheets ['Einzelantworten']
         sh.freeze_panes = None
         sh.auto_filter.ref = sh.dimensions
         sh.sheet_view.showGridLines = False
-        for cell in sh[1]:
-            cell.font = Font(bold=True, color='FFFFFF')
-            cell.fill = PatternFill('solid', fgColor='23415C')
-        for j, name in enumerate(trials.columns, 1):
-            col = sh.column_dimensions[get_column_letter(j)]
-            samples = [str(name)] + [str(v) for v in trials.iloc[:200, j - 1] if pd.notna(v)]
-            col.width = min(72, max(22, max(len(v) for v in samples) + 3))
-        for cell in sh[1]: cell.alignment = Alignment(wrap_text=True, vertical='center')
+        for cell in sh [1]:
+            cell.font = Font (bold = True, color = 'FFFFFF')
+            cell.fill = PatternFill ('solid', fgColor = '23415C')
+
+        for j, name in enumerate (trials.columns, 1):
+            col = sh.column_dimensions [get_column_letter (j)]
+            samples = [str (name)] + [str (v) for v in trials.iloc [:200, j - 1] if pd.notna (v)]
+            col.width = min (72, max (22, max (len (v) for v in samples) + 3))
+
+        for cell in sh [1]: cell.alignment = Alignment (wrap_text = True, vertical = 'center')
         if 'Likert_Response' in trials.columns:
-            j_likert = trials.columns.get_loc('Likert_Response') + 1
-            for row in sh.iter_rows(min_row=2, min_col=j_likert, max_col=j_likert):
-                row[0].number_format = '0'
-        sh.row_dimensions[1].height = 34
-        # Zahlen in der separaten Einzelantworten-Datei ebenfalls zentrieren.
-        for row in sh.iter_rows(min_row=2):
+            j_likert = trials.columns.get_loc ('Likert_Response') + 1
+            for row in sh.iter_rows (min_row = 2, min_col = j_likert, max_col = j_likert):
+                row [0].number_format = '0'
+
+        sh.row_dimensions [1].height = 34
+        # Numerische Werte in den Excel-Zellen zentrieren
+        for row in sh.iter_rows (min_row = 2):
             for cell in row:
-                if isinstance(cell.value, (int, float)) and not isinstance(cell.value, bool):
-                    cell.alignment = Alignment(horizontal='center', vertical='center')
-    with pd.ExcelWriter(output / '01_Identifikation_Auswertung.xlsx', engine='openpyxl') as writer:
-        intro = pd.DataFrame([
+                if isinstance (cell.value, (int, float)) and not isinstance (cell.value, bool):
+                    cell.alignment = Alignment (horizontal = 'center', vertical = 'center')
+
+    # Strukturierte Auswertungsdatei mit Lesehilfe und statistischen Ergebnissen erstellen
+    with pd.ExcelWriter (output / '01_Identifikation_Auswertung.xlsx', engine = 'openpyxl') as writer:
+        # Berechnungsgrundlagen und statistische Verfahren für die Lesehilfe dokumentieren
+        intro = pd.DataFrame ([
             ['Einschluss', 'Nur completed und nicht rejected; in progress immer ausgeschlossen.'],
-            ['Absoluter Fehler', '|Antwort − Sollwert|, Originaleinheit.'],
-            ['Skalierter Fehler', 'Absoluter Fehler × Faktor; Niederschlag: Faktor 100000, Luftdruck: Faktor 1.'],
-            ['Normalisierter Fehler (%)', '100 × absoluter Fehler / (Maximum − Minimum der jeweiligen Variablenwerte).'],
+            ['Absoluter Fehler', '|Antwort - Sollwert|, Originaleinheit.'],
+            ['Skalierter Fehler', 'Absoluter Fehler x Faktor; Niederschlag: Faktor 100000, Luftdruck: Faktor 1.'],
+            ['Normalisierter Fehler (%)', '100 x absoluter Fehler / (Maximum - Minimum der jeweiligen Variablenwerte).'],
             ['Mittelwert', 'Arithmetisches Mittel aller gültigen Werte in der jeweiligen Gruppe.'],
             ['Median', '50. Perzentil der gültigen Werte; entfernt keine Ausreißer.'],
             ['SD', 'Stichprobenstandardabweichung, ddof=1.'],
-            ['Q1, Q3, IQR', '25. und 75. Perzentil; IQR = Q3 − Q1.'],
+            ['Q1, Q3, IQR', '25. und 75. Perzentil; IQR = Q3 - Q1.'],
             ['Primäre Tests', 'Vier Friedman-Tests der Einzelaufgaben; Holm-Korrektur über die vier p-Werte. Paarweise Wilcoxon/Holm nur nach korrigiert signifikantem Friedman konfirmatorisch.'],
             ['Aufgabenvergleiche', 'Sekundär: sechs gepaarte Max-Min-Wilcoxon-Tests (Holm über sechs) und zwei explorative Friedman-Tests auf Max-Min-Differenzen (Holm über zwei).'],
             ['Gesamtvergleich', 'Nur Personen mit 12 gültigen Antworten: pro Person/Methode Mittel der 4 normalisierten Aufgabenfehler.'],
@@ -724,71 +846,83 @@ def main():
             ['Friedman: Fragestellung', 'Für jede Person werden die drei Methoden nach Fehlergröße geordnet. Der Friedman-Test prüft, ob sich ihre Ränge systematisch unterscheiden.'],
             ['Friedman: Datenbasis', 'Nur vollständige Methodentripel je Aufgabe. n = Anzahl Personen, k = 3 Methoden.'],
             ['Friedman: p-Wert', 'Der p-Wert prüft die Nullhypothese ohne systematischen Unterschied zwischen den Methoden. Für die vier primären Aufgaben ist der über vier Tests Holm-korrigierte p-Wert maßgeblich.'],
-            ['Friedman: Kendall W', 'Kendall W = χ² / [n × (k − 1)]. Rangbasierte Effektstärke zwischen 0 und 1; größere Werte bedeuten ausgeprägtere Übereinstimmung der persönlichen Methodenrangfolgen.'],
+            ['Friedman: Kendall W', 'Kendall W = χ² / [n x (k - 1)]. Rangbasierte Effektstärke zwischen 0 und 1; größere Werte bedeuten ausgeprägtere Übereinstimmung der persönlichen Methodenrangfolgen.'],
             ['Wilcoxon: Folgetests', 'Nach einem über vier Aufgaben Holm-korrigiert signifikanten Friedman-Test (p < 0,05) werden drei gepaarte Methodenvergleiche mit Wilcoxon durchgeführt. Deren p-Werte werden innerhalb der Aufgabe ebenfalls nach Holm korrigiert.'],
             ['Wilcoxon: Interpretation', 'Median_Differenz_A_minus_B beschreibt die Richtung der Fehlerdifferenz; Rangbiserial_r beschreibt deren rangbasierte Effektstärke. Ein signifikanter Friedman-Test sagt allein noch nicht, welches Methodenpaar sich unterscheidet.'],
             ['ANOVA: Fragestellung', 'Ergänzend wird geprüft, ob sich die Mittelwerte der drei Methoden unterscheiden. Die Messwiederholung berücksichtigt, dass dieselben Personen alle drei Methoden verwendet haben.'],
-            ['ANOVA: F und Freiheitsgrade', 'F = MS_Methode / MS_Residual; df1 = k − 1; df2 = (n − 1) × (k − 1). MS bedeutet mittlere Quadratsumme.'],
+            ['ANOVA: F und Freiheitsgrade', 'F = MS_Methode / MS_Residual; df1 = k - 1; df2 = (n - 1) x (k - 1). MS bedeutet mittlere Quadratsumme.'],
             ['ANOVA: partielles η²', 'SS_Methode / (SS_Methode + SS_Residual). Beschreibt den Anteil der für den Methodenvergleich relevanten Varianz, der auf die Methode entfällt.'],
             ['ANOVA: Sphärizität', 'Mauchly_W, Mauchly_Chi2, Mauchly_df und Mauchly_p testen die Gleichheit der Varianzen paarweiser Methodendifferenzen. Ein nicht signifikanter Test beweist Sphärizität nicht; bei kleinem n geringe Teststärke.'],
             ['ANOVA: Greenhouse-Geisser', 'Epsilon_GG liegt bei drei Methoden zwischen 0,5 und 1. df1_GG und df2_GG sind die reduzierten Freiheitsgrade; p_GG ist der dazugehörige korrigierte p-Wert. Die F-Prüfgröße bleibt unverändert. GG wird unabhängig vom Mauchly-Ergebnis berichtet.'],
             ['ANOVA: Huynh-Feldt', 'Epsilon_HF, df1_HF, df2_HF und p_HF bilden die alternative Huynh-Feldt-Korrektur ab.'],
             ['ANOVA: Quadratsummen', 'SS_Gesamt = SS_Methode + SS_Person + SS_Residual; MS_Methode = SS_Methode / df1; MS_Residual = SS_Residual / df2.'],
             ['ANOVA: Einordnung', 'Die Spalte Signifikanz (p < 0.05) nutzt bei ANOVA den Greenhouse-Geisser-korrigierten p_GG (Kennzeichnung GG). Bei Friedman basiert sie auf dem unbereinigten p; für die vier primären Aufgaben gilt ausschließlich Primär_Friedman_signifikant anhand p_Holm_4_primäre_Friedman. ANOVA bleibt explorativ.'] ,
-            ['Likert_Response', 'Sicherheitsbewertung (1–7) aus der separaten Likert_Response-Zeile derselben Person und Aufgabe/Methode. Fehlende Werte bleiben leer; die statistische Fehleranalyse wird dadurch nicht gefiltert.'],
+            ['Likert_Response', 'Sicherheitsbewertung (1-7) aus der separaten Likert_Response-Zeile derselben Person und Aufgabe/Methode. Fehlende Werte bleiben leer; die statistische Fehleranalyse wird dadurch nicht gefiltert.'],
             ['Likert in persönlichen Rängen', 'Neben jedem Methodenrang steht die Sicherheitsbewertung der Einzelaufgabe; im Gesamtvergleich der Mittelwert der bis zu vier Likert-Antworten je Person und Methode.'],
-            ['IQR auffällig', 'Ein Einzelwert ist auffällig, wenn sein absoluter Fehler > Q3 + 1,5 × (Q3 − Q1) innerhalb derselben Aufgabe/Methode liegt. Nur für n ≥ 4 und IQR > 0; kein Ausschluss und kein Beweis für einen Messfehler.'],
-            ['Erstplatz_gewichtet', 'Summe anteiliger Erstplätze: alleiniger erster Platz = 1; zwei gleich gute erste Plätze = je 0,5; drei = je 1/3. Anteil_Erstplatz_% = 100 × Summe / n.'],
-            ['Boxplots', 'Standard-Boxplot: Box Q1 bis Q3 (50 %), Medianlinie, Whisker bis zum äußersten Wert innerhalb von Q1−1,5×IQR bzw. Q3+1,5×IQR; nur Werte außerhalb als Punkte. Kein Mittelwert. Alle gültigen Werte fließen in die Berechnung ein.'],
-        ], columns=['Begriff', 'Berechnung / Bedeutung'])
-        write_section(writer, '00_Lesehilfe', [('Berechnungsgrundlagen', intro, '')], 'Hinweise zu Auswertung, Datenbasis und Formeln')
-        for name, sections, note in sheets: write_section(writer, name, sections, note)
-        person_means = overall.reset_index() if len(overall) else pd.DataFrame()
-        write_section(writer, 'Gesamtvergleich', [
+            ['IQR auffällig', 'Ein Einzelwert ist auffällig, wenn sein absoluter Fehler > Q3 + 1,5 x (Q3 - Q1) innerhalb derselben Aufgabe/Methode liegt. Nur für n ≥ 4 und IQR > 0; kein Ausschluss und kein Beweis für einen Messfehler.'],
+            ['Erstplatz_gewichtet', 'Summe anteiliger Erstplätze: alleiniger erster Platz = 1; zwei gleich gute erste Plätze = je 0,5; drei = je 1/3. Anteil_Erstplatz_% = 100 x Summe / n.'],
+            ['Boxplots', 'Standard-Boxplot: Box Q1 bis Q3 (50 %), Medianlinie, Whisker bis zum äußersten Wert innerhalb von Q1-1,5xIQR bzw. Q3+1,5xIQR; nur Werte außerhalb als Punkte. Kein Mittelwert. Alle gültigen Werte fließen in die Berechnung ein.'],
+        ], columns = ['Begriff', 'Berechnung / Bedeutung'])
+        # Lesehilfe und die vorbereiteten Aufgabenblätter schreiben
+        write_section (writer, '00_Lesehilfe', [('Berechnungsgrundlagen', intro, '')], 'Hinweise zu Auswertung, Datenbasis und Formeln')
+
+        for name, sections, note in sheets: write_section (writer, name, sections, note)
+        person_means = overall.reset_index () if len (overall) else pd.DataFrame ()
+        # Gesamtvergleich mit Deskription, persönlichen Rängen und statistischen Tests ausgeben
+        write_section (writer, 'Gesamtvergleich', [
             ('A. Persönliche Durchschnittsfehler (%)', person_means, 'Je Person und Methode: Mittel der vier normalisierten Fehler; nur vollständige 12 Antworten.'),
             ('B. Deskriptive Kennzahlen', overall_desc, 'Kennzahlen über persönliche Durchschnittswerte, nicht über ungepaarte Einzelantworten.'),
-            ('C. Persönliche Ränge', personal_ranks.reset_index() if len(personal_ranks) else pd.DataFrame(), 'Rang 1 = kleinster persönlicher Durchschnittsfehler; Likert_Mittel = mittlere vorhandene Sicherheitsbewertung über vier Aufgaben je Person/Methode.'),
-            ('D. Rangübersicht', overall_ranks, 'Mittlerer Rang = Mittel der individuellen Ränge; Erstplatz_gewichtet = Summe(1/k) bei k gleich guten Erstplatzierten; Erstplatzanteil = 100 × Erstplatz_gewichtet / n.'),
+            ('C. Persönliche Ränge', personal_ranks.reset_index () if len (personal_ranks) else pd.DataFrame (), 'Rang 1 = kleinster persönlicher Durchschnittsfehler; Likert_Mittel = mittlere vorhandene Sicherheitsbewertung über vier Aufgaben je Person/Methode.'),
+            ('D. Rangübersicht', overall_ranks, 'Mittlerer Rang = Mittel der individuellen Ränge; Erstplatz_gewichtet = Summe(1/k) bei k gleich guten Erstplatzierten; Erstplatzanteil = 100 x Erstplatz_gewichtet / n.'),
             ('E. Statistische Tests', tests_total, TEST_EXPLANATION_OVERALL),
         ], 'Übergreifender Vergleich: persönliche Mittel der vier normalisierten Teilaufgaben')
-        wilcoxon_rows = task_tests[task_tests['Test'].eq('Max gegen Min (Wilcoxon)')].copy()
-        friedman_rows = task_tests[task_tests['Test'].str.startswith('Methodenvergleich')].copy()
+
+        wilcoxon_rows = task_tests [task_tests ['Test'].eq ('Max gegen Min (Wilcoxon)')].copy ()
+        friedman_rows = task_tests [task_tests ['Test'].str.startswith ('Methodenvergleich')].copy ()
         wilcoxon_cols = ['Bereich', 'Methode', 'n', 'Statistik', 'p', 'p_Holm_6_Wilcoxon',
                          'Median_Differenz_A_minus_B', 'Mittel_Differenz_A_minus_B',
                          'Rangbiserial_r', 'n_Nichtnull_Differenzen',
                          'Richtung_der_Differenz', 'Statistisches_Ergebnis']
         friedman_cols = ['Bereich', 'Methode', 'n', 'Statistik', 'p', 'p_Holm_2_Friedman', 'Kendall_W', 'Hinweis']
-        write_section(writer, 'Aufgabenvergleiche', [
-            ('A. Maximum gegen Minimum (Wilcoxon)', wilcoxon_rows.reindex(columns=wilcoxon_cols),
+        # Sekundäre Aufgabenvergleiche mit persönlichen Max-Min-Differenzen ausgeben
+        write_section (writer, 'Aufgabenvergleiche', [
+            ('A. Maximum gegen Minimum (Wilcoxon)', wilcoxon_rows.reindex (columns = wilcoxon_cols),
              'Differenz = Fehler Maximum minus Fehler Minimum (Prozentpunkte). Positive Werte: Maximum ungenauer; negative: Minimum ungenauer. Richtung nach Median; Signifikanz nach Holm-Korrektur über sechs Tests (p < 0,05). Die Richtung allein belegt keine Signifikanz.'),
-            ('B. Methodenvergleich der Max-Min-Differenzen (Friedman)', friedman_rows.reindex(columns=friedman_cols),
+            ('B. Methodenvergleich der Max-Min-Differenzen (Friedman)', friedman_rows.reindex (columns = friedman_cols),
              'Vergleicht die persönlichen Max-Min-Differenzen zwischen den drei Methoden; zwei Friedman-Tests gemeinsam Holm-korrigiert. Explorativ, kein vollständiger faktorieller Interaktionstest.'),
             ('C. Individuelle Max-Min-Differenzen', task_differences,
              'Nur gültige gepaarte Max-Min-Antworten je Person und Methode; keine IQR-Ausschlüsse.')
         ], 'Sekundäre und explorative Vergleiche zwischen Maximum und Minimum')
-        # Nachvollziehbarkeit der Stichprobe und des vollständigen Studiendesigns.
-        sample = pd.DataFrame([
-            {'Kennzahl': 'Abgeschlossene, nicht abgelehnte Teilnahmen', 'Anzahl': len(keep)},
-            {'Kennzahl': 'Mögliche Identifikationsantworten', 'Anzahl': len(trials)},
-            {'Kennzahl': 'Gültige Identifikationsantworten', 'Anzahl': len(valid)},
-            {'Kennzahl': 'Ungültige Identifikationsantworten', 'Anzahl': len(trials)-len(valid)},
-            {'Kennzahl': 'Personen mit 12 gültigen Antworten', 'Anzahl': len(complete_ids)},
-            {'Kennzahl': 'Vollständige Methodentripel je Aufgabe', 'Anzahl': len(triples)},
+
+        # Stichprobengrößen und Vollständigkeit der Identifikationsantworten dokumentieren
+        sample = pd.DataFrame ([
+            {'Kennzahl': 'Abgeschlossene, nicht abgelehnte Teilnahmen', 'Anzahl': len (keep)},
+            {'Kennzahl': 'Mögliche Identifikationsantworten', 'Anzahl': len (trials)},
+            {'Kennzahl': 'Gültige Identifikationsantworten', 'Anzahl': len (valid)},
+            {'Kennzahl': 'Ungültige Identifikationsantworten', 'Anzahl': len (trials)-len (valid)},
+            {'Kennzahl': 'Personen mit 12 gültigen Antworten', 'Anzahl': len (complete_ids)},
+            {'Kennzahl': 'Vollständige Methodentripel je Aufgabe', 'Anzahl': len (triples)},
         ])
-        write_section(writer, 'Stichprobe', [('Datenbasis', sample,
+        # Übersicht zur berücksichtigten Stichprobe erstellen
+        write_section (writer, 'Stichprobe', [('Datenbasis', sample,
             'Deskription: alle gültigen Antworten; Aufgaben-Friedman: vollständige Methodentripel; Gesamtvergleich und Reihenfolge: alle zwölf gültigen Antworten.')],
             'Einschluss und unterschiedliche Stichprobenumfänge')
-        flagged = confidence_error_cases(valid)
-        write_section(writer, 'Sicherheit_Fehlurteile', [
-            ('A. Übersicht', pd.DataFrame([{'Kriterium': 'Fehler >= 75 % und Sicherheit >= 6',
-                'Antworten': len(flagged), 'Verschiedene Personen': flagged.Teilnehmer.nunique()}]),
+
+        # Große Fehler trotz hoher subjektiver Sicherheit identifizieren
+        flagged = confidence_error_cases (valid)
+        # Übersicht und Einzelantworten der auffälligen Sicherheitsbewertungen ausgeben
+        write_section (writer, 'Sicherheit_Fehlurteile', [
+            ('A. Übersicht', pd.DataFrame ([{'Kriterium': 'Fehler >= 75 % und Sicherheit >= 6',
+                'Antworten': len (flagged), 'Verschiedene Personen': flagged.Teilnehmer.nunique ()}]),
                 'Nur deskriptiv; diese Antworten bleiben in sämtlichen Hauptanalysen enthalten.'),
             ('B. Einzelne Fälle', flagged, 'Normalisierte Fehler in Prozent der vollständigen Wertspanne.')],
             'Große Abweichungen trotz hoher subjektiver Sicherheit')
-        order_result = order_effects(trials, complete_ids)
+        
+        # Explorative Reihenfolgeanalyse auf Grundlage der tatsächlichen Aufgabenpositionen
+        order_result = order_effects (trials, complete_ids)
         if order_result is not None:
             order_rows, order_person, order_desc, order_tests = order_result
-            write_section(writer, 'Reihenfolgeeffekte', [
+            write_section (writer, 'Reihenfolgeeffekte', [
                 ('A. Deskriptive Blockkennzahlen', order_desc,
                  'Personenbezogene Mittel je Viererblock; Tabellenmittelwert = Mittel über Personen.'),
                 ('B. Friedman-Tests', order_tests,
@@ -796,44 +930,56 @@ def main():
                 ('C. Personenbezogene Mittelwerte je Block', order_person,
                  'Nur Personen mit zwölf gültigen Identifikationsantworten.'),
                 ('D. Reihenfolge der Einzelaufgaben', order_rows,
-                 'Position 1–12 nach trialOrder; vier aufeinanderfolgende Aufgaben je Block.')],
+                 'Position 1-12 nach trialOrder; vier aufeinanderfolgende Aufgaben je Block.')],
                 'Reihenfolgeeffekte auf Grundlage der tatsächlich protokollierten Aufgabenpositionen')
         else:
-            write_section(writer, 'Reihenfolgeeffekte', [
-                ('Hinweis', pd.DataFrame([{'Status': 'Nicht berechenbar',
+            write_section (writer, 'Reihenfolgeeffekte', [
+                ('Hinweis', pd.DataFrame ([{'Status': 'Nicht berechenbar',
                     'Grund': 'Die Eingabe-CSV enthält keine verwendbaren trialOrder-Werte.'}]),
                     'Keine Reihenfolgewerte werden geschätzt oder aus der Aufgabenliste abgeleitet.')],
                 'Reihenfolgeanalyse erfordert die originale trialOrder-Spalte')
-        write_section(writer, 'IQR_Diagnostik', [('Markierungsgrenzen', thresholds, 'Je Aufgabe und Methode; auffällige Werte bleiben in allen Hauptauswertungen.')], 'Explorative Ausreißerdiagnostik')
-        noflag = valid[~valid.IQR_auffällig]
-        write_section(writer, 'Sensitivitaet', [('Vergleich ohne IQR-Markierungen', no_flag_summary(noflag, complete_ids), 'Nur zusätzliche Sensitivitätsanalyse; die Hauptanalyse enthält alle gültigen Antworten.')], 'Explorative Sensitivitätsprüfung')
-        times = valid.pivot(index=['Teilnehmer','Aufgabe'], columns='Methode', values='Zeit_s').reindex(columns=METHODS).dropna()
-        tcounts = times.reset_index().groupby('Teilnehmer').Aufgabe.nunique()
-        tpeople = tcounts[tcounts.eq(len(TASKS))].index
-        tdata = times.loc[times.index.get_level_values('Teilnehmer').isin(tpeople)].groupby(level='Teilnehmer').mean().reindex(columns=METHODS)
-        write_section(writer, 'Bearbeitungszeit', [
-            ('A. Persönliche mittlere Zeiten (s)', tdata.reset_index(), 'Nur Personen mit gültigen Zeitwerten in allen vier Methodentripeln.'),
-            ('B. Deskriptive Kennzahlen', pd.DataFrame([{'Methode':m, **describe(tdata[m])} for m in METHODS]), 'Kennzahlen über persönliche Mittelzeiten.'),
-            ('C. Statistische Tests', combined_tests(tdata, 'Zeit (s)'), TEST_EXPLANATION_TIME)], 'Sekundärer Zeitvergleich')
-    # 02: Mittelwert (Min/Max) und Unsicherheit (Min/Max), je Prozent und Zeit.
-    # 03: Alle vier Aufgaben, ebenfalls je Prozent und Zeit.
-    # Die Zusammenfassungen nutzen vollständige gepaarte Daten pro Metrik.
+
+        # IQR-Markierungsgrenzen je Aufgabe und Methode dokumentieren
+        write_section (writer, 'IQR_Diagnostik', [('Markierungsgrenzen', thresholds, 'Je Aufgabe und Methode; auffällige Werte bleiben in allen Hauptauswertungen.')], 'Explorative Ausreißerdiagnostik')
+
+        # Explorative Sensitivitätsanalyse ohne auffällig markierte Fehlerwerte
+        noflag = valid [~valid.IQR_auffällig]
+        write_section (writer, 'Sensitivitaet', [('Vergleich ohne IQR-Markierungen', no_flag_summary (noflag, complete_ids), 'Nur zusätzliche Sensitivitätsanalyse; die Hauptanalyse enthält alle gültigen Antworten.')], 'Explorative Sensitivitätsprüfung')
+
+        # Vollständige Zeitangaben aller drei Methoden je Person und Aufgabe auswählen
+        times = valid.pivot (index = ['Teilnehmer','Aufgabe'], columns = 'Methode', values = 'Zeit_s').reindex(columns = METHODS).dropna ()
+        tcounts = times.reset_index ().groupby ('Teilnehmer').Aufgabe.nunique ()
+        tpeople = tcounts [tcounts.eq (len (TASKS))].index
+        # Persönliche durchschnittliche Bearbeitungszeiten je Methode berechnen
+        tdata = times.loc [times.index.get_level_values ('Teilnehmer').isin (tpeople)].groupby (level = 'Teilnehmer').mean ().reindex (columns = METHODS)
+        # Bearbeitungszeiten deskriptiv und statistisch vergleichen
+        write_section (writer, 'Bearbeitungszeit', [
+            ('A. Persönliche mittlere Zeiten (s)', tdata.reset_index (), 'Nur Personen mit gültigen Zeitwerten in allen vier Methodentripeln.'),
+            ('B. Deskriptive Kennzahlen', pd.DataFrame ([{'Methode':m, **describe (tdata[m])} for m in METHODS]), 'Kennzahlen über persönliche Mittelzeiten.'),
+            ('C. Statistische Tests', combined_tests (tdata, 'Zeit (s)'), TEST_EXPLANATION_TIME)], 'Sekundärer Zeitvergleich')
+        
+    # Zusammengefasste Boxplots für Mittelwert und Unsicherheit erstellen
     for prefix, tasks in [('Mittelwert', TASKS[2:]), ('Unsicherheit', TASKS[:2])]:
         for suffix, metric, ylabel in [
             ('Prozent', 'Fehler_%', 'Mittlere normalisierte Abweichung (%)'),
             ('Zeit', 'Zeit_s', 'Mittlere Bearbeitungszeit (s)'),
         ]:
-            sub = paired_group_means(valid, tasks, metric, prefix)
-            boxplot_groups(sub, [prefix], output, f'02_{prefix}_{suffix}',
-                           ylabel, metric=metric, title=f'{prefix}: Minimum und Maximum')
+            sub = paired_group_means (valid, tasks, metric, prefix)
+            boxplot_groups (sub, [prefix], output, f'02_{prefix}_{suffix}',
+                           ylabel, metric = metric, title = f'{prefix}: Minimum und Maximum')
+
+    # Gesamtboxplots über alle vier Identifikationsaufgaben erstellen 
     for suffix, metric, ylabel in [
         ('Prozent', 'Fehler_%', 'Durchschnittliche normalisierte Abweichung (%)'),
         ('Zeit', 'Zeit_s', 'Durchschnittliche Bearbeitungszeit (s)'),
     ]:
-        sub = paired_group_means(valid, TASKS, metric, 'Gesamt')
-        boxplot_groups(sub, ['Gesamt'], output, f'03_Gesamt_{suffix}',
-                       ylabel, metric=metric, title='Gesamtvergleich')
-    print(f'Nur completed: {len(keep)} Personen; gültige Antworten {len(valid)}/{len(trials)}; vollständig (12) {len(overall)}')
-    print('Ausgaben:', output)
+        sub = paired_group_means (valid, TASKS, metric, 'Gesamt')
+        boxplot_groups (sub, ['Gesamt'], output, f'03_Gesamt_{suffix}',
+                       ylabel, metric = metric, title = 'Gesamtvergleich')
+
+    # Anzahl berücksichtigter Personen und Antworten im Terminal ausgeben
+    print (f'Nur completed: {len(keep)} Personen; gültige Antworten {len(valid)}/{len(trials)}; vollständig (12) {len(overall)}')
+    print ('Ausgaben:', output)
+
 if __name__ == '__main__':
-    main()
+    main ()

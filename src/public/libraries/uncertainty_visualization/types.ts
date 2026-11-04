@@ -27,16 +27,10 @@ export interface PresetInfo {
         | "mean_air_pressure";
 
     factor: number;
-
     decimals: number;
-
     uncertainty_decimals: number;
-
     valueLabel: string;
-
     uncertaintyLabel: string;
-
     unit: string;
-
     datasetName: string;
 }

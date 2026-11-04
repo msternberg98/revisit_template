@@ -49,138 +49,6 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
     const yMap = new Map (latitudes.map ((lat, i) => [lat, i * cellHeight]));
 
     const onClickPoint = options.onClickPoint;
-
-    // Raster Plot
-    // function createInteractionLayer (): SVGSVGElement {
-        
-    //     const svg = d3.create <SVGSVGElement> ("svg")
-    //         .attr ("width", width)
-    //         .attr ("height", height)
-    //         .style ("position", "absolute")
-    //         .style ("left", "0")
-    //         .style ("top", "0");
-    
-    //     // Alle transparenten Klickfelder
-    //     const rects = svg.selectAll <SVGRectElement, typeof data [number]> ("rect")
-    //         .data (data)
-    //         .join ("rect")
-    //         .attr ("x", d => xMap.get (d.longitude)!)
-    //         .attr ("y", d => yMap.get (d.latitude)!)
-    //         .attr ("width", cellWidth)
-    //         .attr ("height", cellHeight)
-    //         .attr ("fill", "transparent")
-    //         .style ("pointer-events", "all");
-    
-    //     const selectionLayer = svg.append ("g")
-    //         .attr ("class", "selection-layer");
-    
-    //     rects.on ("click", function (event, d) {
-    
-    //         event.stopPropagation ();
-    //         selectionLayer.selectAll ("*").remove ();
-    //         selectionLayer.append ("rect")
-    //             .attr ("class", "selection-marker")
-    //             .attr ("x", xMap.get (d.longitude)!)
-    //             .attr ("y", yMap.get (d.latitude)!)
-    //             .attr ("width", cellWidth)
-    //             .attr ("height", cellHeight)
-    //             .attr ("fill", "none")
-    //             .attr ("stroke", "#FF00FF")
-    //             .attr ("stroke-width", 0.8)
-    //             .attr ("pointer-events", "none");
-    
-    //         onClickPoint?.({
-    
-    //             latitude: d.latitude,
-    //             longitude: d.longitude,
-    //             meanValue: d [valueKey] as number,
-    //             uncertaintyStd: d.uncertainty_std,
-    //             sourceValues: [{
-    //                 latitude: d.latitude,
-    //                 longitude: d.longitude,
-    //                 mean_temperature: d.mean_temperature,
-    //                 uncertainty_std: d.uncertainty_std
-    //             }]
-    //         });
-    //     })
-    //     return svg.node () as SVGSVGElement;
-    // }
-
-    // // VSUP Plot
-    // const vsupPlot = (() => {
-    
-    //     // äußerer Wrapper
-    //     const wrapper = document.createElement ("div");
-    //     wrapper.style.position = "relative";
-
-    //     // Normalerweise ursprüngliche Größe,
-    //     // bei zu wenig Platz automatisch verkleinern
-    //     wrapper.style.width = "100%";
-    //     wrapper.style.maxWidth = `${width}px`;
-    //     wrapper.style.aspectRatio = `${width} / ${height}`;
-
-    //     // Verhindert, dass der Plot vertikal aus dem Fenster läuft.
-    //     // Durch aspectRatio bleibt das Seitenverhältnis erhalten.
-    //     wrapper.style.maxHeight = "65vh";
-
-    //     wrapper.style.overflow = "hidden";
-    //     wrapper.style.flexShrink = "1";
-    
-    //     // PNG
-    //     const image = document.createElement ("img");
-    //     image.src = `${import.meta.env.BASE_URL}Nutzerstudie/Assets/Plots/${datasetName}/Vsup/${datasetName}_VSUP_Plot.png`;
-    
-    //     image.style.position = "absolute";
-    //     image.style.left = "0";
-    //     image.style.top = "0";
-    //     image.style.width = `${width}px`;
-    //     image.style.height = `${height}px`;
-    //     image.style.userSelect = "none";
-    //     image.draggable = false;
-    //     image.style.pointerEvents = "none";
-    
-    //     // SVG für Zoom
-    //     const svg = d3.create <SVGSVGElement> ("svg")
-    //         // Internes Koordinatensystem bleibt unverändert
-    //         .attr ("viewBox", `0 0 ${width} ${height}`)
-    //         .attr ("preserveAspectRatio", "xMidYMid meet")
-
-    //         // Sichtbare Größe richtet sich nach dem Wrapper
-    //         .style ("width", "100%")
-    //         .style ("height", "100%")
-    //         .style ("position", "absolute")
-    //         .style ("left", "0")
-    //         .style ("top", "0")
-    //         .style ("display", "block");
-    
-    //     const contentGroup = svg.append ("g");
-    
-    //     // PNG
-    //     const foreignObject = contentGroup.append ("foreignObject")
-    //         .attr ("x", 0)
-    //         .attr ("y", 0)
-    //         .attr ("width", width)
-    //         .attr ("height", height);
-    
-    //     foreignObject.node ()!.appendChild (image);
-    
-    //     // Interaktionslayer
-    //     const interactionLayer = createInteractionLayer ();
-    //     contentGroup.node ()!.appendChild (interactionLayer);
-    
-    //     // Zoom
-    //     const zoom = d3.zoom <SVGSVGElement, undefined> ()
-    //         .extent ([[0, 0], [width, height]])
-    //         .scaleExtent ([1, 20])
-    //         .translateExtent ([[-20, -20], [width + 20, height + 20]])
-    //         .on ("zoom", (event) => {contentGroup.attr ("transform", event.transform);});
-    
-    //     svg.call (zoom);
-    
-    //     wrapper.appendChild (svg.node ()!);
-    
-    //     return wrapper;
-    // })();
     
     // Raster Plot
     function createInteractionLayer (): SVGGElement {
@@ -243,14 +111,12 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
         const wrapper = document.createElement ("div");
         wrapper.style.position = "relative";
 
-        // Normalerweise ursprüngliche Größe,
-        // bei zu wenig Platz automatisch verkleinern
+        // Normalerweise ursprüngliche Größe, bei zu wenig Platz automatisch verkleinern
         wrapper.style.width = "100%";
         wrapper.style.maxWidth = `${width}px`;
         wrapper.style.aspectRatio = `${width} / ${height}`;
 
-        // Verhindert, dass der Plot vertikal aus dem Fenster läuft.
-        // Durch aspectRatio bleibt das Seitenverhältnis erhalten.
+        // Verhindert, dass der Plot vertikal aus dem Fenster läuft. Durch aspectRatio bleibt das Seitenverhältnis erhalten.
         wrapper.style.maxHeight = "65vh";
 
         wrapper.style.overflow = "hidden";
@@ -493,8 +359,7 @@ export async function drawVSUPTest (container: HTMLDivElement, options: VSUPOpti
             vsupPlot.style.flex = "1 1 auto";
             vsupPlot.style.minWidth = "0";
 
-            // Legende soll normalerweise 240px breit sein,
-            // darf bei Platzmangel aber schrumpfen
+            // Legende soll normalerweise 240px breit sein, darf bei Platzmangel aber schrumpfen
             vsupLegend.style.flex = "0 1 280px";
             vsupLegend.style.minWidth = "0";
 
